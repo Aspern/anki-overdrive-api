@@ -1,0 +1,18 @@
+{
+  "name": "anki-overdrive-api",
+  "description": "API for Anki Overdrive cars",
+  "version": "0.0.1",
+  "author": "Adrian Weber <adrian@kuebler-weber.de",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "chai": "^3.5.0",
+    "express": "^4.14.0",
+    "express-promise-router": "^1.1.1",
+    "mocha": "^3.2.0",
+    "noble": "~1.7.0"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "license": "Apache License, Version 2.0"
+}
