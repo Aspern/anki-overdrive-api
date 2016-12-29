@@ -1,9 +1,11 @@
 {
   "files": [
-    "src/main.ts"
+    "lib/vehicleScanner.ts",
+    "lib/main.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
-    "target": "es6"
+    "target": "es5",
+    "allowJs": true
   }
 }
