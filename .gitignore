@@ -1,5 +1,9 @@
 # npm and nodejs
 node_modules
+*.log
 
 # webstorm
 .idea
+
+# Typescript
+dist
