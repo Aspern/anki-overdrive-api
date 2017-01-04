@@ -4,17 +4,21 @@
   "version": "0.0.1",
   "author": "Adrian Weber <adrian@kuebler-weber.de",
   "dependencies": {
+    "@types/es6-collections": "^0.5.29",
+    "@types/es6-promise": "0.0.32",
+    "@types/node": "^6.0.56",
     "body-parser": "^1.15.2",
     "chai": "^3.5.0",
     "cors": "^2.8.1",
+    "elasticsearch": "^12.1.3",
     "express": "^4.14.0",
     "express-promise-router": "^1.1.1",
     "mocha": "^3.2.0",
-    "noble": "~1.7.0"
+    "noble": "~1.7.0",
+    "semaphore": "^1.0.5"
   },
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec",
-    "start": "node lib/vehicle-server"
+    "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "license": "Apache License, Version 2.0",
   "devDependencies": {

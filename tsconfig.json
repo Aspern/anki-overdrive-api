@@ -1,11 +1,13 @@
 {
   "files": [
-    "lib/vehicleScanner.ts",
-    "lib/main.ts"
+    "src/vehicle/vehicle-message.ts",
+    "src/vehicle/vehicle.ts",
+    "src/vehicle/vehicle-scanner.ts",
+    "start.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
-    "target": "es5",
+    "target": "ES5",
     "allowJs": true
   }
 }
