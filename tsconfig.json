@@ -3,7 +3,7 @@
     "src/vehicle/vehicle-message.ts",
     "src/vehicle/vehicle.ts",
     "src/vehicle/vehicle-scanner.ts",
-    "start.ts"
+    "main.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

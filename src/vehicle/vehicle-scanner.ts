@@ -7,16 +7,16 @@ class VehicleScanner {
 
     private timeout: number;
     private retries: number;
-    private names: Map<string, string>;
+    private names: Map<string, string> = new Map<string, string>();
 
     constructor(timeout?: number, retries?: number) {
         this.timeout = timeout || 1000;
         this.retries = retries || 3;
-    }
 
-    addNames(names: Map<string,string>): VehicleScanner {
-        this.names = names;
-        return this;
+        this.names.set("ed0c94216553", "Skull");
+        this.names.set("e42c342d466c", "Thermo");
+        this.names.set("efb112b5ade2", "Freewheel");
+        this.names.set("eb401ef0f82b", "Ground Shock");
     }
 
     findAll(): Promise<Array<Vehicle>> {
@@ -29,7 +29,6 @@ class VehicleScanner {
                     vehicles.push(new Vehicle(peripheral, me.nameById(peripheral.id)));
                 };
 
-                // Only search for vehicles from Anki Drive/OVERDRIVE
                 noble.startScanning();
                 noble.on('discover', callback);
 
@@ -43,7 +42,35 @@ class VehicleScanner {
         });
     }
 
-    private onAdapterOnline() : Promise<void>{
+    findById(id: string): Promise<Vehicle> {
+        let me = this;
+
+        return new Promise<Vehicle>((resolve, reject) => {
+            me.findAll().then((vehicles) => {
+                vehicles.forEach((vehicle) => {
+                    if (vehicle.getId() === id)
+                        resolve(vehicle);
+                });
+                reject(new Error("Found no vehicle with id [" + id + "]."));
+            });
+        });
+    }
+
+    findByAddress(address: string) {
+        let me = this;
+
+        return new Promise<Vehicle>((resolve, reject) => {
+            me.findAll().then((vehicles) => {
+                vehicles.forEach((vehicle) => {
+                    if (vehicle.getAdddress() === address)
+                        resolve(vehicle);
+                });
+                reject(new Error("Found no vehicle with address [" + address + "]."));
+            });
+        });
+    }
+
+    private onAdapterOnline(): Promise<void> {
         let counter: number = 0,
             me = this;
 

@@ -18,6 +18,8 @@ declare module "noble" {
 
         public uuid: string;
 
+        public address: string;
+
         connect(callback?: (e: Error) => any): void;
 
         disconnect(callback?: (e: Error) => any): void;

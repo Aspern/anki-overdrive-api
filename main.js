@@ -1,25 +1,6 @@
-var scanner = require("./lib/vehicle-scanner");
-var Track = require("./lib/track");
-
-var t;
-
-/*scanner.findAll().then(function (list) {
-
-    try {
-        t = new Track(list);
-
-        t.explore().then(function () {
-            console.log(t.toString());
-        }, function (e) {
-            console.error(e);
-        });
-    } catch (e) {
-        console.error(e);
-    }
-}, function (e) {
-    console.error(e);
-});*/
-
-scanner.findAll().then(function(v){
-    console.log(v);
+"use strict";
+var vehicle_scanner_1 = require("./src/vehicle/vehicle-scanner");
+var scanner = new vehicle_scanner_1.VehicleScanner();
+scanner.findAll().then(function (vehicles) {
+    console.log(vehicles);
 });

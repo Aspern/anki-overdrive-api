@@ -1,21 +1,39 @@
-/// <reference path="../../decl/noble.d.ts"/>
+/// <reference path="../../decl/elasticsearch.d.ts"/>
 import * as elasticsearch from "elasticsearch";
+import {VehicleScanner} from "../vehicle/vehicle-scanner";
 import {error} from "util";
 
 class ElasticsearchPipeline {
 
-    test() {
-        let client = new elasticsearch.Client();
 
-        client.search({
-            index: 'test',
-        }, (error, response) => {
-            if (error)
-                console.log(error);
+    collectData(): void {
+        let scanner = new VehicleScanner(),
+            client = new elasticsearch.Client(),
+            data;
 
-            if (response)
-                console.log(response);
-        });
+        scanner.findAll().then((vehicles) => {
+            vehicles.forEach((vehicle) => {
+                vehicle.addListener((message) => {
+                    data = message;
+                    delete data.payload;
+
+                    client.bulk({
+                        body: [
+                            {index: {_index: 'anki', _type: 'vehicle-position'}},
+                            message
+                        ]
+                    }, (error: Error, response: any) => {
+                        if (error)
+                            console.error(error);
+                    });
+                });
+
+                vehicle.connect().then(() => {
+                    vehicle.setSpeed(500, 500);
+                });
+
+            });
+        }).catch(console.error);
     }
 
 

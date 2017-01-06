@@ -1,15 +1,15 @@
 declare module "elasticsearch" {
 
-    export module Client {
 
-        export class Client {
+    export class Client {
 
-            constructor(config: {host?: string,});
+        constructor(config?: {host?: string});
 
-            search(query: any, callback: (error: Error, response: any) => any): void;
+        search(query: any, callback: (error: Error, response: any) => any): void;
 
-        }
+        bulk(query: {body: [any]}, callback?: (error: Error, response: any) => any): void;
 
     }
+
 
 }

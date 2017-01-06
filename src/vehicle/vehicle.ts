@@ -13,10 +13,23 @@ import {
     ChangeLaneMessage,
     SetOffsetFromRoadCenterMessage,
     LocalizationPositionUpdateMessage,
-    LocalizationTransitionUpdateMessage,
-    LocalizationIntersectionUpdateMessage, OffsetFromRoadCenterUpdateMessage, PingResponseMessage,
+    PingResponseMessage,
     PingRequestMessage
 } from "./vehicle-message";
+
+class VehicleUpdateMessage extends LocalizationPositionUpdateMessage {
+
+    vehicleId: string;
+    address: string;
+    name: string;
+
+    constructor(data: Buffer, id: string, address: string, name: string) {
+        super(data);
+        this.vehicleId = id;
+        this.address = address;
+        this.name = name;
+    }
+}
 
 
 class Vehicle {
@@ -26,17 +39,19 @@ class Vehicle {
 
     private peripheral: Peripheral;
     private name: string;
+    private id: string;
+    private address: string;
     private read: Characteristic;
     private write: Characteristic;
 
-    private positionUpdateListener: Array<(msg: LocalizationPositionUpdateMessage) => any> = [];
-    private transitionUpdateListener: Array<(msg: LocalizationTransitionUpdateMessage) => any> = [];
-    private intersectionUpdateListener: Array<(msg: LocalizationIntersectionUpdateMessage) => any> = [];
-    private offsetUpdateListener: Array<(msg: OffsetFromRoadCenterUpdateMessage) => any> = [];
+    private listeners: Array<(msg: VehicleUpdateMessage) => any> = [];
+
 
     constructor(peripheral: Peripheral, name: string) {
         this.peripheral = peripheral;
         this.name = name;
+        this.id = peripheral.uuid;
+        this.address = peripheral.address;
     }
 
     connect(): Promise<Vehicle> {
@@ -152,52 +167,29 @@ class Vehicle {
         return this.writeMessage(new SetOffsetFromRoadCenterMessage(offset));
     }
 
-    addPositionUpdateListener(listener: (message: LocalizationPositionUpdateMessage) => any) {
-        this.positionUpdateListener.push(listener);
+    addListener(listener: (message: VehicleUpdateMessage) => any) {
+        this.listeners.push(listener);
     }
 
-    addTransitionUpdateListener(listener: (message: LocalizationTransitionUpdateMessage) => any) {
-        this.transitionUpdateListener.push(listener);
-    }
 
-    addIntersectionUpdateListener(listener: (message: LocalizationIntersectionUpdateMessage) => any) {
-        this.intersectionUpdateListener.push(listener);
-    }
-
-    addOffsetUpdateListener(listener: (message: OffsetFromRoadCenterUpdateMessage) => any) {
-        this.offsetUpdateListener.push(listener);
-    }
-
-    removePositionUpdateListener(listener: (message: LocalizationPositionUpdateMessage) => any) {
-        for (var i = 0; i < this.positionUpdateListener.length; ++i) {
-            if (this.positionUpdateListener[i] === listener) {
-                this.positionUpdateListener.splice(i, 1);
+    removeListener(listener: (message: VehicleUpdateMessage) => any) {
+        for (var i = 0; i < this.listeners.length; ++i) {
+            if (this.listeners[i] === listener) {
+                this.listeners.splice(i, 1);
             }
         }
     }
 
-    removeTransitionUpdateListener(listener: (message: LocalizationTransitionUpdateMessage) => any) {
-        for (var i = 0; i < this.transitionUpdateListener.length; ++i) {
-            if (this.transitionUpdateListener[i] === listener) {
-                this.transitionUpdateListener.splice(i, 1);
-            }
-        }
+    getName(): string {
+        return this.name;
     }
 
-    removeIntersectionUpdateListener(listener: (message: LocalizationIntersectionUpdateMessage) => any) {
-        for (var i = 0; i < this.intersectionUpdateListener.length; ++i) {
-            if (this.intersectionUpdateListener[i] === listener) {
-                this.intersectionUpdateListener.splice(i, 1);
-            }
-        }
+    getAdddress(): string {
+        return this.address
     }
 
-    removeOffsetUpdateListener(listener: (message: OffsetFromRoadCenterUpdateMessage) => any) {
-        for (var i = 0; i < this.offsetUpdateListener.length; ++i) {
-            if (this.offsetUpdateListener[i] === listener) {
-                this.offsetUpdateListener.splice(i, 1);
-            }
-        }
+    getId(): string {
+        return this.id;
     }
 
     private writeMessage(message: VehicleMessage): Promise<void> {
@@ -233,28 +225,10 @@ class Vehicle {
         this.read.on('data', (data: Buffer) => {
             let id = data.readUInt8(1);
 
-            switch (id) {
-                case MessageIds.LOCALIZATION_POSITION_UPDATE:
-                    this.positionUpdateListener.forEach((listener) => {
-                        listener(new LocalizationPositionUpdateMessage(data));
-                    });
-                    break;
-                case MessageIds.LOCALIZATION_TRANSITION_UPDATE:
-                    this.transitionUpdateListener.forEach((listener) => {
-                        listener(new LocalizationTransitionUpdateMessage(data));
-                    });
-                    break;
-                case MessageIds.LOCALIZATION_POSITION_UPDATE:
-                    this.intersectionUpdateListener.forEach((listener) => {
-                        listener(new LocalizationIntersectionUpdateMessage(data));
-                    });
-                    break;
-                case MessageIds.OFFSET_FROM_ROAD_CENTER_UPDATE:
-                    this.offsetUpdateListener.forEach((listener) => {
-                        listener(new OffsetFromRoadCenterUpdateMessage(data));
-                    });
-                    break;
-            }
+            if (id === MessageIds.LOCALIZATION_POSITION_UPDATE)
+                this.listeners.forEach((listener) => {
+                    listener(new VehicleUpdateMessage(data, this.id, this.address, this.name));
+                });
         });
     }
 
