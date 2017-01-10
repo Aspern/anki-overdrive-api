@@ -1,0 +1,9 @@
+const enum TurnType {
+    VEHICLE_TURN_NONE,
+    VEHICLE_TURN_LEFT,
+    VEHICLE_TURN_RIGHT,
+    VEHICLE_TURN_UTURN,
+    VEHICLE_TURN_UTURN_JUMP
+}
+
+export {TurnType}

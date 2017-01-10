@@ -1,0 +1,34 @@
+import {VehicleMessage} from "./vehicle-message";
+
+interface Vehicle {
+
+    connect(): Promise<void>;
+
+    disconnect(): Promise<void>;
+
+    setSpeed(speed: number, acceleration?: number): void;
+
+    setOffset(offset: number): void;
+
+    changeLane(offset: number, speed?: number, acceleration?: number): void;
+
+    turnLeft(): void;
+
+    turnRight(): void;
+
+    uTurn(): void;
+
+    uTurnJump(): void;
+
+    setSdkMode(on: boolean): void;
+
+    queryPing(): Promise<number>;
+
+    queryVersion(): Promise<number>;
+
+    addListener(listener: (message: VehicleMessage) => any): void;
+
+    removeListener(listener: (message: VehicleMessage) => any): void;
+}
+
+export {Vehicle}

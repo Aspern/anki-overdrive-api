@@ -1,22 +1,17 @@
 /// <reference path="../../decl/noble.d.ts"/>
 import * as noble from "noble";
-import {Vehicle} from "./vehicle"
 import {Peripheral} from "noble";
+import {Vehicle} from "./vehicle-interface";
+import {AnkiOverdriveVehicle} from "./anki-overdrive-vehicle";
 
 class VehicleScanner {
 
     private timeout: number;
     private retries: number;
-    private names: Map<string, string> = new Map<string, string>();
 
     constructor(timeout?: number, retries?: number) {
         this.timeout = timeout || 1000;
         this.retries = retries || 3;
-
-        this.names.set("ed0c94216553", "Skull");
-        this.names.set("e42c342d466c", "Thermo");
-        this.names.set("efb112b5ade2", "Freewheel");
-        this.names.set("eb401ef0f82b", "Ground Shock");
     }
 
     findAll(): Promise<Array<Vehicle>> {
@@ -26,7 +21,7 @@ class VehicleScanner {
         return new Promise<Array<Vehicle>>((resolve, reject) => {
             me.onAdapterOnline().then(() => {
                 let callback = (peripheral: Peripheral) => {
-                    vehicles.push(new Vehicle(peripheral, me.nameById(peripheral.id)));
+                    vehicles.push(new AnkiOverdriveVehicle(peripheral));
                 };
 
                 noble.startScanning();
@@ -47,8 +42,8 @@ class VehicleScanner {
 
         return new Promise<Vehicle>((resolve, reject) => {
             me.findAll().then((vehicles) => {
-                vehicles.forEach((vehicle) => {
-                    if (vehicle.getId() === id)
+                vehicles.forEach((vehicle : AnkiOverdriveVehicle) => {
+                    if (vehicle.id === id)
                         resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with id [" + id + "]."));
@@ -61,8 +56,8 @@ class VehicleScanner {
 
         return new Promise<Vehicle>((resolve, reject) => {
             me.findAll().then((vehicles) => {
-                vehicles.forEach((vehicle) => {
-                    if (vehicle.getAdddress() === address)
+                vehicles.forEach((vehicle : AnkiOverdriveVehicle) => {
+                    if (vehicle.address=== address)
                         resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with address [" + address + "]."));
@@ -91,13 +86,6 @@ class VehicleScanner {
         });
 
 
-    }
-
-    private nameById(uuid: string): string {
-        if (!this.names)
-            return uuid;
-
-        return this.names.get(uuid) || uuid;
     }
 }
 

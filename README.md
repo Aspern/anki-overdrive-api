@@ -10,6 +10,9 @@ You need following packages to build the project.
        $ npm install -g glup-cli
        $ npm install -g gulp-typescript
        $ npm install -g typescript
+       
+       // For testing
+       $ npm install mocha chai ts-node -g
 
 ##Build
 

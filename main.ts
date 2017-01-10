@@ -1,9 +1,11 @@
-import {VehicleScanner} from "./src/vehicle/vehicle-scanner";
+import {VehicleScanner} from "./src/core/vehicle-scanner";
 
 let scanner = new VehicleScanner();
 
-scanner.findAll().then((vehicles) => {
-    console.log(vehicles);
+scanner.findById("eb401ef0f82b").then((vehicle) => {
+    vehicle.connect().then(() => {
+        vehicle.setSpeed(500);
+    }).catch(console.error);
 });
 
 
