@@ -1,4 +1,4 @@
-import {VehicleMessage} from "./vehicle-message";
+import {VehicleMessage} from "../message/vehicle-message";
 
 interface Vehicle {
 
@@ -30,7 +30,7 @@ interface Vehicle {
 
     queryBatteryLevel(): Promise<number>;
 
-    addListener(listener: (message: VehicleMessage) => any): void;
+    addListener(listener: (message: VehicleMessage) => any, filer?: any): void;
 
     removeListener(listener: (message: VehicleMessage) => any): void;
 }

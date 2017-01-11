@@ -1,12 +1,12 @@
-/// <reference path="../../decl/noble.d.ts"/>
+/// <reference path="../../../decl/noble.d.ts"/>
 import {Peripheral, Characteristic} from "noble";
 import {Vehicle} from "./vehicle-interface";
-import {VehicleMessage} from "./vehicle-message";
-import {PositionUpdateMessage} from "./position-update-message";
-import {TransitionUpdateMessage} from "./transition-update-message";
-import {IntersectionUpdateMessage} from "./intersection-update-message";
-import {TurnType} from "./turn-type";
-import {VehicleDelocalizedMessage} from "./vehicle-delocalized-message";
+import {VehicleMessage} from "../message/vehicle-message";
+import {PositionUpdateMessage} from "../message/position-update-message";
+import {TransitionUpdateMessage} from "../message/transition-update-message";
+import {IntersectionUpdateMessage} from "../message/intersection-update-message";
+import {TurnType} from "../message/turn-type";
+import {VehicleDelocalizedMessage} from "../message/vehicle-delocalized-message";
 
 class AnkiOverdriveVehicle implements Vehicle {
 
@@ -16,7 +16,7 @@ class AnkiOverdriveVehicle implements Vehicle {
     private _peripheral: Peripheral;
     private _read: Characteristic;
     private _write: Characteristic;
-    private _listeners: Array<(message: VehicleMessage) => any> = [];
+    private _listeners: Array<{l: (message: VehicleMessage) => any, f: any}> = [];
 
     constructor(peripheral: Peripheral, name?: string) {
         this._id = peripheral.id;
@@ -178,13 +178,13 @@ class AnkiOverdriveVehicle implements Vehicle {
         });
     }
 
-    addListener(listener: (message: VehicleMessage) => any): void {
-        this._listeners.push(listener);
+    addListener(listener: (message: VehicleMessage) => any, filter?: any): void {
+        this._listeners.push({l: listener, f: filter});
     }
 
     removeListener(listener: (message: VehicleMessage) => any): void {
         for (var i = 0; i < this._listeners.length; ++i) {
-            if (this._listeners[i] === listener)
+            if (this._listeners[i].l === listener)
                 this._listeners.splice(i, 1);
         }
     }
@@ -230,9 +230,15 @@ class AnkiOverdriveVehicle implements Vehicle {
             else if (id === 0x2b) // ANKI_VEHICLE_MSG_V2C_VEHICLE_DELOCALIZED
                 message = new VehicleDelocalizedMessage(data, me._id);
 
-            me._listeners.forEach((listener) => {
-                listener(message);
-            });
+            if (message)
+                me._listeners.forEach((listener) => {
+                    if (listener.f) {
+                        if (message instanceof listener.f)
+                            listener.l(message);
+                    } else {
+                        listener.l(message);
+                    }
+                });
         });
     }
 

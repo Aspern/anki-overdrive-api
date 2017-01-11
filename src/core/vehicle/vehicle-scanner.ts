@@ -1,4 +1,4 @@
-/// <reference path="../../decl/noble.d.ts"/>
+/// <reference path="../../../decl/noble.d.ts"/>
 import * as noble from "noble";
 import {Peripheral} from "noble";
 import {Vehicle} from "./vehicle-interface";
@@ -47,7 +47,7 @@ class VehicleScanner {
                         resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with id [" + id + "]."));
-            });
+            }).catch(reject);
         });
     }
 
@@ -61,7 +61,7 @@ class VehicleScanner {
                         resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with address [" + address + "]."));
-            });
+            }).catch(reject);
         });
     }
 

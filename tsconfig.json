@@ -1,16 +1,16 @@
 {
   "files": [
-    "src/core/vehicle-interface.ts",
-    "src/core/anki-overdrive-vehicle.ts",
-    "src/core/vehicle-scanner.ts",
-    "src/core/vehicle-message.ts",
-    "src/core/position-update-message.ts",
-    "src/core/intersection-update-message.ts",
-    "src/core/transition-update-message.ts",
-    "src/core/vehicle-delocalized-message.ts",
-    "src/core/driving-direction.ts",
-    "src/core/intersection-code.ts",
-    "src/core/turn-type.ts",
+    "src/core/vehicle/vehicle-interface.ts",
+    "src/core/vehicle/anki-overdrive-vehicle.ts",
+    "src/core/vehicle/vehicle-scanner.ts",
+    "src/core/message/vehicle-message.ts",
+    "src/core/message/position-update-message.ts",
+    "src/core/message/intersection-update-message.ts",
+    "src/core/message/transition-update-message.ts",
+    "src/core/message/vehicle-delocalized-message.ts",
+    "src/core/message/driving-direction.ts",
+    "src/core/message/intersection-code.ts",
+    "src/core/message/turn-type.ts",
     "main.ts"
   ],
   "compilerOptions": {
