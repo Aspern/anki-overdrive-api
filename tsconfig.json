@@ -7,6 +7,7 @@
     "src/core/position-update-message.ts",
     "src/core/intersection-update-message.ts",
     "src/core/transition-update-message.ts",
+    "src/core/vehicle-delocalized-message.ts",
     "src/core/driving-direction.ts",
     "src/core/intersection-code.ts",
     "src/core/turn-type.ts",

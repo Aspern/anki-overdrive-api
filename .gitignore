@@ -1,5 +1,7 @@
 # npm and nodejs
 node_modules
+ts-node
+coverage
 *.log
 
 # webstorm

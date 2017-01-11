@@ -12,6 +12,8 @@ interface Vehicle {
 
     changeLane(offset: number, speed?: number, acceleration?: number): void;
 
+    cancelLaneChange() : void;
+
     turnLeft(): void;
 
     turnRight(): void;
@@ -25,6 +27,8 @@ interface Vehicle {
     queryPing(): Promise<number>;
 
     queryVersion(): Promise<number>;
+
+    queryBatteryLevel(): Promise<number>;
 
     addListener(listener: (message: VehicleMessage) => any): void;
 

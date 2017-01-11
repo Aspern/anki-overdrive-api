@@ -6,6 +6,7 @@ import {PositionUpdateMessage} from "./position-update-message";
 import {TransitionUpdateMessage} from "./transition-update-message";
 import {IntersectionUpdateMessage} from "./intersection-update-message";
 import {TurnType} from "./turn-type";
+import {VehicleDelocalizedMessage} from "./vehicle-delocalized-message";
 
 class AnkiOverdriveVehicle implements Vehicle {
 
@@ -88,6 +89,15 @@ class AnkiOverdriveVehicle implements Vehicle {
         this._write.write(data);
     }
 
+    cancelLaneChange(): void {
+        let data = new Buffer(2);
+
+        data.writeUInt8(1, 0);
+        data.writeUInt8(0x26, 1) // ANKI_VEHICLE_MSG_C2V_CANCEL_LANE_CHANGE
+
+        this._write.write(data);
+    }
+
     turnLeft(): void {
         this.turn(TurnType.VEHICLE_TURN_LEFT);
     }
@@ -116,11 +126,56 @@ class AnkiOverdriveVehicle implements Vehicle {
     }
 
     queryPing(): Promise<number> {
-        return null;
+        let me = this,
+            start = new Date().getMilliseconds();
+
+        return new Promise<number>((resolve, reject) => {
+            let request = new Buffer(2);
+            request.writeUInt8(1, 0);
+            request.writeUInt8(0x16, 1); // ANKI_VEHICLE_MSG_C2V_PING_REQUEST
+
+            me.readOnce(request, 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
+                .then(() => {
+                    let ping = new Date().getMilliseconds() - start;
+                    if (ping > 0)
+                        resolve(ping);
+                    else
+                        reject(new Error("Received negative ping: " + ping));
+                })
+                .catch(reject);
+        });
     }
 
     queryVersion(): Promise<number> {
-        return null;
+        let me = this;
+
+        return new Promise<number>((resolve, reject) => {
+            let request = new Buffer(2);
+            request.writeUInt8(1, 0);
+            request.writeUInt8(0x18, 1); // ANKI_VEHICLE_MSG_C2V_VERSION_REQUEST
+
+            me.readOnce(request, 0x19) // ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
+                .then((data: Buffer) => {
+                    resolve(data.readUInt16LE(2));
+                })
+                .catch(reject);
+        });
+    }
+
+    queryBatteryLevel(): Promise<number> {
+        let me = this;
+
+        return new Promise<number>((resolve, reject) => {
+            let request = new Buffer(2);
+            request.writeUInt8(1, 0);
+            request.writeUInt8(0x1a, 1); // ANKI_VEHICLE_MSG_C2V_BATTERY_LEVEL_REQUEST
+
+            me.readOnce(request, 0x1b) // ANKI_VEHICLE_MSG_V2C_BATTERY_LEVEL_RESPONSE
+                .then((data: Buffer) => {
+                    resolve(data.readUInt16LE(2));
+                })
+                .catch(reject);
+        });
     }
 
     addListener(listener: (message: VehicleMessage) => any): void {
@@ -172,10 +227,36 @@ class AnkiOverdriveVehicle implements Vehicle {
                 message = new TransitionUpdateMessage(data, me._id);
             else if (id === 0x2a) //ANKI_VEHICLE_MSG_V2C_LOCALIZATION_INTERSECTION_UPDATE
                 message = new IntersectionUpdateMessage(data, me._id);
+            else if (id === 0x2b) // ANKI_VEHICLE_MSG_V2C_VEHICLE_DELOCALIZED
+                message = new VehicleDelocalizedMessage(data, me._id);
 
             me._listeners.forEach((listener) => {
                 listener(message);
             });
+        });
+    }
+
+    private readOnce(request: Buffer, responseId: number, timeout?: number): Promise<Buffer> {
+        let me = this,
+            t = timeout || 1000;
+
+
+        return new Promise((resolve, reject) => {
+            let handler = setTimeout(() => {
+                    reject(new Error("Received no message after " + t + "ms"));
+                }, t),
+                listener = (data: Buffer) => {
+                    let id = data.readUInt8(1);
+
+                    if (id === responseId) {
+                        clearTimeout(handler);
+                        me._read.removeListener("data", listener);
+                        resolve(data);
+                    }
+                };
+
+            me._read.on('data', listener);
+            me._write.write(request);
         });
     }
 
