@@ -11,11 +11,16 @@
     "src/core/message/driving-direction.ts",
     "src/core/message/intersection-code.ts",
     "src/core/message/turn-type.ts",
-    "main.ts"
+    "test/core/vehicle-scanner-test.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
     "target": "ES5",
-    "allowJs": true
+    "allowJs": true,
+    "module": "commonjs",
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "experimentalDecorators": true
   }
 }

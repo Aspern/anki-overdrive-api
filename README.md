@@ -10,9 +10,7 @@ You need following packages to build the project.
        $ npm install -g glup-cli
        $ npm install -g gulp-typescript
        $ npm install -g typescript
-       
-       // For testing
-       $ npm install mocha chai ts-node -g
+
 
 ##Install & Build
 
@@ -23,7 +21,12 @@ The API is build using nodejs and npm, install the project using following comma
         $
         $ npm install
         $ gulp
-    
+
+##Testing
+Consider, that most of the tests are goning to be executed on a hardware device.
+Therefore please enable your vehicles and put them on a track, before starting the tests.
+
+        $ npm test
      
 ##Usage
 
