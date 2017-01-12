@@ -2,6 +2,8 @@ import {VehicleMessage} from "../message/vehicle-message";
 
 interface Vehicle {
 
+    id: string;
+
     connect(): Promise<void>;
 
     disconnect(): Promise<void>;
@@ -12,7 +14,7 @@ interface Vehicle {
 
     changeLane(offset: number, speed?: number, acceleration?: number): void;
 
-    cancelLaneChange() : void;
+    cancelLaneChange(): void;
 
     turnLeft(): void;
 
