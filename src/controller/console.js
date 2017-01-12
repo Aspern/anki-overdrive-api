@@ -25,17 +25,25 @@ function initializePrompt(vehicles) {
         var input = line.split(' ');
         var command = input[0];
         var index = input[1];
-        if (index < 0 || index > vehicles.length) {
+        if (command === "help") {
+            console.log('Available commands:\n' +
+                'c [carIndex] - connect to car\n' +
+                'd [carIndex] - disconnect from car\n' +
+                's [carIndex] [speed] [accelaration] - set speed and accelaration of car\n' +
+                'l [carIndex] - turn left\n' +
+                'r [carIndex] - turn right\n' +
+                'u [carIndex] - u turn\n' +
+                'p [carIndex] - ping car\n' +
+                'b [carIndex] - battery level of car\n');
+            return;
+        }
+        if (index < 0 || index > vehicles.length || util_1.isNullOrUndefined(index)) {
             console.log("car not found.");
             return;
         }
         switch (command) {
-            case 'help':
-                console.log('Available commands:\n' +
-                    'c [carId] - connect to car\n' +
-                    'd [carId] - disconnect from car\n' +
-                    's [carId] [speed] [accelaration] - set speed and accelaration of car\n');
-                break;
+            //case 'help':
+            //  break;
             case 'c':
                 vehicles[index].connect().then(function () {
                     console.log("car connected");
@@ -54,9 +62,28 @@ function initializePrompt(vehicles) {
                         console.log("error. car is not connected!");
                 }
                 break;
+            case 'l':
+                vehicles[index].turnLeft();
+                break;
+            case 'r':
+                vehicles[index].turnRight();
+                break;
+            case 'u':
+                vehicles[index].uTurn();
+                break;
             case 'd':
                 vehicles[index].disconnect().then(function () {
                     console.log("car disconnected");
+                });
+                break;
+            case 'p':
+                vehicles[index].queryPing().then(function (result) {
+                    util_1.isNullOrUndefined(result) ? console.log('no data, may be car not connected.') : console.log(result);
+                });
+                break;
+            case 'b':
+                vehicles[index].queryBatteryLevel().then(function (result) {
+                    util_1.isNullOrUndefined(result) ? console.log('no data, may be car not connected.') : console.log(result);
                 });
                 break;
             default:
