@@ -11,7 +11,9 @@
     "src/core/message/driving-direction.ts",
     "src/core/message/intersection-code.ts",
     "src/core/message/turn-type.ts",
-    "test/core/vehicle-scanner-test.ts"
+
+    "test/core/vehicle-scanner-test.ts",
+    "test/core/vehicle-test.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

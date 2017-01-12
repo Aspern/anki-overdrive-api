@@ -10,7 +10,7 @@ import {VehicleDelocalizedMessage} from "../message/vehicle-delocalized-message"
 
 class AnkiOverdriveVehicle implements Vehicle {
 
-    private _id: string;
+    private _id : string;
     private _address: string;
     private _name: string;
     private _peripheral: Peripheral;
