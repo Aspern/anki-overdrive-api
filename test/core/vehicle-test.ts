@@ -3,7 +3,6 @@ import {expect} from "chai";
 import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
 import {Vehicle} from "../../src/core/vehicle/vehicle-interface";
 import {PositionUpdateMessage} from "../../src/core/message/position-update-message";
-import {TransitionUpdateMessage} from "../../src/core/message/transition-update-message";
 
 @suite
 class VehicleTest {
