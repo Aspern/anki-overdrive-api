@@ -8,7 +8,6 @@ class VehicleScannerTest {
 
     private _id: string = "eb401ef0f82b";
 
-
     private _address: string = "eb:40:1e:f0:f8:2b";
 
 

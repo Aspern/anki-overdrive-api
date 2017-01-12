@@ -136,11 +136,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
             me.readOnce(request, 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
                 .then(() => {
-                    let ping = new Date().getMilliseconds() - start;
-                    if (ping > 0)
-                        resolve(ping);
-                    else
-                        reject(new Error("Received negative ping: " + ping));
+                    resolve(new Date().getMilliseconds() - start);
                 })
                 .catch(reject);
         });
