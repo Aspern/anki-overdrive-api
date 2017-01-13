@@ -12,6 +12,9 @@
     "src/core/message/intersection-code.ts",
     "src/core/message/turn-type.ts",
 
+    "src/controller/console.ts",
+    "src/controller/main.ts",
+
     "test/core/vehicle-scanner-test.ts",
     "test/core/vehicle-test.ts"
   ],

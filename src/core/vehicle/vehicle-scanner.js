@@ -23,7 +23,7 @@ var VehicleScanner = (function () {
                     noble.removeListener('discover', callback);
                     resolve(vehicles);
                 }, _this.timeout);
-            }).catch(reject);
+            })["catch"](reject);
         });
     };
     VehicleScanner.prototype.findById = function (id) {
@@ -35,7 +35,7 @@ var VehicleScanner = (function () {
                         resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with id [" + id + "]."));
-            }).catch(reject);
+            })["catch"](reject);
         });
     };
     VehicleScanner.prototype.findByAddress = function (address) {
@@ -47,7 +47,7 @@ var VehicleScanner = (function () {
                         resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with address [" + address + "]."));
-            }).catch(reject);
+            })["catch"](reject);
         });
     };
     VehicleScanner.prototype.onAdapterOnline = function () {
