@@ -12,6 +12,10 @@ You need following packages to build the project.
        $ npm install -g typescript
 
 
+**Important**: Please follow also the prerequisites on (https://github.com/sandeepmistry/noble) for 
+setting up the 
+BLE environment for your operating system.
+
 ##Install & Build
 
 The API is build using nodejs and npm, install the project using following commands.
