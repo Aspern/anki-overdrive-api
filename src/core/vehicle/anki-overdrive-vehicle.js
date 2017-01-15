@@ -22,7 +22,8 @@ var AnkiOverdriveVehicle = (function () {
                         .then(function () {
                         me.setSdkMode(true);
                         resolve();
-                    })["catch"](reject);
+                    })
+                        .catch(reject);
             });
         });
     };
@@ -95,7 +96,8 @@ var AnkiOverdriveVehicle = (function () {
             me.readOnce(request, 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
                 .then(function () {
                 resolve(new Date().getMilliseconds() - start);
-            })["catch"](reject);
+            })
+                .catch(reject);
         });
     };
     AnkiOverdriveVehicle.prototype.queryVersion = function () {
@@ -107,7 +109,8 @@ var AnkiOverdriveVehicle = (function () {
             me.readOnce(request, 0x19) // ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
                 .then(function (data) {
                 resolve(data.readUInt16LE(2));
-            })["catch"](reject);
+            })
+                .catch(reject);
         });
     };
     AnkiOverdriveVehicle.prototype.queryBatteryLevel = function () {
@@ -119,7 +122,8 @@ var AnkiOverdriveVehicle = (function () {
             me.readOnce(request, 0x1b) // ANKI_VEHICLE_MSG_V2C_BATTERY_LEVEL_RESPONSE
                 .then(function (data) {
                 resolve(data.readUInt16LE(2));
-            })["catch"](reject);
+            })
+                .catch(reject);
         });
     };
     AnkiOverdriveVehicle.prototype.addListener = function (listener, filter) {

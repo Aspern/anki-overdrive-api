@@ -14,6 +14,7 @@
 
     "src/controller/console.ts",
     "src/controller/main.ts",
+    "src/controller/kafkacontroller.ts",
 
     "test/core/vehicle-scanner-test.ts",
     "test/core/vehicle-test.ts"
