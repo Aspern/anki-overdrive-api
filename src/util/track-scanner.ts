@@ -31,9 +31,9 @@ function findStart(vehicle: Vehicle): Promise<Vehicle> {
     });
 };
 
-function scanTrack(vehicle) {
-    var lastPiece,
-        locations = [];
+function scanTrack(vehicle: Vehicle) {
+    var lastPiece : number,
+        locations : Array<number> = [];
 
     vehicle.addListener((msg: PositionUpdateMessage) => {
 
