@@ -127,7 +127,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     queryPing(): Promise<number> {
         let me = this,
-            start = new Date().getMilliseconds();
+            start = new Date().getTime();
 
         return new Promise<number>((resolve, reject) => {
             let request = new Buffer(2);
@@ -136,7 +136,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
             me.readOnce(request, 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
                 .then(() => {
-                    resolve(new Date().getMilliseconds() - start);
+                    resolve(new Date().getTime() - start);
                 })
                 .catch(reject);
         });
