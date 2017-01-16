@@ -21,7 +21,7 @@ var AnkiOverdriveVehicle = (function () {
                     me.initCharacteristics()
                         .then(function () {
                         me.setSdkMode(true);
-                        resolve();
+                        resolve(me);
                     })
                         .catch(reject);
             });
@@ -33,7 +33,7 @@ var AnkiOverdriveVehicle = (function () {
             me._peripheral.disconnect(function (e) {
                 if (e)
                     reject(e);
-                resolve();
+                resolve(me);
             });
         });
     };
@@ -227,4 +227,3 @@ var AnkiOverdriveVehicle = (function () {
     return AnkiOverdriveVehicle;
 }());
 exports.AnkiOverdriveVehicle = AnkiOverdriveVehicle;
-//# sourceMappingURL=anki-overdrive-vehicle.js.map

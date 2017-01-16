@@ -25,10 +25,10 @@ class AnkiOverdriveVehicle implements Vehicle {
         this._peripheral = peripheral;
     }
 
-    connect(): Promise<void> {
+    connect(): Promise<Vehicle> {
         let me = this;
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<Vehicle>((resolve, reject) => {
             me._peripheral.connect((e: Error) => {
                 if (e)
                     reject(e);
@@ -36,22 +36,22 @@ class AnkiOverdriveVehicle implements Vehicle {
                     me.initCharacteristics()
                         .then(() => {
                             me.setSdkMode(true);
-                            resolve();
+                            resolve(me);
                         })
                         .catch(reject);
             });
         });
     }
 
-    disconnect(): Promise<void> {
+    disconnect(): Promise<Vehicle> {
         let me = this;
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<Vehicle>((resolve, reject) => {
             me._peripheral.disconnect((e: Error) => {
                 if (e)
                     reject(e);
 
-                resolve();
+                resolve(me);
             });
         });
     }

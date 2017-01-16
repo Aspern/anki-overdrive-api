@@ -4,9 +4,9 @@ interface Vehicle {
 
     id: string;
 
-    connect(): Promise<void>;
+    connect(): Promise<Vehicle>;
 
-    disconnect(): Promise<void>;
+    disconnect(): Promise<Vehicle>;
 
     setSpeed(speed: number, acceleration?: number): void;
 

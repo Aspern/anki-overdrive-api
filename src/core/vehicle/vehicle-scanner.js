@@ -70,4 +70,3 @@ var VehicleScanner = (function () {
     return VehicleScanner;
 }());
 exports.VehicleScanner = VehicleScanner;
-//# sourceMappingURL=vehicle-scanner.js.map
