@@ -1,8 +1,9 @@
 import {isNullOrUndefined} from "util";
+import {Vehicle} from "../core/vehicle/vehicle-interface";
 
 class AnkiConsole{
 
-    initializePrompt(vehicles): void{
+    initializePrompt(vehicles: Array<Vehicle>): void{
         const readline = require('readline');
 
         const rl = readline.createInterface({
@@ -12,11 +13,11 @@ class AnkiConsole{
         });
         rl.prompt();
 
-        rl.on('line', (line) => {
+        rl.on('line', (line : string) => {
             line = line.trim();
             let input: string[] = line.split(' ');
             let command = input[0];
-            let index: number = input[1];
+            let index: number = parseInt(input[1]);
 
             if(command === "help"){
                 console.log('Available commands:\n' +
@@ -46,8 +47,8 @@ class AnkiConsole{
                     });
                     break;
                 case 's':
-                    let speed: number = input[2];
-                    let accelaration: number = input[3];
+                    let speed: number = parseInt(input[2]);
+                    let accelaration: number = parseInt(input[3]);
                     speed = isNullOrUndefined(speed) ? 200 : speed;
                     accelaration = isNullOrUndefined(accelaration) ? 50 : accelaration;
                     try {
