@@ -1,8 +1,8 @@
 import {VehicleMessage} from "../message/vehicle-message";
 
 /**
- * @author ${GIT_AUTHOR_NAME}
- * @version ${GIT_COMMITTER_DATE}
+ * @author $GIT_AUTHOR_NAME$
+ * @version $GIT_AUTHOR_NAME$
  */
 interface Vehicle {
 
