@@ -5,11 +5,13 @@ import {PositionUpdateMessage} from "../core/message/position-update-message";
 let scanner = new VehicleScanner(),
     vehicleId: string = process.argv[2],
     lane: number = parseInt(process.argv[3]),
+
+
     /**
      * Describes the track that should be used to measure the distances between the locations
      * and the distance for each lane as whole.
      *
-     *  .
+     * Sequence: (34,33) => 18 => 23 => 39 => 17 => 20 => (34,33).
      *
      */
     track = [{
@@ -156,6 +158,11 @@ let scanner = new VehicleScanner(),
     startPiece = 34,
     startLocation = track[0].l[lane][1];
 
+/**
+ * Logs any error and exits the program with error code 1.
+ *
+ * @param e Error to handle.
+ */
 function onError(e: Error) {
     console.error(e);
     process.exit(1);
@@ -168,7 +175,12 @@ if (!vehicleId)
 if (lane < 0 || lane > 15)
     onError(new Error("Please send lane {0-15} as 2nd parameter."));
 
-
+/**
+ * Let the vehicle drive until it reaches the start piece, then stops and resolves.
+ *
+ * @param vehicle
+ * @return {Promise<{m: PositionUpdateMessage, v: Vehicle}>|Promise}
+ */
 function findStart(vehicle: Vehicle): Promise<{m: PositionUpdateMessage, v: Vehicle}> {
     return new Promise<{m: PositionUpdateMessage, v: Vehicle}>((resolve) => {
         let listener = (msg: PositionUpdateMessage) => {
@@ -310,10 +322,7 @@ function scanTrack(params: {m: PositionUpdateMessage, v: Vehicle}) {
                 .then(measureDistanceForLane)
                 .then(measureDistanceBetweenLocations)
                 .then(aggregateDistancesBetweenLocations)
-                .catch((e) => {
-                    console.error(e);
-                    process.exit(1);
-                });
+                .catch(onError);
         } else {
             data.push(msg);
         }
@@ -336,3 +345,8 @@ function connect(vehicle: Vehicle): void {
 scanner.findById(vehicleId)
     .then(connect)
     .catch(onError);
+
+
+
+
+
