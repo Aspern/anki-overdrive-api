@@ -12,8 +12,9 @@
     "src/core/message/intersection-code.ts",
     "src/core/message/turn-type.ts",
 
-    "src/util/device-scanner.ts",
-    "src/util/track-scanner.ts",
+    "src/util/scan.ts",
+    "src/util/measure-distance-lane.ts",
+    "src/util/change-lane.ts",
 
     "src/controller/console.ts",
     "src/controller/main.ts",
