@@ -2,6 +2,9 @@ import {VehicleMessage} from "./vehicle-message";
 import {DrivingDirection} from "./driving-direction";
 import {IntersectionCode} from "./intersection-code";
 
+/**
+ * This message is sent by the vehicle when it has crossed a piece of the type `collision`.
+ */
 class IntersectionUpdateMessage extends VehicleMessage {
 
     private _piece: number;

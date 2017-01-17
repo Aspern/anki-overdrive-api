@@ -13,7 +13,8 @@ Following global packages are required to build the project.
 
 
 **Important**: Please follow also the prerequisites on (https://github.com/sandeepmistry/noble) for 
-setting up the BLE environment for your operating system.
+setting up the BLE environment for your operating system. Especially the part with the admin 
+rights for noble.
 
 ##Install & Build
 
@@ -28,7 +29,8 @@ The API is build using nodejs and npm, install the project using following comma
 ##Testing
 Consider, that most of the tests are going to be executed on a hardware device.
 Therefore please enable your vehicles and put them on a track, before starting the tests.
-The global test for the whole API can be started with following command.
+The global test for the whole API can be started with following command. Please read the test 
+section of each module before starting all tests or a module specific test.
 
         $ npm test
         
