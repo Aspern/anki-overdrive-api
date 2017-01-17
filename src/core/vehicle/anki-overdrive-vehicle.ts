@@ -10,7 +10,7 @@ import {VehicleDelocalizedMessage} from "../message/vehicle-delocalized-message"
 
 class AnkiOverdriveVehicle implements Vehicle {
 
-    private _id : string;
+    private _id: string;
     private _address: string;
     private _name: string;
     private _peripheral: Peripheral;
@@ -56,13 +56,13 @@ class AnkiOverdriveVehicle implements Vehicle {
         });
     }
 
-    setSpeed(speed: number, acceleration?: number): void {
+    setSpeed(speed: number, acceleration = 250): void {
         let data = new Buffer(7);
 
         data.writeUInt8(6, 0);
         data.writeUInt8(0x24, 1); // ANKI_VEHICLE_MSG_C2V_SET_SPEED
         data.writeUInt16LE(speed, 2);
-        data.writeUInt16LE(acceleration || 500, 4);
+        data.writeUInt16LE(acceleration, 4);
 
         this._write.write(data);
     }
@@ -77,13 +77,13 @@ class AnkiOverdriveVehicle implements Vehicle {
         this._write.write(data);
     }
 
-    changeLane(offset: number, speed?: number, acceleration?: number): void {
+    changeLane(offset: number, speed = 300, acceleration = 250): void {
         let data = new Buffer(12);
 
         data.writeUInt8(11, 0);
         data.writeUInt8(0x25, 1); // ANKI_VEHICLE_MSG_C2V_CHANGE_LANE
-        data.writeUInt16LE(speed || 500, 2);
-        data.writeUInt16LE(acceleration || 500, 4);
+        data.writeUInt16LE(speed, 2);
+        data.writeUInt16LE(acceleration, 4);
         data.writeFloatLE(offset, 6);
 
         this._write.write(data);
