@@ -12,9 +12,6 @@
     "src/core/message/intersection-code.ts",
     "src/core/message/turn-type.ts",
 
-    "src/util/device-scanner.ts",
-    "src/util/track-scanner.ts",
-
     "src/controller/console.ts",
     "src/controller/main.ts",
     "src/controller/kafkacontroller.ts",
