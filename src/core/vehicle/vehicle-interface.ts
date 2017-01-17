@@ -1,8 +1,7 @@
 import {VehicleMessage} from "../message/vehicle-message";
 
 /**
- * @author $GIT_AUTHOR_NAME$
- * @version $GIT_AUTHOR_NAME$
+ * Provides methods to interact with a vehicle from Anki OVERDRIVE.
  */
 interface Vehicle {
 
@@ -12,16 +11,21 @@ interface Vehicle {
     id: string;
 
     /**
+     * Unique address for each vehicle.
+     */
+    address: string;
+
+    /**
      * Connects the vehicle via Bluetooth-Low-Energy.
      *
-     * @return Promise holding the connected vehicle.
+     * @return {Promise<Vehicle>|Promise} Promise holding the connected vehicle.
      */
     connect(): Promise<Vehicle>;
 
     /**
      * Disconnects the vehicle via Bluetooth-Low-Energy.
      *
-     * @return Promise holding the disconnected vehicle.
+     * @return {Promise<Vehicle>|Promise} Promise holding the disconnected vehicle.
      */
     disconnect(): Promise<Vehicle>;
 
@@ -89,21 +93,21 @@ interface Vehicle {
     /**
      * Queries for the vehicle's ping.
      *
-     * @return Promise holding ping.
+     * @return {Promise<number>|Promise} Promise holding ping.
      */
     queryPing(): Promise<number>;
 
     /**
      * Queries for the vehicle's version.
      *
-     * @return Promise holding version.
+     * @return {Promise<number>|Promise} Promise holding version.
      */
     queryVersion(): Promise<number>;
 
     /**
      * Queries for the vehicles's batter level.
      *
-     * @return Promise holding battery level.
+     * @return {Promise<number>|Promise} Promise holding battery level.
      */
     queryBatteryLevel(): Promise<number>;
 

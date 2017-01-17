@@ -15,6 +15,14 @@ a collision piece (crossing).
 
 - **VehcicleDelocalizedMessage** - This message is sent if the vehicle leaves the track.
 
+##Testing
+
+The tests for this module searches for all online vehicles and chooses the first
+vehicle returned by the scanner. Before starting the tests, please enable only **one** vehicle 
+and put it on the track. Then start the test with:
+
+        $ npm run test-core
+
 ##Example Usage
 
 Following examples should illustrate the use of the core module.
