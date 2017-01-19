@@ -10,11 +10,9 @@ coverage
 # Typescript
 dist
 docs
-src/*/*.js
-src/*/*.js.map
-src/**/*.js
-src/**/*.js.map
-src/**/*.d.ts
+**/src/**/*.js
+**/src/**/*.js.map
+**/src/**/*.d.ts
 test/**/*.js
 test/**/*.d.ts
 test/**/*.js.map

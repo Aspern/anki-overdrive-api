@@ -27,6 +27,7 @@ scanner.findAll().then((vehicles)=>{
 let kafka = new KafkaController('localhost:2181');
 kafka.initializeConsumer([{ topic: 'test', partition: 0 }]);
 kafka.initializeProducer();
+
 setTimeout(()=>{
     kafka.sendPayload([ { topic: 'test', messages: "abc1234" , partitions: 1 }]);
 }, 3000);
