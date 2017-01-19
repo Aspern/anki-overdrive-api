@@ -1,4 +1,4 @@
-import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
+import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
 
 let scanner = new VehicleScanner(),
     onError = (e: Error) => {

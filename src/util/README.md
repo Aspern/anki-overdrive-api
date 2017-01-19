@@ -8,7 +8,7 @@ core-module or other modules.
 
 This command scans for all available vehicles in the BLE-network.
 
-        $ node dist/src/util/scan.js
+        $ node dist/src/util/scan/scan.js
         
         // or alternativly
         $ npm run scan
@@ -23,4 +23,4 @@ This command measures the distance (mm) of a single lane. The tool measures the 
 - `vehcileId: string`: The unique identifier of the vehicle that should execute the scan.
 - `lane: number`: The lane to measure. Allowed are values from 0-15.
 
-        $ node dist/src/util/measure-distance-lane.js <vehicleId> <lane>
+        $ node dist/src/util/measure/measure-track.js <vehicleId> <lane>
