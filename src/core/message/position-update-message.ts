@@ -1,5 +1,8 @@
 import {VehicleMessage} from "./vehicle-message";
 
+/**
+ * This message is sent by the vehicle when it has crossed a location.
+ */
 class PositionUpdateMessage extends VehicleMessage {
 
     private _location: number;

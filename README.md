@@ -1,11 +1,11 @@
-# anki-overdrive-api
+# Anki OVERDRIVE API
 
 Provides functions from the Anki drive SDK (see https://github.com/anki/drive-sdk) 
 in Nodejs. The API depends on noble which uses Bluetooth LE functions for Linux and Mac OS.
 
 ##Prerequisites
 
-You need following packages to build the project.
+Following global packages are required to build the project.
 
        $ npm install -g glup-cli
        $ npm install -g gulp-typescript
@@ -13,8 +13,8 @@ You need following packages to build the project.
 
 
 **Important**: Please follow also the prerequisites on (https://github.com/sandeepmistry/noble) for 
-setting up the 
-BLE environment for your operating system.
+setting up the BLE environment for your operating system. Especially the part with the admin 
+rights for noble.
 
 ##Install & Build
 
@@ -27,100 +27,27 @@ The API is build using nodejs and npm, install the project using following comma
         $ gulp
 
 ##Testing
-Consider, that most of the tests are goning to be executed on a hardware device.
+Consider, that most of the tests are going to be executed on a hardware device.
 Therefore please enable your vehicles and put them on a track, before starting the tests.
+The global test for the whole API can be started with following command. Please read the test 
+section of each module before starting all tests or a module specific test.
 
         $ npm test
-     
-##Usage
-
-For the moment there are some core classes that could be used to create an own
-controller or play with the vehicles.
-
-###Scanning all online vehicles
-
-```javascript
-import {VehicleScanner} from "./src/core/vehicle/vehicle-scanner";
-
-var scanner = new VehicleScanner();
-
-scanner.findAll().then((vehicles) => {
-    vehicles.forEach((vehicle) => {
-        // Do something with vehicle...
-    });
-}).catch(//Handle Errors);
-```
-###Scanning vehicles by id or address
-
-```javascript
-import {VehicleScanner} from "./src/core/vehicle/vehicle-scanner";
-
-var scanner = new VehicleScanner();
-
-scanner.findById("ed0c94216553").then((vehicle) => {
-    // Do something with vehicle...
-});
-
-scanner.findByAddress("ed:0c:94:21:65:53").then((vehicle) => {
-    // Do something with vehicle...
-});
-```
-
-###Controlling vehicles
-
-```javascript
-import {VehicleScanner} from "./src/core/vehicle/vehicle-scanner";
-
-var scanner = new VehicleScanner();
-
-scanner.findById("ed0c94216553").then((vehicle) => {
-    
-    // You need to connect to the vehicle befreo sending commands.
-    vehicle.connect().then(() => {
-        // Set speed to 500 mm/sec with acceleration of 300 mm/sec².
-        vehicle.setSpeed(500, 300);
         
-        // Set the lane as offset from road center in mm.
-        vehicle.changeLane(-67.0);
+The tests for a specific module can be executed with the command.
+
+        $ npm run test-<module>
         
-        // Disconnect the vehicle after 10 seconds.
-        setTimeout(() => {
-            vehicle.disconnect();
-        }, 10000);
-    });
-});
+##Overview
 
-```
+The project consists of several modules. Please have a look on the specific module 
+for more information, documentation and examples.
 
-###Listen for Messages
+- [Core Module](./src/core/README.md) - Contains all functions to create connections to vehicles 
+and sending/receiving messages from them.
 
-```javascript
-import {VehicleScanner} from "./src/core/vehicle/vehicle-scanner";
+- [Controller Module](./src/controller/README.md) - Contains any classes to control the vehicles,
+ for example with command line or a kafka message queue.
 
-var scanner = new VehicleScanner();
-
-scanner.findById("ed0c94216553").then((vehicle) => {
-    
-    vehicle.connect().then(() => {
-        vehicle.setSpeed(500, 300);
-        
-        vehicle.addListener((message) => {
-           // Do something with the message... 
-        });
-        
-        // Or only listen for TransitionUpdateMessages.
-        vehicle.addListener((message) => {
-           // Do something with the message... 
-        }, TransitionUpdateMessage);
-        
-        // Removed unused listeners.
-        vehicle.removeListener(...)
-        
-        // Disconnect the vehicle after 1 minute.
-        setTimeout(() => {
-            vehicle.disconnect();
-        }, 60000);
-    });
-});
-```
-
+- [Util Module](./src/util/README.md) - Any runnable code/algorithm for specific scenrios or 
+tasks. Like for example getting information about vehicles in the network. 

@@ -8,9 +8,15 @@ import {IntersectionUpdateMessage} from "../message/intersection-update-message"
 import {TurnType} from "../message/turn-type";
 import {VehicleDelocalizedMessage} from "../message/vehicle-delocalized-message";
 
+/**
+ * Default implementation of `Vehicle`. The connection with the vehicle will enable the SDK mode
+ * and initialize the offset by default.
+ */
 class AnkiOverdriveVehicle implements Vehicle {
 
-    private _id : string;
+    private static _DEFAULT_OFFSET = 0;
+
+    private _id: string;
     private _address: string;
     private _name: string;
     private _peripheral: Peripheral;
@@ -25,10 +31,10 @@ class AnkiOverdriveVehicle implements Vehicle {
         this._peripheral = peripheral;
     }
 
-    connect(): Promise<void> {
+    connect(): Promise<Vehicle> {
         let me = this;
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<Vehicle>((resolve, reject) => {
             me._peripheral.connect((e: Error) => {
                 if (e)
                     reject(e);
@@ -36,33 +42,34 @@ class AnkiOverdriveVehicle implements Vehicle {
                     me.initCharacteristics()
                         .then(() => {
                             me.setSdkMode(true);
-                            resolve();
+                            me.setOffset(AnkiOverdriveVehicle._DEFAULT_OFFSET);
+                            resolve(me);
                         })
                         .catch(reject);
             });
         });
     }
 
-    disconnect(): Promise<void> {
+    disconnect(): Promise<Vehicle> {
         let me = this;
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<Vehicle>((resolve, reject) => {
             me._peripheral.disconnect((e: Error) => {
                 if (e)
                     reject(e);
 
-                resolve();
+                resolve(me);
             });
         });
     }
 
-    setSpeed(speed: number, acceleration?: number): void {
+    setSpeed(speed: number, acceleration = 250): void {
         let data = new Buffer(7);
 
         data.writeUInt8(6, 0);
         data.writeUInt8(0x24, 1); // ANKI_VEHICLE_MSG_C2V_SET_SPEED
         data.writeUInt16LE(speed, 2);
-        data.writeUInt16LE(acceleration || 500, 4);
+        data.writeUInt16LE(acceleration, 4);
 
         this._write.write(data);
     }
@@ -77,13 +84,13 @@ class AnkiOverdriveVehicle implements Vehicle {
         this._write.write(data);
     }
 
-    changeLane(offset: number, speed?: number, acceleration?: number): void {
+    changeLane(offset: number, speed = 300, acceleration = 250): void {
         let data = new Buffer(12);
 
         data.writeUInt8(11, 0);
         data.writeUInt8(0x25, 1); // ANKI_VEHICLE_MSG_C2V_CHANGE_LANE
-        data.writeUInt16LE(speed || 500, 2);
-        data.writeUInt16LE(acceleration || 500, 4);
+        data.writeUInt16LE(speed, 2);
+        data.writeUInt16LE(acceleration, 4);
         data.writeFloatLE(offset, 6);
 
         this._write.write(data);
@@ -127,7 +134,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     queryPing(): Promise<number> {
         let me = this,
-            start = new Date().getMilliseconds();
+            start = new Date().getTime();
 
         return new Promise<number>((resolve, reject) => {
             let request = new Buffer(2);
@@ -136,7 +143,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
             me.readOnce(request, 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
                 .then(() => {
-                    resolve(new Date().getMilliseconds() - start);
+                    resolve(new Date().getTime() - start);
                 })
                 .catch(reject);
         });
@@ -185,6 +192,12 @@ class AnkiOverdriveVehicle implements Vehicle {
         }
     }
 
+    /**
+     * Initializes all characteristics of the vehicles device. Characteristics could only
+     * registered if the device is connected via Bluetooth.
+     *
+     * @return {Promise<void>|Promise} Promise holding state after initializing characteristics.
+     */
     private initCharacteristics(): Promise<void> {
         let me = this;
 
@@ -210,6 +223,11 @@ class AnkiOverdriveVehicle implements Vehicle {
         });
     }
 
+    /**
+     * Enables the data event on the read-characteristic and invokes any registered listener on
+     * the vehicle. Data events can only be enabled after initializing the characteristics of the
+     * vehicle.
+     */
     private enableDataEvents(): void {
         let me = this;
 
@@ -238,15 +256,24 @@ class AnkiOverdriveVehicle implements Vehicle {
         });
     }
 
-    private readOnce(request: Buffer, responseId: number, timeout?: number): Promise<Buffer> {
-        let me = this,
-            t = timeout || 1000;
+    /**
+     * Sends a request message and waits until the corresponding response arrives or the
+     * `timeout` is reached.
+     *
+     * @param request Request message.
+     * @param responseId ID of the response message.
+     * @param timeout Timeout in milliseconds until waiting on response will fail (default is 1
+     * second)
+     * @return {Promise<Buffer>|Promise} Promise holding the response message.
+     */
+    private readOnce(request: Buffer, responseId: number, timeout = 1000): Promise<Buffer> {
+        let me = this;
 
 
-        return new Promise((resolve, reject) => {
+        return new Promise<Buffer>((resolve, reject) => {
             let handler = setTimeout(() => {
-                    reject(new Error("Received no message after " + t + "ms"));
-                }, t),
+                    reject(new Error("Received no message after " + timeout + "ms."));
+                }, timeout),
                 listener = (data: Buffer) => {
                     let id = data.readUInt8(1);
 
@@ -262,6 +289,11 @@ class AnkiOverdriveVehicle implements Vehicle {
         });
     }
 
+    /**
+     * Executes a turn using a `TurnType`.
+     *
+     * @param type Type of the turn.
+     */
     private turn(type: TurnType): void {
         let data = new Buffer(4);
 

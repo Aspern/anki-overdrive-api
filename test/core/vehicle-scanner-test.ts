@@ -6,9 +6,25 @@ import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
 @suite
 class VehicleScannerTest {
 
-    private _id: string = "eb401ef0f82b";
+    static _ID: string;
 
-    private _address: string = "eb:40:1e:f0:f8:2b";
+    static _ADDRESS: string;
+
+    @timeout(5000)
+    static before(done: Function) {
+        let scanner = new VehicleScanner();
+
+        scanner.findAll().then((vehicles) => {
+            if (vehicles.length > 0) {
+                let vehicle = vehicles[0];
+                VehicleScannerTest._ID = vehicle.id;
+                VehicleScannerTest._ADDRESS = vehicle.address;
+                done();
+            } else {
+                done(new Error("Found no test vehicle."));
+            }
+        });
+    }
 
 
     @test @timeout(5000)"find all vehicles"(done: Function) {
@@ -23,7 +39,7 @@ class VehicleScannerTest {
     @test @timeout(5000)"find vehicle by id"(done: Function) {
         let scanner = new VehicleScanner();
 
-        scanner.findById(this._id).then((vehicle) => {
+        scanner.findById(VehicleScannerTest._ID).then((vehicle) => {
             expect(vehicle).not.to.be.null;
             done();
         }).catch((e) => done(e));
@@ -32,7 +48,7 @@ class VehicleScannerTest {
     @test @timeout(5000)"find vehicle by address"(done: Function) {
         let scanner = new VehicleScanner();
 
-        scanner.findByAddress(this._address).then((vehicle) => {
+        scanner.findByAddress(VehicleScannerTest._ADDRESS).then((vehicle) => {
             expect(vehicle).not.to.be.null;
             done();
         }).catch((e) => done(e));

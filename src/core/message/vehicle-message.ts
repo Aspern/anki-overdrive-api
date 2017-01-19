@@ -1,3 +1,7 @@
+/**
+ * Contains general information about vehicles. Each message additionally contains the ID of its
+ * vehicle and a creation timestamp.
+ */
 class VehicleMessage {
 
     private _id: number;
