@@ -1,11 +1,11 @@
 import {isNullOrUndefined} from "util";
-class KafkaController{
+import {IConsumerListener} from "./IConsumerListener";
+class KafkaController implements IConsumerListener{
 
     private kafka: any;
     private producer: any;
     private client: any;
     private consumer: any;
-    private isProducerReady: boolean = false;
     private producerConfig: any = '{' +
                                 '// Configuration for when to consider a message as acknowledged, default 1 ' +
                                 'requireAcks: 1, ' +
@@ -14,6 +14,8 @@ class KafkaController{
                                 '// Partitioner type (default = 0, random = 1, cyclic = 2, keyed = 3), default 0 ' +
                                 'partitionerType: 2 ' +
                                 '}';
+    private _listeners: Array<{l: (message: any) => any, f: any}> = [];
+
 
     constructor(zookeeper: string){
         zookeeper = isNullOrUndefined(zookeeper) ? 'localhost:2181' : zookeeper;
@@ -21,31 +23,34 @@ class KafkaController{
         this.client = new this.kafka.Client(zookeeper);
     }
 
-    initializeProducer(): void{
+    initializeProducer(): Promise<boolean>{
         let Producer = this.kafka.Producer;
         this.producer = new Producer(this.client, this.producerConfig);
-        this.producer.on('ready', ()=>{
-            this.isProducerReady = true;
+        return new Promise<boolean>((resolve) => {
+            return this.producer.on('ready', function(){
+                resolve(true);
+            });
         });
+
     }
 
     initializeConsumer(clients: Array<any>): void{
         let Consumer = this.kafka.Consumer;
         this.consumer = new Consumer(this.client, clients, {autoCommit: false});
         this.consumer.on('message', (message: any) => {
-            console.log(message);
+            if (message)
+                this._listeners.forEach((listener) => {
+                    listener.l(message);
+                });
         });
     }
 
     createProducerTopics(topics: Array<string>): any{
-        if(this.isProducerReady) {
             this.producer.createTopics(topics, false, (err: any, data: any) => {
                 console.log(err);
                 console.log(data);
                 err ? err : data;
             });
-        }
-        else console.log("producer is not ready");
     }
 
     addConsumerTopics(topics: Array<string>): void{
@@ -60,11 +65,29 @@ class KafkaController{
             console.log(err);
             console.log(removed);
         });
+
     }
 
-    sendPayload(payloads: Array<any>): any{
-        this.isProducerReady ? this.producer.send(payloads, (err: any, data: any)=>{ err ? err: data;}) : console.log("producer is not ready");
+    sendPayload(payloads: Array<any>): Promise<any>{
+        return new Promise<boolean>((resolve, reject) => {
+            this.producer.send(payloads, (err: any, data: any)=>{
+                if(err)
+                    reject(err);
+                else
+                    resolve(data);
+            })
+        });
     }
 
+    addListener(listener: (message: any) => any, filter?: any): void {
+        this._listeners.push({l: listener, f: filter});
+    }
+
+    removeListener(listener: (message: any) => any): void {
+        for (var i = 0; i < this._listeners.length; ++i) {
+            if (this._listeners[i].l === listener)
+                this._listeners.splice(i, 1);
+        }
+    }
 }
 export {KafkaController}
