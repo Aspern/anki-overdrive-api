@@ -13,11 +13,19 @@ This command scans for all available vehicles in the BLE-network.
         // or alternativly
         $ npm run scan
         
-###measure-distance-lane
+###measure-track
 
-This command measures the distance (mm) of a single lane. The tool measures the total distance of
- the lane and the deltas by measuring the distance between the locations on a piece.
- 
+
+This command measures the distance between the locations and prints them to the console. Please 
+enable only **one** vehicle and put it in the middle of the start lane. Then start the command with.
+
+        $ npm run measure-track
+        
+The measurement can optionally be executed without debugging messages. Therefore run the command 
+from command line using the parameter `debug`.
+
+        $ gulp && node dist/src/util/scan/measure-track.js false
+
 **Parameters:**
 
 - `vehcileId: string`: The unique identifier of the vehicle that should execute the scan.
