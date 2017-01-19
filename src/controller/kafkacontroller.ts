@@ -1,5 +1,4 @@
-import {strictEqual} from "assert";
-import {remove} from "fs-extra";
+import {isNullOrUndefined} from "util";
 class KafkaController{
 
     private kafka: any;
@@ -7,15 +6,24 @@ class KafkaController{
     private client: any;
     private consumer: any;
     private isProducerReady: boolean = false;
+    private producerConfig: any = '{' +
+                                '// Configuration for when to consider a message as acknowledged, default 1 ' +
+                                'requireAcks: 1, ' +
+                                '// The amount of time in milliseconds to wait for all acks before considered, default 100ms ' +
+                                'ackTimeoutMs: 0, ' +
+                                '// Partitioner type (default = 0, random = 1, cyclic = 2, keyed = 3), default 0 ' +
+                                'partitionerType: 2 ' +
+                                '}';
 
-    constructor(){
+    constructor(zookeeper: string){
+        zookeeper = isNullOrUndefined(zookeeper) ? 'localhost:2181' : zookeeper;
         this.kafka = require('kafka-node');
-        this.client = new this.kafka.Client();
+        this.client = new this.kafka.Client(zookeeper);
     }
 
     initializeProducer(): void{
         let Producer = this.kafka.Producer;
-        this.producer = new Producer(this.client);
+        this.producer = new Producer(this.client, this.producerConfig);
         this.producer.on('ready', ()=>{
             this.isProducerReady = true;
         });
@@ -23,7 +31,7 @@ class KafkaController{
 
     initializeConsumer(clients: Array<any>): void{
         let Consumer = this.kafka.Consumer;
-        this.consumer = new Consumer(clients, {autoCommit: false});
+        this.consumer = new Consumer(this.client, clients, {autoCommit: false});
         this.consumer.on('message', (message: any) => {
             console.log(message);
         });
