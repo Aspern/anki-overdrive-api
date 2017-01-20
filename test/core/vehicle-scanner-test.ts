@@ -24,7 +24,6 @@ class VehicleScannerTest {
         });
     }
 
-
     @test @timeout(5000)"scanner finds all vehicles"(done: Function) {
         let scanner = new VehicleScanner();
 
@@ -47,6 +46,15 @@ class VehicleScannerTest {
         let scanner = new VehicleScanner();
 
         scanner.findByAddress(VehicleScannerTest._ADDRESS).then((vehicle) => {
+            expect(vehicle).not.to.be.null;
+            done();
+        }).catch((e) => done(e));
+    }
+
+    @test @timeout(5000)"scanner finds any vehicle"(done: Function) {
+        let scanner = new VehicleScanner();
+
+        scanner.findAny().then((vehicle) => {
             expect(vehicle).not.to.be.null;
             done();
         }).catch((e) => done(e));

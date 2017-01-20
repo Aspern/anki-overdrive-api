@@ -42,7 +42,7 @@ class VehicleScanner {
 
         return new Promise<Vehicle>((resolve, reject) => {
             me.findAll().then((vehicles) => {
-                vehicles.forEach((vehicle : AnkiOverdriveVehicle) => {
+                vehicles.forEach((vehicle: AnkiOverdriveVehicle) => {
                     if (vehicle.id === id)
                         resolve(vehicle);
                 });
@@ -51,17 +51,30 @@ class VehicleScanner {
         });
     }
 
-    findByAddress(address: string) {
+    findByAddress(address: string): Promise<Vehicle> {
         let me = this;
 
         return new Promise<Vehicle>((resolve, reject) => {
             me.findAll().then((vehicles) => {
-                vehicles.forEach((vehicle : AnkiOverdriveVehicle) => {
-                    if (vehicle.address=== address)
+                vehicles.forEach((vehicle: AnkiOverdriveVehicle) => {
+                    if (vehicle.address === address)
                         resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with address [" + address + "]."));
             }).catch(reject);
+        });
+    }
+
+    findAny(): Promise<Vehicle> {
+        let me = this;
+
+        return new Promise<Vehicle>((resolve, reject) => {
+            me.findAll().then((vehicles) => {
+                if (vehicles.length > 0)
+                    resolve(vehicles[0]);
+                else
+                    reject(new Error("Found no vehicle in BLE network."));
+            });
         });
     }
 
