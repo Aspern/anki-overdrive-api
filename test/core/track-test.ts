@@ -11,6 +11,36 @@ import {StartPiece} from "../../src/core/track/start-piece";
 @suite
 class TrackTest {
 
+    @test "track finds piecs"() {
+        let track: Track = AnkiOverdriveTrack.build([
+            new StraightPiece(10),
+            new StraightPiece(10),
+            new StraightPiece(10),
+            new StraightPiece(11)
+        ]);
+
+        expect(track.findPieces(10).length).to.equals(3);
+        expect(track.findPieces(11).length).to.equals(1);
+        expect(track.findPieces(0).length).to.equals(0);
+
+        track.findPieces(10).forEach((piece) => {
+            expect(piece.id).to.equals(10);
+        });
+    }
+
+    @test "track finds single piece"() {
+        let track: Track = AnkiOverdriveTrack.build([
+            new StraightPiece(10),
+            new StraightPiece(10),
+            new StraightPiece(10),
+            new StraightPiece(11)
+        ]);
+
+        expect(track.findPiece(10).id).to.equals(10);
+        expect(track.findPiece(11).id).to.equals(11);
+        expect(track.findPiece(0)).to.be.null;
+    }
+
     @test "track has at least start and end pieces"() {
         let track = new AnkiOverdriveTrack();
 
