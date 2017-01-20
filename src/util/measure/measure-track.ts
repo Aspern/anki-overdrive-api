@@ -4,24 +4,27 @@ import reject = Promise.reject;
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
 import {ConsoleResultHandler} from "./console-result-handler";
 import {ValidationReport} from "./validation-report";
-import {Track} from "./track-interface";
-import {AnkiOverdriveTrack} from "./anki-overdrive-track";
-import {CurvePiece} from "./curve-piece";
-import {StraightPiece} from "./straight-piece";
-import {StartPiece} from "./start-piece";
+import {Track} from "../../core/track/track-interface";
+import {AnkiOverdriveTrack} from "../../core/track/anki-overdrive-track";
+import {CurvePiece} from "../../core/track/curve-piece";
+import {StraightPiece} from "../../core/track/straight-piece";
+import {StartPiece} from "../../core/track/start-piece";
+import {Distance} from "./distance";
 
 
 let scanner = new VehicleScanner(),
     debugging: boolean = process.argv[2] === "true" || true,
     speed = 400,
     acceleration = 250,
+    vehicleId: string,
     track: Track = AnkiOverdriveTrack.build([
         new CurvePiece(18),
         new CurvePiece(23),
         new StraightPiece(39),
         new CurvePiece(17),
         new CurvePiece(20)
-    ]);
+    ]),
+    resultHandler = new ConsoleResultHandler();
 
 
 function handleError(e: Error): void {
@@ -36,12 +39,58 @@ function finish(): void {
     process.exit(0);
 }
 
-let resultHandler = new ConsoleResultHandler();
 
-function handleResult(results: Array<Array<PositionUpdateMessage>>): Promise<void> {
+function handleResult(results: Array<[Distance, Array<Distance>]>): Promise<void> {
     return new Promise<void>((resolve) => {
         resultHandler.handleResult(results);
         resolve();
+    });
+}
+
+
+function calculateDistanceForLane(messages: Array<PositionUpdateMessage>, lane: number): Distance {
+    let avgSpeed: number = 0,
+        firstMessage = messages[0],
+        lastMessage = messages[messages.length - 1],
+        duration = (lastMessage.timestamp.getTime() - firstMessage.timestamp.getTime()) / 1000;
+
+    messages.forEach((message) => {
+        avgSpeed += message.speed;
+    });
+
+    avgSpeed /= messages.length;
+
+    return new Distance(vehicleId, lane, avgSpeed, duration);
+}
+
+function calculateDistancesForTransitions(messages: Array<PositionUpdateMessage>, lane: number): Array<Distance> {
+    let distances = [];
+
+    for (var i = 0; i < messages.length - 1; ++i) {
+        let message1 = messages[i],
+            message2 = messages[i + 1],
+            avgSpeed = (message1.speed + message2.speed) / 2,
+            duration = (message2.timestamp.getTime() - message1.timestamp.getTime()) / 1000,
+            transition: [[number, number], [number, number]] = [[message1.id, message1.location], [message2.id, message2.location]];
+
+        distances.push(new Distance(vehicleId, lane, avgSpeed, duration, transition));
+    }
+
+    return distances;
+}
+
+function calculateDistances(results: Array<Array<PositionUpdateMessage>>): Promise<Array<[Distance, Array<Distance>]>> {
+    console.log(results);
+
+    return new Promise < Array<[Distance, Array<Distance>]>>((resolve) => {
+        let distances: Array<[Distance, Array<Distance>]> = [];
+
+        for (var i = 0; i < results.length; ++i) {
+            let result = results[i];
+            distances.push([calculateDistanceForLane(result, i), calculateDistancesForTransitions(result, i)]);
+        }
+
+        resolve(distances);
     });
 }
 
@@ -51,41 +100,30 @@ function findLane([vehicle, lane, offset] : [Vehicle, number, number]): Promise<
         console.log("Searching for lane [" + lane + "]...");
 
     return new Promise<[Vehicle, PositionUpdateMessage, number]>((resolve, reject) => {
-
         let attempts: number = 0,
             listener = (message: PositionUpdateMessage) => {
-                try {
-                    let piece = message.piece,
-                        location = message.location,
-                        startLocation = track.start.getLocation(lane, 0);
+                let piece = message.piece,
+                    location = message.location,
+                    startLocation = track.start.getLocation(lane, 0);
 
-                    if (attempts >= 3)
-                        reject(new Error("Unable to find start, please try again with other" +
-                            " parameters."));
+                if (attempts >= 3)
+                    reject(new Error("Unable to find start, please try."));
 
-                    console.log("piece: " + piece);
-                    console.log("location: " + location);
-                    console.log("StartPiece._ID: " + StartPiece._ID);
-                    console.log("startLocation: " + startLocation);
+                if (piece === StartPiece._ID) {
+                    if (location === startLocation) {
+                        vehicle.removeListener(listener);
 
-                    if (piece === StartPiece._ID) {
-                        if (location === startLocation) {
-                            vehicle.removeListener(listener);
+                        if (debugging)
+                            console.log("Found lane [" + lane + "].");
 
-                            if (debugging)
-                                console.log("Found lane [" + lane + "].");
-
-                            attempts = 0;
-                            resolve([vehicle, message, lane]);
-                        } else if (location < startLocation - 1 || location > startLocation + 1) {
-                            vehicle.changeLane(offset);
-                            ++attempts;
-                        }
-
+                        attempts = 0;
+                        resolve([vehicle, message, lane]);
+                    } else if (location < startLocation || location > startLocation) {
+                        vehicle.changeLane(offset);
+                        ++attempts;
                     }
-                } catch (e) {
-                    reject(e);
                 }
+
             };
 
         vehicle.changeLane(offset);
@@ -101,33 +139,26 @@ function validateMessages(messages: Array<PositionUpdateMessage>, lane: number):
     let report = new ValidationReport().setValid(),
         i = 0;
 
-    try {
+    track.eachPiece((piece) => {
+        let foundPiece = messages[i] ? messages[i].piece : undefined,
+            expectedPiece = piece.id;
 
-        track.eachPiece((piece) => {
-            let foundPiece = messages[i] ? messages[i].piece : undefined,
-                expectedPiece = piece.id;
+        if (foundPiece !== expectedPiece)
+            report.setInvalid()
+                .setPiece(foundPiece, expectedPiece);
 
-            if (foundPiece !== expectedPiece)
+        piece.eachLocationOnLane(lane, (location) => {
+            let foundLocation = messages[i] ? messages[i].location : undefined,
+                expectedLocation = location;
+
+            if (foundLocation !== expectedLocation)
                 report.setInvalid()
-                    .setPiece(foundPiece, expectedPiece);
-
-            piece.eachLocationOnLane(lane, (location) => {
-                let foundLocation = messages[i] ? messages[i].location : undefined,
-                    expectedLocation = location;
-
-                if (foundLocation !== expectedLocation)
-                    report.setInvalid()
-                        .setPiece(foundPiece, expectedPiece)
-                        .setLocation(foundLocation, expectedLocation);
-
-                ++i;
-            });
-
+                    .setPiece(foundPiece, expectedPiece)
+                    .setLocation(foundLocation, expectedLocation);
+            ++i;
         });
 
-    } catch (e) {
-        report.setInvalid().setError(e);
-    }
+    });
 
     return report;
 }
@@ -179,7 +210,7 @@ function measureLane([vehicle, [lane, offset]]:[Vehicle, [number, number]]): Pro
 
 function measureTrack([vehicle, data] : [Vehicle, Array<[number, number]>]): Promise<Array<Array<PositionUpdateMessage>>> {
     if (debugging)
-        console.log("Starting measuring track with data [" + data + "].");
+        console.log("Starting measuring track with [lane,offset] [" + data + "].");
 
     return data.reduce((promise, d) => {
         return promise.then((results: Array<Array<PositionUpdateMessage>>) => {
@@ -215,7 +246,6 @@ function prepareMeasurement(vehicle: Vehicle): Promise<[Vehicle, Array<[number, 
     });
 }
 
-
 function pickAnyVehicle(vehicles: Array<Vehicle>): Promise<Vehicle> {
     return new Promise<Vehicle>((resolve, reject) => {
         if (vehicles.length === 0)
@@ -226,16 +256,17 @@ function pickAnyVehicle(vehicles: Array<Vehicle>): Promise<Vehicle> {
             if (debugging)
                 console.log("Found vehicle [" + vehicle.id + "].");
 
+            vehicleId = vehicle.id;
             resolve(vehicles[0]);
         }
     });
 }
 
-
 scanner.findAll()
     .then(pickAnyVehicle)
     .then(prepareMeasurement)
     .then(measureTrack)
+    .then(calculateDistances)
     .then(handleResult)
     .then(finish)
     .catch(handleError);

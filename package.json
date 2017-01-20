@@ -37,7 +37,8 @@
   },
   "scripts": {
     "test": "tsc -p . && mocha test/*",
-    "test-core": "tsc -p . && mocha test/core ",
+    "test-core": "tsc -p . && mocha test/core",
+    "test-util": "tsc -p . && mocha test/util",
     "scan" : "gulp && node ./dist/src/util/scan/scan.js",
     "measure-track" : "gulp && node ./dist/src/util/measure/measure-track.js",
     "prepublish": "tsc -p ."
