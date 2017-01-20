@@ -30,10 +30,42 @@ class TrackTest {
             current: Piece = track.start.next,
             i = 0;
 
-        while(current !== track.end) {
+        while (current !== track.end) {
             expect(current).to.be.equal(pieces[i++]);
             current = current.next;
         }
+    }
+
+    @test "track iterates lanes corrently"() {
+        let pieces: Array<Piece> = [
+                new CurvePiece(0),
+                new CurvePiece(1),
+                new StraightPiece(2),
+                new CurvePiece(3),
+                new CurvePiece(4)
+            ],
+            track: Track = AnkiOverdriveTrack.build(pieces),
+            i = 0,
+            j = 0;
+
+        pieces.splice(0, 0, new StartPiece());
+        pieces.push(new EndPiece());
+
+        track.eachLaneOnPiece((piece, lane) => {
+            let expectedPiece = pieces[i],
+                expectedLane = expectedPiece.getLane(j);
+
+            expect(piece.id).to.be.equal(expectedPiece.id);
+            expect(lane.length).to.equals(expectedLane.length);
+            for (let k = 0; k < lane.length; ++k)
+                expect(lane[k]).to.equals(expectedLane[k]);
+
+            if (i === pieces.length - 1) {
+                i = 0;
+                ++j;
+            } else
+                ++i;
+        });
     }
 
 }

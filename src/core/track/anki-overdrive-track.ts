@@ -25,6 +25,15 @@ class AnkiOverdriveTrack implements Track {
         } while (current !== this.start);
     }
 
+
+    eachLaneOnPiece(handler: (piece: Piece, lane: Array<number>) => any): void {
+        for (let i = 0; i < 16; ++i) {
+            this.eachPiece((piece) => {
+                handler(piece, piece.getLane(i));
+            });
+        }
+    }
+
     public static build(pieces: Array<Piece>): Track {
         let track = new AnkiOverdriveTrack(),
             current: Piece = track.start,
