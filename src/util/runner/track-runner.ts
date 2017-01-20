@@ -81,6 +81,7 @@ class TrackRunner {
 
         me._vehicle.connect().then(() => {
             me._running = true;
+            me._vehicle.setSpeed(me._speed, me._acceleration);
             me._trackStartedHandler();
             me._laneData.reduce((promise, data) => {
                 let lane = data[0],
