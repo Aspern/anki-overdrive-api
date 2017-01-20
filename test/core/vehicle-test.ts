@@ -38,7 +38,7 @@ class VehicleTest {
             .catch((e) => done(e));
     }
 
-    @test @timeout(5000) "set speed and stop"(done: Function) {
+    @test @timeout(5000) "vehcile drives with expected speed"(done: Function) {
         let speed: number = 500,
             listener = (msg: PositionUpdateMessage) => {
                 expect(msg.speed).approximately(speed, 30);
@@ -55,7 +55,7 @@ class VehicleTest {
         }, 2000);
     }
 
-    @test @timeout(5000) "change lane"(done: Function) {
+    @test @timeout(5000) "vehcile changes lane correctly"(done: Function) {
         let offset: number = 0,
             listener = (msg: PositionUpdateMessage) => {
                 expect(msg.offset).approximately(offset, 3.0);
@@ -76,7 +76,7 @@ class VehicleTest {
         }), 2000;
     }
 
-    @test @timeout(5000) "query ping"(done: Function) {
+    @test @timeout(5000) "vehciles queries ping"(done: Function) {
         VehicleTest._VEHICLE
             .queryPing()
             .then((ping) => {
@@ -85,7 +85,7 @@ class VehicleTest {
             }).catch((e) => done(e));
     }
 
-    @test @timeout(5000) "query version"(done: Function) {
+    @test @timeout(5000) "vehicle quries version"(done: Function) {
         VehicleTest._VEHICLE
             .queryVersion()
             .then((version) => {
@@ -94,7 +94,7 @@ class VehicleTest {
             }).catch((e) => done(e));
     }
 
-    @test @timeout(5000) "query battery level"(done: Function) {
+    @test @timeout(5000) "vehicle queries battery level"(done: Function) {
         VehicleTest._VEHICLE
             .queryBatteryLevel()
             .then((batteryLevel) => {
@@ -103,7 +103,7 @@ class VehicleTest {
             }).catch((e) => done(e));
     }
 
-    @test @timeout(5000)"add and remove listener"(done: Function) {
+    @test @timeout(5000)"vehicles executes listeners"(done: Function) {
         let accessed = false,
             listener = (msg: VehicleMessage) => {
                 expect(msg).to.be.instanceof(VehicleMessage);
@@ -121,7 +121,7 @@ class VehicleTest {
         }, 3000);
     }
 
-    @test @timeout(5000)"add typed listener"(done: Function) {
+    @test @timeout(5000)"vehicle executes typed listeners"(done: Function) {
         let listener = (msg: TransitionUpdateMessage) => {
             expect(msg).to.be.instanceof(TransitionUpdateMessage);
         }
@@ -137,7 +137,7 @@ class VehicleTest {
 
     }
 
-    @test @timeout(5000)"execute u-turn"(done: Function) {
+    @test @timeout(5000)"vehicle executes u-turn"(done: Function) {
         var direction: DrivingDirection,
             executed = false,
             listener1 = (msg: TransitionUpdateMessage) => {

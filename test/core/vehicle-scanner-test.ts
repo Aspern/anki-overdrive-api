@@ -2,12 +2,10 @@ import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
 import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
 
-
 @suite
 class VehicleScannerTest {
 
     static _ID: string;
-
     static _ADDRESS: string;
 
     @timeout(5000)
@@ -27,7 +25,7 @@ class VehicleScannerTest {
     }
 
 
-    @test @timeout(5000)"find all vehicles"(done: Function) {
+    @test @timeout(5000)"scanner finds all vehicles"(done: Function) {
         let scanner = new VehicleScanner();
 
         scanner.findAll().then((vehicles) => {
@@ -36,7 +34,7 @@ class VehicleScannerTest {
         }).catch((e) => done(e));
     }
 
-    @test @timeout(5000)"find vehicle by id"(done: Function) {
+    @test @timeout(5000)"scanner finds vehicles by their id"(done: Function) {
         let scanner = new VehicleScanner();
 
         scanner.findById(VehicleScannerTest._ID).then((vehicle) => {
@@ -45,7 +43,7 @@ class VehicleScannerTest {
         }).catch((e) => done(e));
     }
 
-    @test @timeout(5000)"find vehicle by address"(done: Function) {
+    @test @timeout(5000)"scanner finds vehicles by their address"(done: Function) {
         let scanner = new VehicleScanner();
 
         scanner.findByAddress(VehicleScannerTest._ADDRESS).then((vehicle) => {
