@@ -1,12 +1,11 @@
-import {Distance} from "./distance";
-
+import {Piece} from "./piece-interface";
 interface Track {
 
-    getDistance(vehicleId1: string, vehicleId2: string) : number
+    start : Piece;
+    end: Piece;
 
-    getDistances(vehicleId: string) : Array<Distance>
+    eachPiece(handler: (piece : Piece) => any) : void;
 
-    getAllDistances() : Array<Distance>
 }
 
 export {Track};
