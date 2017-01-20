@@ -16,6 +16,19 @@
     "src/core/track/distance.ts",
     "src/core/track/piece.ts",
 
+
+    "src/util/measure/piece-interface.ts",
+    "src/util/measure/track-interface.ts",
+    "src/util/measure/anki-overdrive-piece.ts",
+    "src/util/measure/anki-overdrive-track.ts",
+    "src/util/measure/start-piece.ts",
+    "src/util/measure/end-piece.ts",
+    "src/util/measure/straight-piece.ts",
+    "src/util/measure/curve-piece.ts",
+    "src/util/measure/validation-report.ts",
+    "src/util/measure/distance.ts",
+    "src/util/measure/result-handler-interface.ts",
+    "src/util/measure/console-result-handler.ts",
     "src/util/scan/scan.ts",
     "src/util/measure/measure-track.ts",
 
