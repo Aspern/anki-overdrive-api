@@ -16,6 +16,28 @@ class AnkiOverdriveTrack implements Track {
         this.end.next = this.start;
     }
 
+
+    findPieces(id: number): Array<Piece> {
+        let pieces: Array<Piece> = [];
+
+        this.eachPiece((piece) => {
+            if (piece.id === id)
+                pieces.push(piece);
+        });
+
+        return pieces;
+    }
+
+    findPiece(id: number): Piece {
+        let pieces = this.findPieces(id),
+            piece = null;
+
+        if (pieces.length > 0)
+            piece = pieces[0];
+
+        return piece;
+    }
+
     eachPiece(handler: (piece: Piece) => any): void {
         let current: Piece = this.start;
 
