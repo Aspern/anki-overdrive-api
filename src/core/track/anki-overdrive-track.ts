@@ -74,6 +74,45 @@ class AnkiOverdriveTrack implements Track {
     }
 
 
+    distance(p1: number, l1: number, p2: number, l2: number): number {
+        let piece1 = this.findPiece(p1),
+            pos1: number,
+            pos2 : number,
+            piece2 = this.findPiece(p2),
+            lane1 = 0,
+            lane2= 0,
+            distance = 0;
+
+        if(!piece1 || !piece2)
+            throw new Error("Invalid pieces");
+
+        for (; lane1 < 16; lane1++) {
+            if (piece1.getLane(lane1).indexOf(l1) > -1) {
+                pos1 =  piece1.getLane(lane1).length - piece1.getLane(lane1).indexOf(l1);
+                break;
+            }
+        }
+
+        for(;lane2 < 16; lane2++) {
+            if (piece2.getLane(lane2).indexOf(l2) > -1) {
+                pos2 = piece2.getLane(lane2).length - piece2.getLane(lane2).indexOf(l2);
+                break;
+            }
+        }
+
+        let next = piece1.next;
+
+        while(next !== piece2) {
+            distance += next.getLane(lane1).length;
+            next = next.next;
+        }
+
+
+        distance += pos1 + pos2;
+
+        return distance;
+    }
+
     get start(): StartPiece {
         return this._start;
     }
