@@ -131,7 +131,9 @@ class TrackRunner {
         let me = this,
             vehicle = me._vehicle,
             startLocation = me._track.start.getLocation(lane, 0),
-            attempts = 0;
+            attempts = 0,
+            correcting = false;
+
 
         return new Promise<PositionUpdateMessage>((resolve) => {
             let listener = (message: PositionUpdateMessage) => {
@@ -144,16 +146,24 @@ class TrackRunner {
                 if (piece === StartPiece._ID) {
                     if (location === startLocation) {
                         vehicle.removeListener(listener);
+
+
                         resolve(message);
-                    } else if (location < startLocation || location > startLocation) {
-                        vehicle.changeLane(offset);
-                        ++attempts;
+                    } else if (location < startLocation || location > startLocation && !correcting) {
+
+                        vehicle.setOffset(message.offset);
+                        correcting = true;
+                        setTimeout(() => {
+                            vehicle.changeLane(offset);
+                            ++attempts;
+                            correcting = false;
+                        });
                     }
                 }
             };
 
             vehicle.changeLane(offset);
-            setTimeout(() => vehicle.addListener(listener, PositionUpdateMessage), 1000);
+            setTimeout(() => vehicle.addListener(listener, PositionUpdateMessage), 1500);
         });
     }
 
@@ -162,7 +172,8 @@ class TrackRunner {
             vehicle = me._vehicle,
             messages: Array<PositionUpdateMessage> = [startMessage];
 
-        return new Promise<Array<PositionUpdateMessage>>((resolve, reject) => {
+
+        return new Promise<Array<PositionUpdateMessage>>((resolve) => {
             let listener = (message: PositionUpdateMessage) => {
                 let piece = message.piece,
                     location = message.location;

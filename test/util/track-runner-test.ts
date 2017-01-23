@@ -1,7 +1,6 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
 import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
-import {Vehicle} from "../../src/core/vehicle/vehicle-interface";
 import {Track} from "../../src/core/track/track-interface";
 import {AnkiOverdriveTrack} from "../../src/core/track/anki-overdrive-track";
 import {CurvePiece} from "../../src/core/track/curve-piece";
@@ -36,24 +35,48 @@ class TrackRunnerTest {
             }).onTrackStarted(() => {
                 // If necessary add expectation here.
             }).onTrackFinished((result: Array<Array<PositionUpdateMessage>>) => {
-                me.validateResult(result);
+                me.validateResult(result, done);
                 done();
             }).onLaneFinished((messages: Array<PositionUpdateMessage>, lane: number) => {
                 expect(lane).to.be.equal(expectedLane);
                 ++expectedLane;
-                me.validateLane(messages);
+                me.validateLane(messages, lane, done);
             }).onLaneStarted((lane: number) => {
                 expect(lane).to.be.equal(expectedLane);
             }).run();
         });
     }
 
-    private validateResult(result: Array<Array<PositionUpdateMessage>>): void {
-        console.log(result);
+    private validateResult(result: Array<Array<PositionUpdateMessage>>, done: Function): void {
+        try {
+            expect(result.length).to.equals(16);
+
+            for (let lane = 0; lane < result.length; ++lane) {
+                let messages = result[lane];
+                this.validateLane(messages, lane, done);
+            }
+        } catch (e) {
+            done(e);
+        }
     }
 
-    private validateLane(messages: Array<PositionUpdateMessage>): void {
+    private validateLane(messages: Array<PositionUpdateMessage>, lane: number, done: Function): void {
+        let track = this._track;
 
+        for (let i = 0; i < messages.length; ++i) {
+                let message = messages[i],
+                    piece = track.findPiece(message.id);
+            try {
+                expect(piece).not.to.be.null;
+                expect(piece.getLane(lane).indexOf(message.location)).to.be.gt(-1);
+            } catch (e) {
+                console.error(piece);
+                console.error("laneNumber: " + lane);
+                console.error("lane: " + piece.getLane(lane));
+                console.error(message);
+                done(e);
+            }
+        }
     }
 
 }

@@ -27,6 +27,7 @@
     "src/util/measure/console-result-handler.ts",
     "src/util/scan/scan.ts",
     "src/util/measure/measure-track.ts",
+    "src/util/runner/track-runner.ts",
 
     "src/controller/console.ts",
     "src/controller/main.ts",
