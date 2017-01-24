@@ -1,78 +1,72 @@
 import {ResultHandler} from "./result-handler-interface";
 import {Distance} from "./distance";
 
-class ConsoleResultHandler implements ResultHandler<Array<[Distance, Array<Distance>]>> {
+class ConsoleResultHandler implements ResultHandler {
 
-    handleResult(result: Array<[Distance, Array<Distance>]>): void {
+    private _table: string;
 
-        console.log("Lane \t Whole Lane \t \t \t Transitions");
-        console.log("\t avgSpeed[mm/sec] \t duration [sec] \t distance [mm] \t" +
-            " avgSpeed[mm/sec] \t duration [sec] \t distance [mm]");
+    constructor() {
+        this._table = "Lane \t Duration [sec] \t AvgSpeed [mm/sec] \t Length [mm] \n";
+        this._table += "------------------------------------------------------------------------------------\n";
+    }
 
-        let
-            transitionTables: Array<string> = [],
-            j = 0;
+    handle(result: Array<[Distance, Array<Distance>]>): void {
+        for (let lane = 0; lane < result.length; ++lane) {
+            let laneDistance: Distance = result[lane][0],
+                transitionDistances: Array<Distance> = result[lane][1];
 
-        result.forEach((lane) => {
-            let distanceLane = lane[0],
-                distanceTransitions = lane[1],
-                aggregatedTransitions: [number, number, number] = this.aggregateTransistions(distanceTransitions),
-                row = "",
-                i = 0,
-                transitionTable = "";
+            this.collectLane(laneDistance);
+            this.printTransitions(transitionDistances, lane);
+        }
 
-            row += j++ + "\t";
-            row += distanceLane.avgSpeed.toLocaleString() + "\t";
-            row += distanceLane.duration.toLocaleString() + "\t";
-            row += distanceLane.distance.toLocaleString() + "\t";
+        console.log("");
+        console.log(this._table);
+    }
 
-            row += aggregatedTransitions[0].toLocaleString() + "\t";
-            row += aggregatedTransitions[1].toLocaleString() + "\t";
-            row += aggregatedTransitions[2].toLocaleString() + "\t";
+    private collectLane(distance: Distance): void {
+        let row: string = "";
+
+        row += distance.lane + "\t\t\t";
+        row += this.printNumber(distance.duration) + "\t\t\t\t";
+        row += this.printNumber(distance.avgSpeed) + "\t\t\t";
+        row += this.printNumber(distance.distance) + "\n";
+
+        this._table += row;
+    }
+
+    private printTransitions(distances: Array<Distance>, lane: number): void {
+        let totalDuration: number = 0,
+            totalDistance: number = 0;
+
+        console.log("Transitions for last lane: " + lane);
+        console.log("Transition \t\t Duration [sec] \t AvgSpeed [mm/sec] \t Distance [mm]");
+        console.log("------------------------------------------------------------------------------------------------");
+        for (let i = 0; i < distances.length; ++i) {
+            let distance = distances[i],
+                row = "";
+
+            row += distance.transition + "\t\t\t";
+            row += this.printNumber(distance.duration) + "\t\t\t\t";
+            row += this.printNumber(distance.avgSpeed) + "\t\t\t";
+            row += this.printNumber(distance.distance);
+
+            totalDuration += distance.duration;
+            totalDistance += distance.distance;
 
             console.log(row);
+        }
+        console.log("------------------------------------------------------------------------------------------------");
+        console.log("TOTAL\t\t\t\t\t" + this.printNumber(totalDuration) + "\t\t\t\t\t\t\t\t\t" +
+            this.printNumber(totalDistance));
 
-
-            distanceTransitions.forEach((distance) => {
-                let subRow = "";
-
-                subRow += i++ + "\t";
-                subRow += this.transitionToString(distance.transition) + "\t";
-                subRow += distance.avgSpeed.toLocaleString() + "\t";
-                subRow += distance.duration.toLocaleString() + "\t";
-                subRow += distance.distance.toLocaleString() + "\t";
-
-                transitionTable += subRow + "\n";
-
-            });
-
-            transitionTables.push(transitionTable);
-        });
-
-        transitionTables.forEach((table) => {
-            console.log("");
-            console.log(table);
-        });
+        console.log("");
     }
 
-    private transitionToString([[p1, l1], [p2, l2]]:[[number, number], [number, number]]): string {
-        return p1 + "@" + l1 + " => " + p2 + "@" + l2;
-    }
-
-    private aggregateTransistions(transitions: Array<Distance>): [number, number, number] {
-        let avgSpeed: number = 0,
-            sumDuration: number = 0,
-            sumDistance: number = 0;
-
-        transitions.forEach((transition) => {
-            avgSpeed += transition.avgSpeed;
-            sumDuration += transition.duration;
-            sumDistance += transition.distance;
+    private printNumber(n: number): string {
+        return n.toLocaleString(undefined, {
+            minimumFractionDigits: 4,
+            maximumFractionDigits: 4
         });
-
-        avgSpeed /= transitions.length;
-
-        return [avgSpeed, sumDuration, sumDistance];
     }
 }
 

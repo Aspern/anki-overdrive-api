@@ -1,6 +1,8 @@
-interface ResultHandler<R> {
+import {Distance} from "./distance";
 
-    handleResult(result: R) : void;
+interface ResultHandler {
+
+    handle(result: Array<[Distance, Array<Distance>]>): void
 
 }
 

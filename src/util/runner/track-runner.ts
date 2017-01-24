@@ -105,6 +105,9 @@ class TrackRunner {
     stop(e?: Error): void {
         let me = this;
 
+        if(e)
+            console.error(e);
+
         if (me._running) {
             me._vehicle.setSpeed(0, 1500);
             me._vehicle.disconnect().then(() => {
@@ -186,7 +189,7 @@ class TrackRunner {
                         resolve(messages);
                     } else {
                         console.error(report);
-                        messages = [startMessage];
+                        messages = [message];
                     }
                 } else
                     messages.push(message);
