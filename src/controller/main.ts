@@ -12,6 +12,14 @@ console.log("scanning vehicles...");
 let scanner = new VehicleScanner();
 let ankiConsole = new AnkiConsole();
 
+let kafka = new KafkaController('192.168.2.111:2181');
+
+let canSend: boolean;
+
+kafka.initializeProducer().then((isStarted: boolean)=> {
+    canSend = isStarted;
+});
+
 scanner.findAll().then((vehicles)=>{
     this.vehicles = vehicles;
     vehicles.forEach(function(vehicle, index) {
@@ -21,10 +29,9 @@ scanner.findAll().then((vehicles)=>{
 
     vehicles[0].addListener((message) => {
         console.log(message);
+        canSend ? kafka.sendPayload([ { topic: 'cartest', messages: message , partitions: 1 }]): console.log('not started');
     }, PositionUpdateMessage);
 });
-
-let kafka = new KafkaController('localhost:2181');
 
 kafka.addListener((message: any) => {
     console.log(message);
@@ -32,9 +39,8 @@ kafka.addListener((message: any) => {
 
 kafka.initializeConsumer([{ topic: 'test', partition: 0 }]);
 
-kafka.initializeProducer().then((isStarted: boolean)=> {
-    //isStarted ? kafka.sendPayload([ { topic: 'test', messages: "finally working again" , partitions: 1 }]): console.log('not started');
-});
+
+
 
 
 
