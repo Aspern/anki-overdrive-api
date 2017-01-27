@@ -50,4 +50,6 @@ and sending/receiving messages from them.
  for example with command line or a kafka message queue.
 
 - [Util Module](./src/util/README.md) - Any runnable code/algorithm for specific scenrios or 
-tasks. Like for example getting information about vehicles in the network. 
+tasks. Like for example getting information about vehicles in the network.
+
+##test
