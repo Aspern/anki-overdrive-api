@@ -52,4 +52,3 @@ and sending/receiving messages from them.
 - [Util Module](./src/util/README.md) - Any runnable code/algorithm for specific scenrios or 
 tasks. Like for example getting information about vehicles in the network.
 
-##test
