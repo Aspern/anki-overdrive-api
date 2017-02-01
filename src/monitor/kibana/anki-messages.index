@@ -1,0 +1,120 @@
+DELETE anki-messages
+
+PUT anki-messages
+{
+  "settings": {
+    "number_of_replicas": 0,
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "_default_": {
+      "properties": {
+        "timestamp": {
+          "type": "date"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "vehicleId": {
+          "type": "keyword"
+        }
+      }
+    },
+    "position-update": {
+      "properties": {
+        "location": {
+          "type": "integer"
+        },
+        "piece": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "float"
+        },
+        "speed": {
+          "type": "integer"
+        },
+        "flags": {
+          "type": "byte"
+        },
+        "lastLaneChangeCmd": {
+          "type": "byte"
+        },
+        "lastExecLaneChangeCmd": {
+          "type": "byte"
+        },
+        "lastDesiredSpeed": {
+          "type": "integer"
+        },
+        "lastDesiredHorizontalSpeed": {
+          "type": "integer"
+        }
+      }
+    },
+    "transition-update": {
+      "properties": {
+        "piece": {
+          "type": "integer"
+        },
+        "previousPiece": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "float"
+        },
+        "direction": {
+          "type": "short"
+        },
+        "lastLaneChangeCmd": {
+          "type": "byte"
+        },
+        "lastExecLaneChangeCmd": {
+          "type": "byte"
+        },
+        "lastDesiredSpeed": {
+          "type": "integer"
+        },
+        "lastDesiredHorizontalSpeed": {
+          "type": "integer"
+        },
+        "upHillCounter": {
+          "type": "integer"
+        },
+        "downHillCounter": {
+          "type": "integer"
+        },
+        "leftWheelDistance": {
+          "type": "integer"
+        },
+        "rightWheelDistance": {
+          "type": "integer"
+        }
+      }
+    },
+    "intersection-update": {
+      "properties": {
+        "piece": {
+          "type": "integer"
+        },
+        "offset": {
+          "type": "float"
+        },
+        "direction": {
+          "type": "short"
+        },
+        "code": {
+          "type": "integer"
+        },
+        "turn": {
+          "type": "integer"
+        },
+        "exiting": {
+          "type": "boolean"
+        }
+      }
+    },
+    "delocalized": {
+      "properties": {}
+    }
+  }
+}
