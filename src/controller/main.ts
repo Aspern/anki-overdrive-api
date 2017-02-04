@@ -24,17 +24,30 @@ scanner.findAll().then((vehicles)=>{
     }, PositionUpdateMessage);
 });
 
-let kafka = new KafkaController('localhost:2181');
+var propertiesFileName = 'config.properties';
+var properties = require ("properties");
 
-kafka.addListener((message: any) => {
-    console.log(message);
-}, ConsumerMessage);
+
+
+properties.parse(__dirname + '/../../' + propertiesFileName, {path: true}, function(error: any, obj: any) {
+    if (error) return console.error (error);
+    console.log (obj);
+});
+
+
+
+let kafka = new KafkaController('localhost:2181');
 
 kafka.initializeConsumer([{ topic: 'test', partition: 0 }]);
 
 kafka.initializeProducer().then((isStarted: boolean)=> {
     //isStarted ? kafka.sendPayload([ { topic: 'test', messages: "finally working again" , partitions: 1 }]): console.log('not started');
+    console.log(isStarted);
+    kafka.createProducerTopics(['test1', 'test2']);
 });
+
+
+
 
 
 

@@ -20,7 +20,8 @@ class KafkaController implements IConsumerListener{
     constructor(zookeeper: string){
         zookeeper = isNullOrUndefined(zookeeper) ? 'localhost:2181' : zookeeper;
         this.kafka = require('kafka-node');
-        this.client = new this.kafka.Client(zookeeper);
+        this.client = new this.kafka.Client(zookeeper);;
+
     }
 
     initializeProducer(): Promise<boolean>{
@@ -47,8 +48,6 @@ class KafkaController implements IConsumerListener{
 
     createProducerTopics(topics: Array<string>): any{
             this.producer.createTopics(topics, false, (err: any, data: any) => {
-                console.log(err);
-                console.log(data);
                 err ? err : data;
             });
     }
@@ -79,6 +78,19 @@ class KafkaController implements IConsumerListener{
         });
     }
 
+    getAllTopics(): Promise<any>{
+        return new Promise<any>((resolve, reject) => {
+            this.client.loadMetadataForTopics([], function (error: any, results: any) {
+                console.log(error);
+                console.log(results);
+                if(error)
+                    reject(error);
+                else
+                    resolve(results);
+            });
+        });
+    }
+
     addListener(listener: (message: any) => any, filter?: any): void {
         this._listeners.push({l: listener, f: filter});
     }
@@ -88,6 +100,10 @@ class KafkaController implements IConsumerListener{
             if (this._listeners[i].l === listener)
                 this._listeners.splice(i, 1);
         }
+    }
+
+    close(): void{
+
     }
 }
 export {KafkaController}
