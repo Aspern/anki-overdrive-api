@@ -12,6 +12,7 @@ interface Track {
 
     eachLaneOnPiece(handler: (piece: Piece, lane: Array<number>) => any): void;
 
+    findLane(pieceId: number, location: number): number;
 }
 
 export {Track};

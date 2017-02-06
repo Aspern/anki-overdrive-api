@@ -73,6 +73,16 @@ class AnkiOverdriveTrack implements Track {
         return track;
     }
 
+    findLane(pieceId: number, location: number): number {
+        let lane = 0,
+            piece = this.findPiece(pieceId);
+
+        for (; lane < 16; ++lane)
+            if (piece.getLane(lane).indexOf(location) > -1)
+                return lane;
+
+        throw new Error("Found no lane for piece [" + pieceId + "] and location [" + location + "].");
+    }
 
     get start(): StartPiece {
         return this._start;
