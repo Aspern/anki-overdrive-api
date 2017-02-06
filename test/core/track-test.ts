@@ -98,4 +98,23 @@ class TrackTest {
         });
     }
 
+    @test "track finds lane"() {
+        let track: Track = AnkiOverdriveTrack.build([
+            new CurvePiece(0),
+            new CurvePiece(1),
+            new StraightPiece(2),
+            new CurvePiece(3),
+            new CurvePiece(4)
+        ]);
+
+        expect(track.findLane(0, 0)).to.be.equals(0);
+        expect(track.findLane(0, 36)).to.be.equals(15);
+        expect(track.findLane(2, 2)).to.be.equals(0);
+        expect(track.findLane(2, 24)).to.be.equals(8);
+        expect(track.findLane(2, 45)).to.be.equals(15);
+
+        for(let i = 0; i < 16; ++i)
+            expect(track.findLane(StartPiece._ID, i)).to.be.equals(i);
+    }
+
 }
