@@ -1,6 +1,7 @@
 {
   "files": [
     "src/core/vehicle/vehicle-interface.ts",
+    "src/core/vehicle/light-config.ts",
     "src/core/vehicle/anki-overdrive-vehicle.ts",
     "src/core/vehicle/vehicle-scanner.ts",
     "src/core/message/vehicle-message.ts",

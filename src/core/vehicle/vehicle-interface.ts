@@ -1,4 +1,5 @@
 import {VehicleMessage} from "../message/vehicle-message";
+import {LightConfig} from "./light-config";
 
 /**
  * Provides methods to interact with a vehicle from Anki OVERDRIVE.
@@ -105,14 +106,14 @@ interface Vehicle {
     queryVersion(): Promise<number>;
 
     /**
-     * Queries for the vehicles's batter level.
+     * Queries for the vehc's batter level.
      *
      * @return {Promise<number>|Promise} Promise holding battery level.
      */
     queryBatteryLevel(): Promise<number>;
 
     /**
-     * Adds a listener to the vehicles data events. Each listener can contain a filter on
+     * Adds a listener to the vehc data events. Each listener can contain a filter on
      * special message types.
      *
      * @param listener The listener function.
@@ -127,6 +128,15 @@ interface Vehicle {
      * @param listener The listener function.
      */
     removeListener(listener: (message: VehicleMessage) => any): void;
+
+    /**
+     * Sets the lights of the vehicle. There can be used three config objects once.
+     *
+     * @param config
+     */
+    setLights(config: LightConfig | Array<LightConfig>): void;
+
+
 }
 
 export {Vehicle}

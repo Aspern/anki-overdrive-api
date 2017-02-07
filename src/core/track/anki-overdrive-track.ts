@@ -35,6 +35,9 @@ class AnkiOverdriveTrack implements Track {
         if (pieces.length > 0)
             piece = pieces[0];
 
+        if (piece === null || !piece)
+            throw new Error("Piece not found!");
+
         return piece;
     }
 

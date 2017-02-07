@@ -7,6 +7,7 @@ import {TransitionUpdateMessage} from "../message/transition-update-message";
 import {IntersectionUpdateMessage} from "../message/intersection-update-message";
 import {TurnType} from "../message/turn-type";
 import {VehicleDelocalizedMessage} from "../message/vehicle-delocalized-message";
+import {LightConfig} from "./light-config";
 
 /**
  * Default implementation of `Vehicle`. The connection with the vehicle will enable the SDK mode
@@ -35,6 +36,9 @@ class AnkiOverdriveVehicle implements Vehicle {
         let me = this;
 
         return new Promise<Vehicle>((resolve, reject) => {
+            setTimeout(() => {
+                reject(new Error("Timeout reeched."));
+            }, 5000);
             me._peripheral.connect((e: Error) => {
                 if (e)
                     reject(e);
@@ -192,8 +196,39 @@ class AnkiOverdriveVehicle implements Vehicle {
         }
     }
 
+
+    setLights(config: LightConfig|Array<LightConfig>): void {
+        let data = new Buffer(18),
+            channelCount = 1,
+            pos = 0;
+
+        data.writeUInt8(17, pos++);
+        data.writeUInt8(0x33, pos++);
+
+        if (config instanceof Array)
+            channelCount = config.length > 3 ? 3 : config.length;
+        else
+            config = [config];
+
+        data.writeUInt8(channelCount, pos++);
+        this.writeLightConfig(data, pos, config);
+
+        this._write.write(data);
+    }
+
+    private writeLightConfig(data: Buffer, pos: number, configs: Array<LightConfig>): void {
+        for (let i = 0; i < configs.length && i < 3; ++i) {
+            let config = configs[i];
+            data.writeUInt8(config.channel, pos++);
+            data.writeUInt8(config.effect, pos++);
+            data.writeUInt8(config.start, pos++);
+            data.writeUInt8(config.end, pos++);
+            data.writeUInt8(config.cycles, pos++);
+        }
+    }
+
     /**
-     * Initializes all characteristics of the vehicles device. Characteristics could only
+     * Initializes all characteristics of the vehc device. Characteristics could only
      * registered if the device is connected via Bluetooth.
      *
      * @return {Promise<void>|Promise} Promise holding state after initializing characteristics.
