@@ -24,8 +24,8 @@ class AnkiConsole{
                     'c [carIndex] - connect to car\n' +
                     'd [carIndex] - disconnect from car\n' +
                     's [carIndex] [speed] [accelaration] - set speed and accelaration of car\n' +
-                    'l [carIndex] - turn left\n' +
-                    'r [carIndex] - turn right\n' +
+                    'l [carIndex] [offset] - change lane to offset\n' +
+                    'o [carIndex] [offset] - initialized car with offset\n'+
                     'u [carIndex] - u turn\n' +
                     'p [carIndex] - ping car\n' +
                     'b [carIndex] - battery level of car\n');
@@ -59,11 +59,11 @@ class AnkiConsole{
                             console.log("error. car is not connected!");
                     }
                     break;
-                case 'l':
-                    vehicles[index].turnLeft();
+                case 'o':
+                    vehicles[index].setOffset(parseFloat(input[2]));
                     break;
-                case 'r':
-                    vehicles[index].turnRight();
+                case 'l':
+                    vehicles[index].changeLane(parseFloat(input[2]));
                     break;
                 case 'u':
                     vehicles[index].uTurn();
