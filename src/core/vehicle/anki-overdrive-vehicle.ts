@@ -259,7 +259,7 @@ class AnkiOverdriveVehicle implements Vehicle {
     }
 
     /**
-     * Enables the data event on the read-characteristic and invokes any registered listener on
+     * Enables the enrich event on the read-characteristic and invokes any registered listener on
      * the vehicle. Data events can only be enabled after initializing the characteristics of the
      * vehicle.
      */

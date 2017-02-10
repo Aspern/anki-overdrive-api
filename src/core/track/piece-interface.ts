@@ -1,18 +1,20 @@
 interface Piece {
 
-    id : number;
+    id: number;
     next: Piece;
     previous: Piece;
 
-    getLane(lane: number) : Array<number>;
+    getLane(lane: number): Array<number>;
 
-    getLocation(lane: number, position: number) : number;
+    getLocation(lane: number, position: number): number;
 
-    eachLane(handler: (lane: Array<number>) => any) : void;
+    getLocationIndex(lane: number, location: number): number;
 
-    eachLocation(handler: (location: number) => any) : void;
+    eachLane(handler: (lane: Array<number>) => any): void;
 
-    eachLocationOnLane(lane: number, handler: (location: number) => any ) : void;
+    eachLocation(handler: (location: number) => any): void;
+
+    eachLocationOnLane(lane: number, handler: (location: number) => any): void;
 
 }
 

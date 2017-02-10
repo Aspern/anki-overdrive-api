@@ -113,7 +113,7 @@ interface Vehicle {
     queryBatteryLevel(): Promise<number>;
 
     /**
-     * Adds a listener to the vehc data events. Each listener can contain a filter on
+     * Adds a listener to the vehc enrich events. Each listener can contain a filter on
      * special message types.
      *
      * @param listener The listener function.
