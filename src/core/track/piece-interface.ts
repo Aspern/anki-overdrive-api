@@ -1,5 +1,6 @@
 interface Piece {
 
+
     id: number;
     next: Piece;
     previous: Piece;
@@ -15,6 +16,7 @@ interface Piece {
     eachLocation(handler: (location: number) => any): void;
 
     eachLocationOnLane(lane: number, handler: (location: number) => any): void;
+
 
 }
 

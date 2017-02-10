@@ -98,6 +98,7 @@ class TrackTest {
         });
     }
 
+<<<<<<< HEAD
     @test "track finds lane"() {
         let track: Track = AnkiOverdriveTrack.build([
             new CurvePiece(0),
@@ -117,4 +118,6 @@ class TrackTest {
             expect(track.findLane(StartPiece._ID, i)).to.be.equals(i);
     }
 
+=======
+>>>>>>> remotes/origin/module-controller
 }
