@@ -24,6 +24,7 @@
     "src/controller/console.ts",
     "src/controller/main.ts",
     "src/controller/kafka/kafkacontroller.ts",
+    "src/controller/kafka/kafka-controller.ts",
     "src/controller/kafka/IConsumerListener.ts",
     "src/controller/kafka/ConsumerMessage.ts",
 
