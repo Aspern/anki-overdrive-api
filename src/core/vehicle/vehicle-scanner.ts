@@ -74,7 +74,7 @@ class VehicleScanner {
                     resolve(vehicles[0]);
                 else
                     reject(new Error("Found no vehicle in BLE network."));
-            });
+            }).catch(reject);
         });
     }
 

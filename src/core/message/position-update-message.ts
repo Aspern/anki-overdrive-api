@@ -14,6 +14,8 @@ class PositionUpdateMessage extends VehicleMessage {
     private _lastExecLaneChangeCmd: number;
     private _lastDesiredHorizontalSpeed: number;
     private _lastDesiredSpeed: number;
+    private _distances: Array<{vehicle: string, distance: number}>;
+    private _position: number;
 
     constructor(data: Buffer, vehicleId: string) {
         super(data, vehicleId);
@@ -62,6 +64,23 @@ class PositionUpdateMessage extends VehicleMessage {
 
     get lastDesiredSpeed(): number {
         return this._lastDesiredSpeed;
+    }
+
+    get distances(): Array<{vehicle: string; distance: number}> {
+        return this._distances;
+    }
+
+    set distances(value: Array<{vehicle: string; distance: number}>) {
+        this._distances = value;
+    }
+
+
+    get position(): number {
+        return this._position;
+    }
+
+    set position(value: number) {
+        this._position = value;
     }
 }
 
