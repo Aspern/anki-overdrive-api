@@ -26,8 +26,9 @@
     "src/util/measure/distance.ts",
     "src/util/measure/result-handler-interface.ts",
     "src/util/measure/console-result-handler.ts",
-    "src/util/scan/scan.ts",
+    "src/util/measure/file-result-handler.ts",
     "src/util/measure/measure-track.ts",
+    "src/util/scan/scan.ts",
     "src/util/runner/track-runner.ts",
 
     "src/controller/console.ts",
