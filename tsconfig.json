@@ -22,6 +22,14 @@
     "src/core/track/curve-piece.ts",
     "src/core/track/straight-piece.ts",
 
+    "src/util/measure/validation-report.ts",
+    "src/util/measure/distance.ts",
+    "src/util/measure/result-handler-interface.ts",
+    "src/util/measure/console-result-handler.ts",
+    "src/util/scan/scan.ts",
+    "src/util/measure/measure-track.ts",
+    "src/util/runner/track-runner.ts",
+
     "src/controller/console.ts",
     "src/controller/main.ts",
     "src/controller/kafka/kafkacontroller.ts",
