@@ -25,9 +25,19 @@ class DistanceFilter {
     }
 
     addVehicle(vehicle: Vehicle): void {
-        let me = this;
+        let me = this,
+            lane: number,
+            position: number;
 
         vehicle.addListener((msg: PositionUpdateMessage) => {
+            try {
+                lane = me._track.findLane(msg.piece, msg.location);
+                position = me._track.findPiece(msg.piece).getLocationIndex(lane, msg.location);
+                msg.position = position;
+            } catch (e) {
+                console.error(e);
+            }
+
             me._messages[msg.vehicleId] = msg;
             msg.distances = this.calculateDistances(msg);
             me._handler(msg);
@@ -78,9 +88,9 @@ class DistanceFilter {
             piece2 = track.findPiece(m2.piece),
             index2 = piece2.getLocationIndex(laneNumber2, m2.location),
             end: [number, number],
-            lane2 = piece2.getLane(laneNumber1),
-            t_current: number,
-            t_message: number;
+            lane2 = piece2.getLane(laneNumber1);
+        // t_current: number,
+        // t_message: number;
 
         if (lane2.length > index2) {
             end = [piece2.id, lane2[index2]];
