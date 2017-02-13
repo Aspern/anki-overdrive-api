@@ -34,6 +34,7 @@ class DistanceFilter {
                 lane = me._track.findLane(msg.piece, msg.location);
                 position = me._track.findPiece(msg.piece).getLocationIndex(lane, msg.location);
                 msg.position = position;
+                msg.lane = lane;
             } catch (e) {
                 console.error(e);
             }

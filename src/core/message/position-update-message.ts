@@ -16,6 +16,7 @@ class PositionUpdateMessage extends VehicleMessage {
     private _lastDesiredSpeed: number;
     private _distances: Array<{vehicle: string, distance: number}>;
     private _position: number;
+    private _lane: number;
 
     constructor(data: Buffer, vehicleId: string) {
         super(data, vehicleId);
@@ -81,6 +82,15 @@ class PositionUpdateMessage extends VehicleMessage {
 
     set position(value: number) {
         this._position = value;
+    }
+
+
+    get lane(): number {
+        return this._lane;
+    }
+
+    set lane(value: number) {
+        this._lane = value;
     }
 }
 
