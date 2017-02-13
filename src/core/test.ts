@@ -14,53 +14,78 @@ let scanner = new VehicleScanner(),
         new CurvePiece(18),
         new CurvePiece(23),
         new StraightPiece(39),
-        new CurvePiece(20),
-        new CurvePiece(17)
+        new CurvePiece(17),
+        new CurvePiece(20)
     ]),
     filter = new DistanceFilter(track),
-    store: {[id: string]: Vehicle} = {};
+    store: {[id: string]: {vehicle: Vehicle, desiredSpeed: number}} = {};
+
+function antiCollision(msg: PositionUpdateMessage) {
+    let obj = store[msg.vehicleId],
+        vehicle = obj.vehicle,
+        onCollision: boolean = false,
+        distances: Array<{vehicle: string, distance: number}> = msg.distances;
+
+    distances.forEach(distance => {
+        if (distance.distance < 500) {
+            onCollision = true;
+            if (obj.desiredSpeed < 0)
+                obj.desiredSpeed = msg.lastDesiredSpeed;
+
+            vehicle.setLights([
+                new LightConfig()
+                    .red()
+                    .steady(),
+                new LightConfig()
+                    .blue()
+                    .steady(0),
+                new LightConfig()
+                    .green()
+                    .steady(0),
+            ]);
+
+            vehicle.setSpeed(msg.speed - 100);
+        }
+    });
+
+    if (!onCollision && obj.desiredSpeed > 0 && msg.speed < obj.desiredSpeed) {
+        vehicle.setLights([
+            new LightConfig()
+                .green()
+                .steady(),
+            new LightConfig()
+                .red()
+                .steady(0),
+            new LightConfig()
+                .blue()
+                .steady(0)
+        ]);
+        vehicle.setSpeed(msg.speed + 100);
+    } else if (!onCollision && obj.desiredSpeed > 0 && msg.speed >= obj.desiredSpeed) {
+        obj.desiredSpeed = -1;
+        vehicle.setLights([
+            new LightConfig()
+                .green()
+                .steady(0),
+            new LightConfig()
+                .red()
+                .steady(0),
+            new LightConfig()
+                .blue()
+                .steady()
+        ]);
+    }
+};
 
 scanner.findAll().then(vehicles => {
 
     vehicles.forEach(vehicle => {
-        store[vehicle.id] = vehicle;
+        store[vehicle.id] = {vehicle: vehicle, desiredSpeed: -1};
         filter.addVehicle(vehicle)
     });
 
     filter.onUpdate((msg: PositionUpdateMessage) => {
-        let vehicle = store[msg.vehicleId],
-            distances = msg.distances,
-            critical = false;
-
-        distances.forEach(distance => {
-            if (distance.distance <= 1)
-                critical = true;
-        })
-
-        if (critical)
-            vehicle.setLights([
-                new LightConfig()
-                    .red()
-                    .flash(),
-                new LightConfig()
-                    .weapon()
-                    .flash(),
-                new LightConfig()
-                    .tail()
-                    .flash()
-            ]);
-        else
-            vehicle.setLights([
-                new LightConfig()
-                    .blue()
-                    .steady(),
-                new LightConfig()
-                    .weapon()
-                    .steady(0),
-                new LightConfig()
-                    .tail()
-                    .steady(0)
-            ]);
+        antiCollision(msg);
     });
 
 

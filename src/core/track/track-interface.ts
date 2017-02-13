@@ -12,6 +12,8 @@ interface Track {
 
     eachLaneOnPiece(handler: (piece: Piece, lane: Array<number>) => any): void;
 
+    eachTransition(handler: (t1: [number, number], t2: [number, number]) => any, lane: number, from?: [number, number], to?: [number, number]): void;
+
     findLane(pieceId: number, location: number): number;
 
 }

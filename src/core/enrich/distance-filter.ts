@@ -1,7 +1,10 @@
+/// <reference path="../../../decl/jsonfile.d.ts"/>
+import * as jsonfile from "jsonfile";
 import {Vehicle} from "../vehicle/vehicle-interface";
 import {PositionUpdateMessage} from "../message/position-update-message";
 import {Track} from "../track/track-interface";
 import {Piece} from "../track/piece-interface";
+
 
 class DistanceFilter {
 
@@ -9,9 +12,12 @@ class DistanceFilter {
     private _messages: {[key: string]: PositionUpdateMessage} = {};
     private _handler: (msg: PositionUpdateMessage) => any;
     private _track: Track;
+    private _map: {[key: string]: number};
 
     constructor(track: Track) {
         this._track = track;
+
+        this._map = jsonfile.readFileSync('./resources/distances.json');
     }
 
     onUpdate(handler: (data: PositionUpdateMessage) => any): void {
@@ -66,24 +72,44 @@ class DistanceFilter {
     private calculateDistance(m1: PositionUpdateMessage, m2: PositionUpdateMessage): {vehicle: string, distance: number} {
         let me = this,
             track = me._track,
-            p1: Piece = track.findPiece(m1.piece),
-            p2: Piece = track.findPiece(m2.piece),
-            current: Piece = p1,
-            distance = 0,
-            l1: number = track.findLane(m1.piece, m1.location),
-            l2: number = track.findLane(m2.piece, m2.location);
+            distance: number = 0,
+            laneNumber1: number = track.findLane(m1.piece, m1.location),
+            laneNumber2: number = track.findLane(m2.piece, m2.location),
+            piece2 = track.findPiece(m2.piece),
+            index2 = piece2.getLocationIndex(laneNumber2, m2.location),
+            end: [number, number],
+            lane2 = piece2.getLane(laneNumber1),
+            t_current: number,
+            t_message: number;
 
-        distance += p1.getLocationIndex(l1, m1.location);
-        while (current.next !== p2) {
-            current = current.next;
-            distance += current.getLane(l1).length;
+        if (lane2.length > index2) {
+            end = [piece2.id, lane2[index2]];
+        } else {
+            end = [piece2.id, lane2[lane2.length - 1]];
         }
-        distance += p1.getLocationIndex(l2, m2.location);
+
+        track.eachTransition((t1, t2) => {
+            distance += me.getDistance(t1, t2);
+        }, laneNumber1, [m1.piece, m1.location], end);
+
+        // t_current = new Date().getTime();
+        // t_message = m1.timestamp.getTime();
+        // distance -= m1.speed * ((t_current - t_message) / 100);
+        //
+        // t_message = m2.timestamp.getTime();
+        // distance += m2.speed * ((t_current - t_message) / 100);
+
 
         return {
             vehicle: m2.vehicleId,
             distance: distance
         };
+    }
+
+    private getDistance(t1: [number, number], t2: [number, number]): number {
+        let key: string = "" + t1[0] + t1[1] + t2[0] + t2[1];
+
+        return this._map[key];
     }
 }
 

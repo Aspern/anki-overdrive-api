@@ -21,6 +21,7 @@
     "src/core/track/curve-piece.ts",
     "src/core/track/straight-piece.ts",
     "src/core/enrich/distance-filter.ts",
+    "src/core/test.ts",
 
     "src/util/measure/validation-report.ts",
     "src/util/measure/distance.ts",
