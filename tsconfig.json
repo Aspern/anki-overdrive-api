@@ -29,6 +29,7 @@
     "src/util/measure/console-result-handler.ts",
     "src/util/measure/file-result-handler.ts",
     "src/util/measure/measure-track.ts",
+    "src/util/quality/measure-message-quality.ts",
     "src/util/scan/scan.ts",
     "src/util/runner/track-runner.ts",
 

@@ -6,7 +6,6 @@ import {ValidationReport} from "../measure/validation-report";
 
 class TrackRunner {
 
-
     private _laneFinishedHandler: (messages: Array<PositionUpdateMessage>, lane: number) => any = () => {
     };
     private _laneStartedHandler: (lane: number) => any = () => {
