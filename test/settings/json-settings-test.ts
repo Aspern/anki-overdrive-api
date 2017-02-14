@@ -50,6 +50,19 @@ class JsonSettingsTest {
             .to.be.equals(new Date(1487089387439).getTime());
     }
 
+    @test "get as object"() {
+        let obj: {key: string, object: {key: string}} = this._settings.getAsObject("object"),
+            arr: Array<number> = this._settings.getAsObject("array");
+
+        expect(obj.key).to.be.equals("value");
+        expect(obj.object.key).to.be.equals("value");
+
+        for (let i = 0; i < arr.length; ++i) {
+            expect(arr[i]).to.be.equals(i + 1);
+        }
+
+    }
+
     @test "get as track"() {
         let track: Track = this._settings.getAsTrack("track"),
             pieces = [33, 18, 23, 39, 17, 20, 34],

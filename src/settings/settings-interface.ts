@@ -14,6 +14,8 @@ interface Settings {
 
     getAsDate(key: string, defaultValue: Date): Date;
 
+    getAsObject(key: string) : any;
+
     getAsTrack(key: string): Track
 
 }
