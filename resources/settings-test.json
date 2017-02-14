@@ -1,0 +1,31 @@
+{
+  "key": "value",
+  "int": 4711,
+  "float": 47.11,
+  "true": true,
+  "false": false,
+  "date": "12/24/2015 18:30:30",
+  "millis" : 1487089387439,
+  "track": [
+    {
+      "type": "curve",
+      "id": 18
+    },
+    {
+      "type": "curve",
+      "id": 23
+    },
+    {
+      "type": "straight",
+      "id": 39
+    },
+    {
+      "type": "curve",
+      "id": 17
+    },
+    {
+      "type": "curve",
+      "id": 20
+    }
+  ]
+}

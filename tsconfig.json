@@ -39,6 +39,8 @@
     "src/controller/kafka/kafka-controller.ts",
     "src/controller/kafka/IConsumerListener.ts",
     "src/controller/kafka/ConsumerMessage.ts",
+    "src/settings/settings-interface.ts",
+    "src/settings/json-settings.ts",
 
     "test/core/vehicle-scanner-test.ts",
     "test/core/vehicle-test.ts",
