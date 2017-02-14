@@ -76,11 +76,14 @@ class JsonSettings implements Settings {
         return new Date(value);
     }
 
-    getAsTrack(key: string): Track {
-        let value = this.get(key),
-            configs: Array<{type: string, id: number}> = JSON.parse(value),
-            pieces: Array<Piece> = [];
 
+    getAsObject(key: string): any {
+        return JSON.parse(this.get(key));
+    }
+
+    getAsTrack(key: string): Track {
+        let configs: Array<{type: string, id: number}> = this.getAsObject(key),
+            pieces: Array<Piece> = [];
 
         configs.forEach(config => {
             if (config.type === "curve")

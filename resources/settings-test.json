@@ -5,7 +5,25 @@
   "true": true,
   "false": false,
   "date": "12/24/2015 18:30:30",
-  "millis" : 1487089387439,
+  "millis": 1487089387439,
+  "object": {
+    "object": {
+      "key": "value"
+    },
+    "key": "value"
+  },
+  "array": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
   "track": [
     {
       "type": "curve",

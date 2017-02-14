@@ -1,6 +1,12 @@
 {
-  "vehicle.blue.uuid" : "eb401ef0f82b",
-  "vehicle.red.uuid" : "ed0c94216553",
+  "vehicles": {
+    "red": {
+      "uuid": "eb401ef0f82b"
+    },
+    "blue": {
+      "uuid": "eb401ef0f82b"
+    }
+  },
   "track": [
     {
       "type": "curve",
