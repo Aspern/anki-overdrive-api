@@ -126,33 +126,35 @@ function calcMedian(data: Array<number>): number {
 
 function collectMessages(vehicle: Vehicle, speed: number): Promise<QualityReport> {
     return new Promise<QualityReport>((resolve, reject) => {
-        new TrackRunner(vehicle, track, speed, speed, false, laneData)
-            .onStop((messages: Array<Array<PositionUpdateMessage>>, e: Error) => {
-                if (e)
-                    reject(e);
-                else {
-                    let counts: Array<number> = [],
-                        speedErrors: Array<number> = [],
-                        expected = getPositionsForLane(15),
-                        report: QualityReport = new QualityReport();
+        setTimeout(() => {
+            new TrackRunner(vehicle, track, speed, speed, false, laneData)
+                .onStop((messages: Array<Array<PositionUpdateMessage>>, e: Error) => {
+                    if (e)
+                        reject(e);
+                    else {
+                        let counts: Array<number> = [],
+                            speedErrors: Array<number> = [],
+                            expected = getPositionsForLane(15),
+                            report: QualityReport = new QualityReport();
 
-                    messages.forEach(lane => {
-                        // Start message is counted twice.
-                        counts.push(lane.length - 1);
-                        lane.forEach(message => {
-                            speedErrors.push(Math.abs(message.speed - message.lastDesiredSpeed));
+                        messages.forEach(lane => {
+                            // Start message is counted twice.
+                            counts.push(lane.length - 1);
+                            lane.forEach(message => {
+                                speedErrors.push(Math.abs(message.speed - message.lastDesiredSpeed));
+                            });
                         });
-                    });
 
-                    report.speed = speed;
-                    report.avgCount = calcAvg(counts) / expected;
-                    report.medianCount = calcMedian(counts) / expected;
-                    report.avgErrorSpeed = calcAvg(speedErrors);
-                    report.medianErrorSpeed = calcMedian(speedErrors);
+                        report.speed = speed;
+                        report.avgCount = calcAvg(counts) / expected;
+                        report.medianCount = calcMedian(counts) / expected;
+                        report.avgErrorSpeed = calcAvg(speedErrors);
+                        report.medianErrorSpeed = calcMedian(speedErrors);
 
-                    resolve(report);
-                }
-            }).run();
+                        resolve(report);
+                    }
+                }).run();
+        }, 2000);
     });
 }
 

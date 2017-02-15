@@ -38,7 +38,7 @@ class AnkiOverdriveVehicle implements Vehicle {
         return new Promise<Vehicle>((resolve, reject) => {
             setTimeout(() => {
                 reject(new Error("Timeout reeched."));
-            }, 5000);
+            }, 10000);
             me._peripheral.connect((e: Error) => {
                 if (e)
                     reject(e);
