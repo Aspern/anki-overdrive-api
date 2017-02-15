@@ -170,10 +170,12 @@ class TrackRunner {
             console.error(e);
 
         if (me._running) {
-            me._vehicle.setSpeed(0, 1500);
-            me._vehicle.disconnect().then(() => {
-                me._stopHandler(me._result, e);
-            });
+            me._vehicle.setSpeed(0, 200);
+            setTimeout(() => {
+                me._vehicle.disconnect().then(() => {
+                    me._stopHandler(me._result, e);
+                });
+            }, 3000);
         }
     }
 
@@ -195,8 +197,7 @@ class TrackRunner {
         let me = this,
             vehicle = me._vehicle,
             startLocation = me._track.start.getLocation(lane, 0),
-            attempts = 0,
-            correcting = false;
+            attempts = 0;
 
 
         return new Promise<PositionUpdateMessage>((resolve) => {
@@ -211,17 +212,7 @@ class TrackRunner {
                     if (location === startLocation) {
                         vehicle.removeListener(listener);
 
-
                         resolve(message);
-                    } else if (location < startLocation || location > startLocation && !correcting) {
-
-                        vehicle.setOffset(message.offset);
-                        correcting = true;
-                        setTimeout(() => {
-                            vehicle.changeLane(offset);
-                            ++attempts;
-                            correcting = false;
-                        });
                     }
                 }
             };

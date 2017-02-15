@@ -45,6 +45,7 @@
     "test-settings" : "tsc -p . && mocha test/settings",
     "scan": "gulp && node ./dist/src/util/scan/scan.js",
     "measure-track": "gulp && node ./dist/src/util/measure/measure-track.js",
+    "measure-quality" : "gulp && node ./dist/src/util/quality/measure-message-quality.js",
     "prepublish": "tsc -p .",
     "test-controller": "tsc -p . && mocha test/controller"
   },

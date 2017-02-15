@@ -37,6 +37,12 @@
     },
     "measureTrack": {
       "resultHandler": "console"
+    },
+    "measureQuality": {
+      "minSpeed": 300,
+      "maxSpeed": 900,
+      "increment": 100,
+      "rounds": 10
     }
   }
 }
