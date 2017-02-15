@@ -37,7 +37,9 @@
 
     "test/core/vehicle-scanner-test.ts",
     "test/core/vehicle-test.ts",
-    "test/core/piece-test.ts"
+    "test/core/piece-test.ts",
+
+    "test/controller/kafkacontroller-test.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
