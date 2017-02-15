@@ -19,6 +19,10 @@ abstract class AnkiOverdrivePiece implements Piece {
         return this._lanes[lane][position];
     }
 
+    getLocationIndex(lane: number, location: number): number {
+        return this._lanes[lane].indexOf(location);
+    }
+
     eachLane(handler: (lane: Array<number>) => any): void {
         this._lanes.forEach((lane) => {
             handler(lane);
