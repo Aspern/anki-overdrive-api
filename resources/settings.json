@@ -28,5 +28,12 @@
       "type": "curve",
       "id": 20
     }
-  ]
+  ],
+  "utils": {
+    "quality": {
+      "rounds": 1,
+      "vehicle": "eb401ef0f82b",
+      "offset": 68.0
+    }
+  }
 }

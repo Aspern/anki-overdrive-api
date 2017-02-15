@@ -104,7 +104,7 @@ class TrackRunner {
     stop(e?: Error): void {
         let me = this;
 
-        if(e)
+        if (e)
             console.error(e);
 
         if (me._running) {
@@ -198,7 +198,7 @@ class TrackRunner {
         });
     }
 
-    private  validateMessages(messages: Array<PositionUpdateMessage>, lane: number): ValidationReport {
+    private validateMessages(messages: Array<PositionUpdateMessage>, lane: number): ValidationReport {
         let report = new ValidationReport().setValid(),
             i = 0;
 
