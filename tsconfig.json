@@ -22,8 +22,7 @@
     "src/core/track/straight-piece.ts",
     "src/core/enrich/distance-filter.ts",
     "src/core/test.ts",
-
-    "src/util/measure/validation-report.ts",
+    "src/util/runner/validation-report.ts",
     "src/util/measure/distance.ts",
     "src/util/measure/result-handler-interface.ts",
     "src/util/measure/console-result-handler.ts",

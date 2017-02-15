@@ -1,3 +1,7 @@
+/**
+ * ValidationReport is used by the TrackRunner to validate the individual messages of the lanes.
+ * It contains a state whether the validation was positive and data on invalid pieces and locations.
+ */
 class ValidationReport {
 
     private _valid: boolean;

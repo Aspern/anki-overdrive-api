@@ -1,28 +1,54 @@
 import {TrackRunner} from "../runner/track-runner";
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
 import {Track} from "../../core/track/track-interface";
-import {AnkiOverdriveTrack} from "../../core/track/anki-overdrive-track";
-import {CurvePiece} from "../../core/track/curve-piece";
-import {StraightPiece} from "../../core/track/straight-piece";
 import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
 import {Distance} from "./distance";
 import * as uuid from "node-uuid";
 import {ConsoleResultHandler} from "./console-result-handler";
 import {FileResultHandler} from "./file-result-handler";
+import {Settings} from "../../settings/settings-interface";
+import {JsonSettings} from "../../settings/json-settings";
+import {ResultHandler} from "./result-handler-interface";
 
-let track: Track = AnkiOverdriveTrack.build([
-        new CurvePiece(18),
-        new CurvePiece(23),
-        new StraightPiece(39),
-        new CurvePiece(17),
-        new CurvePiece(20)
-    ]),
+/************************************************************************************
+ *                                  MEASURE TRACK                                   *
+ *                                                                                  *
+ *  Uses any vehicle to measure the track in mm and handles the result using an     *
+ *  implementation on a result-handler interface. Before starting the util,         *
+ *  please check the 'settings.json' if the track is specified correctly and        *
+ *  choose an implementation of the result-handler (default is output to console).  *
+ *                                                                                  *
+ *  Important: Before starting choose any vehicle, turn it on (and only this        *
+ *             vehicle!) and put it in the middle of the start lanes (offset=0).    *
+ *                                                                                  *
+ ************************************************************************************/
+
+
+let settings: Settings = new JsonSettings(),
+    track: Track = settings.getAsTrack("track"),
     scanner = new VehicleScanner(),
     vehicleId: string,
     uniqueId: string = uuid.v4(),
-    resultHandler = new FileResultHandler();
+    resultHandler: ResultHandler,
+    config: {resultHandler: string} = settings.getAsObject("utils").measureTrack;
 
+switch (config.resultHandler) {
+    case "file" :
+        resultHandler = new FileResultHandler();
+        break;
+    case "console" :
+    default:
+        resultHandler = new ConsoleResultHandler();
+}
 
+/**
+ * Uses the messages between two consecutive locations to calculate the distance between them.
+ *
+ * @param m1 Message from location l
+ * @param m2 Message from location l+1
+ * @param lane Current lane
+ * @return {Distance} Distance between locations
+ */
 function measureDistanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMessage, lane: number): Distance {
     let t1 = m1.timestamp.getTime(),
         t2 = m2.timestamp.getTime(),
@@ -36,6 +62,13 @@ function measureDistanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMes
 
 }
 
+/**
+ * Calculates all distances between the locations on the current lane.
+ *
+ * @param messages Messages for this lane
+ * @param lane Current lane
+ * @return {Array<Distance>} Distances between all locations on this lane
+ */
 function measureDistanceBetweenLocations(messages: Array<PositionUpdateMessage>, lane: number): Array<Distance> {
     let distances: Array<Distance> = [];
 
@@ -50,6 +83,13 @@ function measureDistanceBetweenLocations(messages: Array<PositionUpdateMessage>,
     return distances;
 }
 
+/**
+ * Measures the length of the whole lane using the first and last message of the lane data.
+ *
+ * @param messages Messages for current lane
+ * @param lane Current Lane
+ * @return {Distance} Distance for whole lane
+ */
 function measureLaneLength(messages: Array<PositionUpdateMessage>, lane: number): Distance {
     let start = messages[0],
         end = messages[messages.length - 1],
@@ -68,7 +108,12 @@ function measureLaneLength(messages: Array<PositionUpdateMessage>, lane: number)
     return distance;
 }
 
-
+/**
+ * Uses all messages for each lane and location and calculates the distances between the
+ * single location and the length of each lane.
+ *
+ * @param messages Messages for all lanes
+ */
 function measureTrack(messages: Array<Array<PositionUpdateMessage>>): void {
     let result: Array<[Distance, Array<Distance>]> = []
 
@@ -82,7 +127,7 @@ function measureTrack(messages: Array<Array<PositionUpdateMessage>>): void {
     resultHandler.handle(result);
 }
 
-
+// Program starts here.
 scanner.findAny().then((vehicle) => {
 
     let runner = new TrackRunner(vehicle, track);

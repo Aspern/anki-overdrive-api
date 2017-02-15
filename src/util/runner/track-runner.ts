@@ -2,8 +2,14 @@ import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {Track} from "../../core/track/track-interface";
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
 import {StartPiece} from "../../core/track/start-piece";
-import {ValidationReport} from "../measure/validation-report";
+import {ValidationReport} from "./validation-report";
 
+/**
+ * TrackRunner is a helper class that automates driving a vehicle on a certain set of lines.
+ * Various event handlers can be used during the process to access the data of the individual lines
+ * or the entire set-up. The TrackRunner can also validate if all data has been collected within
+ * a line.
+ */
 class TrackRunner {
 
     private _laneFinishedHandler: (messages: Array<PositionUpdateMessage>, lane: number) => any = () => {
@@ -23,7 +29,20 @@ class TrackRunner {
     private _result: Array<Array<PositionUpdateMessage>> = [];
     private _speed: number;
     private _acceleration: number;
-    private _laneData: Array<[number, number]> = [
+    private _laneData: Array<[number, number]>;
+    private _validate: boolean;
+
+    /**
+     * Creates a new TrackRunner instance with following parameters.
+     *
+     * @param vehicle Vehicle to be used
+     * @param track Track on which the vehicle is to be driven
+     * @param speed (optional) Speed with which the vehicle is to drive (default is 400mm/sec)
+     * @param acceleration (optional) Acceleration for the vehicle (default is 250mm/sec²)
+     * @param validate (optional) Enables validation for the messages (default is true)
+     * @param laneData (optional) Set of lanes that should be used (default is all lanes)
+     */
+    constructor(vehicle: Vehicle, track: Track, speed = 400, acceleration = 250, validate = true, laneData: Array<[number, number]> = [
         [0, -68.0],
         [1, -59.5],
         [2, -51.0],
@@ -40,41 +59,78 @@ class TrackRunner {
         [13, 42.5],
         [14, 51.0],
         [15, 59.5]
-    ];
-
-    constructor(vehicle: Vehicle, track: Track, speed = 400, acceleration = 250) {
+    ]) {
         this._vehicle = vehicle;
         this._track = track;
         this._speed = speed;
         this._acceleration = acceleration;
+        this._laneData = laneData;
+        this._validate = validate;
     }
 
 
+    /**
+     * Handler which is triggered as soon as the vehicle stops driving. The handler is also
+     * triggered if the vehicle is stopped by an error.
+     *
+     * @param handler The handler function
+     * @param hander.messages All messages before the car has been stopped.
+     * @return {TrackRunner}
+     */
     onStop(handler: (messages: Array<Array<PositionUpdateMessage>>, e: Error) => any): TrackRunner {
         this._stopHandler = handler;
         return this;
     }
 
+    /**
+     * Handler which is triggered as soon as the vehicle starts to drive.
+     *
+     * @param handler The handler function
+     * @return {TrackRunner}
+     */
     onTrackStarted(handler: () => any): TrackRunner {
         this._trackStartedHandler = handler;
         return this;
     }
 
+    /**
+     * Handler which is triggered as soon as the vehicle has traveled all the lines correctly.
+     *
+     * @param handler The handler function
+     * @param handler.messages Messages for each lane
+     * @return {TrackRunner}
+     */
     onTrackFinished(handler: (messages: Array<Array<PositionUpdateMessage>>) => any): TrackRunner {
         this._trackFinishedHandler = handler;
         return this;
     }
 
+    /**
+     * Handler which is triggered as soon as the vehicle has traced a line.
+     *
+     * @param handler The handler function
+     * @param handler.messages Messages for this lane
+     * @return {TrackRunner}
+     */
     onLaneFinished(handler: (messages: Array<PositionUpdateMessage>, lane: number) => any): TrackRunner {
         this._laneFinishedHandler = handler;
         return this;
     }
 
+    /**
+     * Handler which is triggered as soon as the vehicle starts to drive on a line.
+     *
+     * @param handler The handler function
+     * @return {TrackRunner}
+     */
     onLaneStarted(handler: (lane: number) => any): TrackRunner {
         this._laneStartedHandler = handler;
         return this;
     }
 
+    /**
+     * Starts the vehicle and runs all specified lines.
+     */
     run(): void {
         let me = this;
 
@@ -97,10 +153,16 @@ class TrackRunner {
                 me._trackFinishedHandler(me._result);
             });
         }).catch((e) => {
-            throw new Error("Unable to run TrackRunner: " + e.message);
+            me.stop(e);
         });
     }
 
+    /**
+     * Stop the vehicle and cancel the TrackRunner. If an internal call is made,
+     * the error is indicated with.
+     *
+     * @param e (optional) Error if an internal call is made
+     */
     stop(e?: Error): void {
         let me = this;
 
@@ -182,13 +244,18 @@ class TrackRunner {
 
                 if (messages.length > 1 && piece === startMessage.piece && location === startMessage.location) {
                     messages.push(message);
-                    let report = me.validateMessages(messages, lane);
-                    if (report.valid) {
+                    if (me._validate) {
+                        let report = me.validateMessages(messages, lane);
+                        if (report.valid) {
+                            vehicle.removeListener(listener);
+                            resolve(messages);
+                        } else {
+                            console.error(report);
+                            messages = [message];
+                        }
+                    } else {
                         vehicle.removeListener(listener);
                         resolve(messages);
-                    } else {
-                        console.error(report);
-                        messages = [message];
                     }
                 } else
                     messages.push(message);
