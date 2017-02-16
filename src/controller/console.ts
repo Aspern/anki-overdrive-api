@@ -6,7 +6,7 @@ class AnkiConsole {
     private _commandHandler: (cmd: string, params: Array<any>, vehicle: string) => any = () => {
     };
 
-    onCommand(handler: (cmd: string, params: Array<string>) => any): AnkiConsole {
+    onCommand(handler: (cmd: string, params: Array<string>, vehicle: string) => any): AnkiConsole {
         this._commandHandler = handler;
         return this;
     }
