@@ -2,7 +2,7 @@ import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
 import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
 
-@suite
+
 class VehicleScannerTest {
 
     static _ID: string;

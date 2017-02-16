@@ -7,6 +7,8 @@ import {StraightPiece} from "../../src/core/track/straight-piece";
 import {Piece} from "../../src/core/track/piece-interface";
 import {EndPiece} from "../../src/core/track/end-piece";
 import {StartPiece} from "../../src/core/track/start-piece";
+import {fail} from "assert";
+import {JsonSettings} from "../../src/settings/json-settings";
 
 @suite
 class TrackTest {
@@ -38,7 +40,12 @@ class TrackTest {
 
         expect(track.findPiece(10).id).to.equals(10);
         expect(track.findPiece(11).id).to.equals(11);
-        expect(track.findPiece(0)).to.be.null;
+        try {
+            let piece = track.findPiece(0);
+            fail(piece, null, "Should not be found.", "function");
+        } catch (e) {
+            expect(e).not.to.be.null;
+        }
     }
 
     @test "track has at least start and end pieces"() {
@@ -98,7 +105,7 @@ class TrackTest {
         });
     }
 
-<<<<<<< HEAD
+
     @test "track finds lane"() {
         let track: Track = AnkiOverdriveTrack.build([
             new CurvePiece(0),
@@ -114,10 +121,16 @@ class TrackTest {
         expect(track.findLane(2, 24)).to.be.equals(8);
         expect(track.findLane(2, 45)).to.be.equals(15);
 
-        for(let i = 0; i < 16; ++i)
+        for (let i = 0; i < 16; ++i)
             expect(track.findLane(StartPiece._ID, i)).to.be.equals(i);
     }
 
-=======
->>>>>>> remotes/origin/module-controller
+    @test "test"() {
+        let settings = new JsonSettings(),
+            track = settings.getAsTrack("track");
+
+        track.eachTransition((t1, t2)=> {
+            console.log(t1 + " => " + t2);
+        }, 0, [17,0],[17,0]);
+    }
 }

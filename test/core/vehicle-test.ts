@@ -7,7 +7,7 @@ import {VehicleMessage} from "../../src/core/message/vehicle-message";
 import {TransitionUpdateMessage} from "../../src/core/message/transition-update-message";
 import {DrivingDirection} from "../../src/core/message/driving-direction";
 
-@suite
+
 class VehicleTest {
 
     static _VEHICLE: Vehicle;

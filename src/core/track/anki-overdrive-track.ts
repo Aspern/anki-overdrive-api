@@ -69,9 +69,12 @@ class AnkiOverdriveTrack implements Track {
             end = to;
         }
 
+        if(start[0] === end[0] && start[1] === end[1])
+            return;
+
         let startPiece = this.findPiece(start[0]),
             endPiece = this.findPiece(end[0]),
-            current = startPiece.next,
+            current = startPiece,
             currentLane: Array<number> = startPiece.getLane(lane),
             currentLocation: number,
             nextLocation: number,
@@ -80,17 +83,16 @@ class AnkiOverdriveTrack implements Track {
             endIndex = endPiece.getLocationIndex(lane, end[1]);
 
 
-        for (let i = startIndex; i < currentLane.length - 1; ++i) {
-            currentLocation = currentLane[i];
-            nextLocation = currentLane[i + 1];
-            handler([currentPieceId, currentLocation], [currentPieceId, nextLocation]);
-        }
+        if (startPiece === endPiece)
+            for (let i = startIndex; i < currentLane.length - 1; ++i) {
+                currentLocation = currentLane[i];
+                nextLocation = currentLane[i + 1];
+                handler([currentPieceId, currentLocation], [currentPieceId, nextLocation]);
+            }
 
-        if(!nextLocation) {
+        if (!nextLocation) {
             nextLocation = start[1];
         }
-
-        handler([currentPieceId, nextLocation], [current.id, current.getLane(lane)[0]]);
 
         while (current !== endPiece) {
             currentLane = current.getLane(lane);
@@ -108,11 +110,12 @@ class AnkiOverdriveTrack implements Track {
         currentLane = endPiece.getLane(lane);
         currentPieceId = endPiece.id;
 
-        for (let i = 0; i < endIndex; ++i) {
-            currentLocation = currentLane[i];
-            nextLocation = currentLane[i + 1];
-            handler([currentPieceId, currentLocation], [currentPieceId, nextLocation]);
-        }
+        if (startPiece !== endPiece)
+            for (let i = 0; i < endIndex; ++i) {
+                currentLocation = currentLane[i];
+                nextLocation = currentLane[i + 1];
+                handler([currentPieceId, currentLocation], [currentPieceId, nextLocation]);
+            }
 
         if (!from || !start)
             handler([currentPieceId, nextLocation], [startPiece.id, startPiece.getLane(lane)[0]]);

@@ -47,7 +47,7 @@ class DistanceFilter {
         this._vehicles.push(vehicle);
     }
 
-    removeVehcile(vehicle: Vehicle): void {
+    removeVehicle(vehicle: Vehicle): void {
         this._vehicles.splice(
             this._vehicles.indexOf(vehicle)
         );
@@ -62,12 +62,10 @@ class DistanceFilter {
             if (messages.hasOwnProperty(key)) {
                 if (key !== msg.vehicleId) {
                     message = messages[key];
-                    if (this.onSameLane(msg, message)) {
-                        try {
-                            distances.push(this.calculateDistance(msg, message))
-                        } catch (e) {
-                            console.error(e);
-                        }
+                    try {
+                        distances.push(this.calculateDistance(msg, message))
+                    } catch (e) {
+                        console.error(e);
                     }
                 }
             }
@@ -76,9 +74,6 @@ class DistanceFilter {
         return distances;
     }
 
-    private onSameLane(m1: PositionUpdateMessage, m2: PositionUpdateMessage): boolean {
-        return Math.abs(m1.offset - m2.offset) <= 34;
-    }
 
     private calculateDistance(m1: PositionUpdateMessage, m2: PositionUpdateMessage): {vehicle: string, distance: number} {
         let me = this,
@@ -89,20 +84,21 @@ class DistanceFilter {
             piece2 = track.findPiece(m2.piece),
             index2 = piece2.getLocationIndex(laneNumber2, m2.location),
             end: [number, number],
-            lane2 = piece2.getLane(laneNumber1);
-        // t_current: number,
-        // t_message: number;
+            lane = piece2.getLane(laneNumber1),
+            t_current: number,
+            t_message: number;
 
-        if (lane2.length > index2) {
-            end = [piece2.id, lane2[index2]];
+        if (lane.length > index2) {
+            end = [piece2.id, lane[index2]];
         } else {
-            end = [piece2.id, lane2[lane2.length - 1]];
+            end = [piece2.id, lane[lane.length - 1]];
         }
+
 
         track.eachTransition((t1, t2) => {
             distance += me.getDistance(t1, t2);
         }, laneNumber1, [m1.piece, m1.location], end);
-
+        //
         // t_current = new Date().getTime();
         // t_message = m1.timestamp.getTime();
         // distance -= m1.speed * ((t_current - t_message) / 100);

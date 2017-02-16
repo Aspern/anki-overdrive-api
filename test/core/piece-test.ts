@@ -6,7 +6,7 @@ import {EndPiece} from "../../src/core/track/end-piece";
 import {StraightPiece} from "../../src/core/track/straight-piece";
 import {CurvePiece} from "../../src/core/track/curve-piece";
 
-@suite
+
 class PieceTest {
 
     @test "start piece correct initilaized"() {

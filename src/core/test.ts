@@ -7,18 +7,16 @@ import {PositionUpdateMessage} from "./message/position-update-message";
 import {DistanceFilter} from "./enrich/distance-filter";
 import {LightConfig} from "./vehicle/light-config";
 import {Vehicle} from "./vehicle/vehicle-interface";
+import {JsonSettings} from "../settings/json-settings";
 
 let scanner = new VehicleScanner(),
     ankiConsole = new AnkiConsole(),
-    track = AnkiOverdriveTrack.build([
-        new CurvePiece(18),
-        new CurvePiece(23),
-        new StraightPiece(39),
-        new CurvePiece(17),
-        new CurvePiece(20)
-    ]),
+    settings = new JsonSettings(),
+    config = settings.getAsObject("vehicles"),
+    track = settings.getAsTrack("track"),
     filter = new DistanceFilter(track),
     store: {[id: string]: {vehicle: Vehicle, desiredSpeed: number}} = {};
+
 
 function antiCollision(msg: PositionUpdateMessage) {
     let obj = store[msg.vehicleId],
@@ -77,6 +75,12 @@ function antiCollision(msg: PositionUpdateMessage) {
     }
 };
 
+function nameById(uuid: string) {
+    if (config.red.uuid === uuid)
+        return "Red";
+    return "Blue";
+}
+
 scanner.findAll().then(vehicles => {
 
     vehicles.forEach(vehicle => {
@@ -85,7 +89,13 @@ scanner.findAll().then(vehicles => {
     });
 
     filter.onUpdate((msg: PositionUpdateMessage) => {
-        antiCollision(msg);
+
+
+        msg.distances.forEach(distance => {
+            //console.log(nameById(msg.vehicleId) + " => " + nameById(distance.vehicle) + ":\t"
+            // + distance.distance + "mm");
+            antiCollision(msg);
+        });
     });
 
 
