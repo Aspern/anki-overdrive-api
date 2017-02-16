@@ -32,8 +32,6 @@ function antiCollision(msg: PositionUpdateMessage) {
 
         if (distance.distance < 500) {
             onCollision = true;
-            if (obj.desiredSpeed < 0)
-                obj.desiredSpeed = msg.lastDesiredSpeed;
 
             vehicle.setLights([
                 new LightConfig()
@@ -48,10 +46,12 @@ function antiCollision(msg: PositionUpdateMessage) {
             ]);
 
             vehicle.setSpeed(msg.speed - 100);
+        } else {
+            onCollision = false;
         }
     });
 
-    if (!onCollision && obj.desiredSpeed > 0 && msg.speed < obj.desiredSpeed) {
+    if (!onCollision && msg.speed < obj.desiredSpeed) {
         vehicle.setLights([
             new LightConfig()
                 .green()
@@ -64,8 +64,7 @@ function antiCollision(msg: PositionUpdateMessage) {
                 .steady(0)
         ]);
         vehicle.setSpeed(msg.speed + 100);
-    } else if (!onCollision && obj.desiredSpeed > 0 && msg.speed >= obj.desiredSpeed) {
-        obj.desiredSpeed = -1;
+    } else if (!onCollision && msg.speed >= obj.desiredSpeed) {
         vehicle.setLights([
             new LightConfig()
                 .green()
@@ -102,7 +101,11 @@ scanner.findAll().then(vehicles => {
     //     setTimeout(() => vehicle.changeLane(-68.0), 2000);
     // });
 
-    ankiConsole.initializePrompt(vehicles);
+    ankiConsole.onCommand((cmd, params, vehicle) => {
+        console.log(cmd + " " + params + " " + vehicle)
+        if (cmd === 's')
+            store[vehicle].desiredSpeed = parseInt(params[0]);
+    }).initializePrompt(vehicles);
 
 
 }).catch(e => process.exit(1));
