@@ -26,7 +26,7 @@ class AnkiConsole {
             let input: string[] = line.split(' ');
             let command = input[0];
             let index: number = parseInt(input[1]);
-            let params = input.splice(1, input.length - 1);
+            let params = input.length > 2 ? input.splice(2, input.length - 1) : [];
 
             if (command === "help") {
                 console.log('Available commands:\n' +
@@ -48,6 +48,7 @@ class AnkiConsole {
 
             this._commandHandler(command, params, vehicles[index].id);
 
+
             switch (command) {
                 //case 'help':
                 //  break;
@@ -58,8 +59,8 @@ class AnkiConsole {
                     });
                     break;
                 case 's':
-                    let speed: number = parseInt(input[2]);
-                    let accelaration: number = parseInt(input[3]);
+                    let speed: number = parseInt(params[0]);
+                    let accelaration: number = parseInt(params[1]);
                     speed = isNullOrUndefined(speed) ? 200 : speed;
                     accelaration = isNullOrUndefined(accelaration) ? 50 : accelaration;
                     try {
@@ -71,10 +72,10 @@ class AnkiConsole {
                     }
                     break;
                 case 'o':
-                    vehicles[index].setOffset(parseFloat(input[2]));
+                    vehicles[index].setOffset(parseFloat(params[0]));
                     break;
                 case 'l':
-                    vehicles[index].changeLane(parseFloat(input[2]));
+                    vehicles[index].changeLane(parseFloat(params[0]));
                     break;
                 case 'u':
                     vehicles[index].uTurn();
