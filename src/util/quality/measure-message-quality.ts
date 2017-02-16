@@ -3,17 +3,14 @@ import {JsonSettings} from "../../settings/json-settings";
 import {TrackRunner} from "../runner/track-runner";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
+import {ValidationReport} from "../runner/validation-report";
 
 /************************************************************************************
  *                         MEASURE MESSAGE QUALITY                                  *
  *                                                                                  *
- *  Uses any vehicle to measure the track in mm and handles the result using an     *
- *  implementation on a result-handler interface. Before starting the util,         *
- *  please check the 'settings.json' if the track is specified correctly and        *
- *  choose an implementation of the result-handler (default is output to console).  *
- *                                                                                  *
- *  Important: Before starting choose any vehicle, turn it on (and only this        *
- *             vehicle!) and put it in the middle of the start lanes (offset=0).    *
+ *  Use any vehicle to measure the quality of the messages. Therefore put the       *
+ *  vehicle on the middle of the start lanes and run the program. Please see the    *
+ *  parameters for this case in the 'settings.json' file.                           *
  *                                                                                  *
  ************************************************************************************/
 
@@ -126,11 +123,38 @@ function calcMedian(data: Array<number>): number {
 
 function collectMessages(vehicle: Vehicle, speed: number): Promise<QualityReport> {
     return new Promise<QualityReport>((resolve, reject) => {
+        console.log("Collecting data for speed [" + speed + "]...");
         setTimeout(() => {
-            new TrackRunner(vehicle, track, speed, speed, false, laneData)
+            let runner = new TrackRunner(vehicle, track, speed, speed, false, laneData)
+                .setValidator((message, track, lane) => {
+                    let report = new ValidationReport().setValid(),
+                        uuids: Array<string> = [];
+
+                    message.forEach(message => {
+                        uuids.push("" + message.piece + message.location);
+                    });
+
+                    message.sort((a, b) => {
+                        if (a < b) return -1;
+                        if (a > b) return 1;
+                        return 0;
+                    });
+
+                    for (let i = 0; i < uuids.length - 1; ++i)
+                        if (uuids[i] === uuids[i + 1])
+                            report.setInvalid()
+                                .setMessage("Vehicle collects message more then one time.");
+
+                    return report;
+                })
+                .onTimeoutHandler(() => {
+                    console.error("Timeout reached for searching lane!");
+                    runner.stop();
+                })
                 .onStop((messages: Array<Array<PositionUpdateMessage>>, e: Error) => {
                     if (e)
-                        reject(e);
+                       console.error(e);
+
                     else {
                         let counts: Array<number> = [],
                             speedErrors: Array<number> = [],
@@ -153,17 +177,24 @@ function collectMessages(vehicle: Vehicle, speed: number): Promise<QualityReport
 
                         resolve(report);
                     }
-                }).run();
+                });
+            runner.run();
         }, 2000);
     });
 }
 
+console.log("Searching for any vehicle...");
 scanner.findAny().then(vehicle => {
     speedData = createSpeedData(
         config.minSpeed,
         config.maxSpeed,
         config.increment
     );
+
+    console.log("Starting measure-message-quality with following parameters:");
+    console.log("\trounds:\t\t" + config.rounds);
+    console.log("\tspeeds:\t\t" + speedData);
+    console.log("\tvehicle:\t" + vehicle.id);
 
     for (let i = 0; i < config.rounds; ++i)
         laneData.push([15, 68.0]);
@@ -178,6 +209,7 @@ scanner.findAny().then(vehicle => {
         });
 
     }, Promise.resolve(result)).then(() => {
+        console.log("Finished measure-message-quality with following results:");
         result.forEach(report => {
             console.log(
                 report.speed + "\t"

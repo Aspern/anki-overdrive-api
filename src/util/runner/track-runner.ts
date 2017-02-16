@@ -20,7 +20,39 @@ class TrackRunner {
     };
     private _trackFinishedHandler: (messages: Array<Array<PositionUpdateMessage>>) => any = () => {
     };
+    private _invalidLaneHandler: (messages: Array<PositionUpdateMessage>, report: ValidationReport) => any = (messages, report) => {
+        console.error(report);
+    };
+    private _timeoutHandler: () => any = () => {
+        console.log("Found no lane after " + this._timeout + "ms.");
+    };
     private _stopHandler: (messages: Array<Array<PositionUpdateMessage>>, e?: Error) => any = () => {
+    };
+    private _validator = (messages: Array<PositionUpdateMessage>, track: Track, lane: number) => {
+        let report = new ValidationReport().setValid(),
+            i = 0;
+
+        track.eachPiece((piece) => {
+            let foundPiece = messages[i] ? messages[i].piece : undefined,
+                expectedPiece = piece.id;
+
+            if (foundPiece !== expectedPiece)
+                report.setInvalid()
+                    .setPiece(foundPiece, expectedPiece);
+
+            piece.eachLocationOnLane(lane, (location) => {
+                let foundLocation = messages[i] ? messages[i].location : undefined,
+                    expectedLocation = location;
+
+                if (foundLocation !== expectedLocation)
+                    report.setInvalid()
+                        .setPiece(foundPiece, expectedPiece)
+                        .setLocation(foundLocation, expectedLocation);
+                ++i;
+            });
+        });
+
+        return report;
     };
 
     private _vehicle: Vehicle;
@@ -31,6 +63,8 @@ class TrackRunner {
     private _acceleration: number;
     private _laneData: Array<[number, number]>;
     private _validate: boolean;
+    private _timeout = 60000 // one minute.
+
 
     /**
      * Creates a new TrackRunner instance with following parameters.
@@ -129,6 +163,41 @@ class TrackRunner {
     }
 
     /**
+     * Handler which is trigger as soon as a lane is reported as invalid.
+     *
+     * @param handler The handler function
+     * @return {TrackRunner}
+     */
+    onInvalidLaneHandler(handler: (messages: Array<PositionUpdateMessage>, report: ValidationReport) => any): TrackRunner {
+        this._invalidLaneHandler = handler;
+        return this;
+    }
+
+    /**
+     * Handler which is trigger if lane searching reaches a timeout.
+     *
+     * @param handler The handler function
+     * @return {TrackRunner}
+     */
+    onTimeoutHandler(handler: () => any): TrackRunner {
+        this._timeoutHandler = handler;
+        return this;
+    }
+
+    /**
+     * Registers an own validation function for lane validation. A validator can only be registered
+     * before using the 'run' method.
+     *
+     * @param validator Validation function
+     * @return {TrackRunner}
+     */
+    setValidator(validator: (messages: Array<PositionUpdateMessage>, track: Track, lane: number) => ValidationReport): TrackRunner {
+        if (!this._running)
+            this._validator = validator;
+        return this;
+    }
+
+    /**
      * Starts the vehicle and runs all specified lines.
      */
     run(): void {
@@ -197,7 +266,8 @@ class TrackRunner {
         let me = this,
             vehicle = me._vehicle,
             startLocation = me._track.start.getLocation(lane, 0),
-            attempts = 0;
+            attempts = 0,
+            timeout = setTimeout(() => me._timeoutHandler(), me._timeout);
 
 
         return new Promise<PositionUpdateMessage>((resolve) => {
@@ -205,14 +275,19 @@ class TrackRunner {
                 let piece = message.piece,
                     location = message.location;
 
-                if (attempts >= 3)
+                if (attempts >= 3) {
+                    clearTimeout(timeout);
+                    vehicle.removeListener(listener);
                     me.stop(new Error("Unable to find lane [" + lane + "]."));
+                }
 
                 if (piece === StartPiece._ID) {
                     if (location === startLocation) {
+                        clearTimeout(timeout);
                         vehicle.removeListener(listener);
-
                         resolve(message);
+                    } else if (location < startLocation || location > startLocation) {
+                        ++attempts;
                     }
                 }
             };
@@ -225,7 +300,8 @@ class TrackRunner {
     private collectMessagesForLane(startMessage: PositionUpdateMessage, lane: number): Promise<Array<PositionUpdateMessage>> {
         let me = this,
             vehicle = me._vehicle,
-            messages: Array<PositionUpdateMessage> = [startMessage];
+            messages: Array<PositionUpdateMessage> = [startMessage],
+            timeout = setTimeout(() => me._timeoutHandler(), me._timeout);
 
 
         return new Promise<Array<PositionUpdateMessage>>((resolve) => {
@@ -236,15 +312,17 @@ class TrackRunner {
                 if (messages.length > 1 && piece === startMessage.piece && location === startMessage.location) {
                     messages.push(message);
                     if (me._validate) {
-                        let report = me.validateMessages(messages, lane);
+                        let report = me._validator(messages, me._track, lane);
                         if (report.valid) {
+                            clearTimeout(timeout);
                             vehicle.removeListener(listener);
                             resolve(messages);
                         } else {
-                            console.error(report);
+                            me._invalidLaneHandler(messages, report);
                             messages = [message];
                         }
                     } else {
+                        clearTimeout(timeout);
                         vehicle.removeListener(listener);
                         resolve(messages);
                     }
@@ -256,32 +334,6 @@ class TrackRunner {
         });
     }
 
-    private validateMessages(messages: Array<PositionUpdateMessage>, lane: number): ValidationReport {
-        let report = new ValidationReport().setValid(),
-            i = 0;
-
-        this._track.eachPiece((piece) => {
-            let foundPiece = messages[i] ? messages[i].piece : undefined,
-                expectedPiece = piece.id;
-
-            if (foundPiece !== expectedPiece)
-                report.setInvalid()
-                    .setPiece(foundPiece, expectedPiece);
-
-            piece.eachLocationOnLane(lane, (location) => {
-                let foundLocation = messages[i] ? messages[i].location : undefined,
-                    expectedLocation = location;
-
-                if (foundLocation !== expectedLocation)
-                    report.setInvalid()
-                        .setPiece(foundPiece, expectedPiece)
-                        .setLocation(foundLocation, expectedLocation);
-                ++i;
-            });
-        });
-
-        return report;
-    }
 }
 
 export {TrackRunner}
