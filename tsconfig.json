@@ -20,9 +20,12 @@
     "src/core/track/end-piece.ts",
     "src/core/track/curve-piece.ts",
     "src/core/track/straight-piece.ts",
-    "src/core/enrich/distance-filter.ts",
-    "src/core/test.ts",
 
+    "src/core/filter/active-filter.ts",
+    "src/core/filter/abstract-distance-filter.ts",
+    "src/core/filter/simple-distance-filter.ts",
+    "src/core/filter/distance.ts",
+    
     "src/util/measure/validation-report.ts",
     "src/util/measure/distance.ts",
     "src/util/measure/result-handler-interface.ts",
