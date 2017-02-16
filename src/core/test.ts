@@ -27,6 +27,9 @@ function antiCollision(msg: PositionUpdateMessage) {
         distances: Array<{vehicle: string, distance: number}> = msg.distances;
 
     distances.forEach(distance => {
+
+        console.log(distance);
+
         if (distance.distance < 500) {
             onCollision = true;
             if (obj.desiredSpeed < 0)
