@@ -3,7 +3,7 @@ import {Vehicle} from "../core/vehicle/vehicle-interface";
 
 class AnkiConsole {
 
-    private _commandHandler: (cmd: string, params: Array<any>) => any = () => {
+    private _commandHandler: (cmd: string, params: Array<any>, vehicle: string) => any = () => {
     };
 
     onCommand(handler: (cmd: string, params: Array<string>) => any): AnkiConsole {
@@ -26,7 +26,7 @@ class AnkiConsole {
             let input: string[] = line.split(' ');
             let command = input[0];
             let index: number = parseInt(input[1]);
-            let params  = input.splice(1, input.length -1);
+            let params = input.splice(1, input.length - 1);
 
             if (command === "help") {
                 console.log('Available commands:\n' +
@@ -46,7 +46,7 @@ class AnkiConsole {
                 return;
             }
 
-            this._commandHandler(command, params);
+            this._commandHandler(command, params, vehicles[index].id);
 
             switch (command) {
                 //case 'help':
