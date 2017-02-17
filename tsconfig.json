@@ -33,7 +33,9 @@
     "src/core/filter/active-filter.ts",
     "src/core/filter/abstract-distance-filter.ts",
     "src/core/filter/simple-distance-filter.ts",
-    "src/core/filter/distance.ts"
+    "src/core/filter/distance.ts",
+    "src/core/settings/settings-interface.ts",
+    "src/core/settings/json-settings.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

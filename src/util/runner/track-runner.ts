@@ -1,8 +1,8 @@
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {Track} from "../../core/track/track-interface";
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
-import {StartPiece} from "../../core/track/start-piece";
 import {ValidationReport} from "./validation-report";
+import {Start} from "../../core/track/start";
 
 /**
  * TrackRunner is a helper class that automates driving a vehicle on a certain set of lines.
@@ -281,7 +281,7 @@ class TrackRunner {
                     me.stop(new Error("Unable to find lane [" + lane + "]."));
                 }
 
-                if (piece === StartPiece._ID) {
+                if (piece === Start._ID) {
                     if (location === startLocation) {
                         clearTimeout(timeout);
                         vehicle.removeListener(listener);

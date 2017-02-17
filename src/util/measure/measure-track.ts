@@ -1,14 +1,12 @@
 import {TrackRunner} from "../runner/track-runner";
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
-import {Track} from "../../core/track/track-interface";
 import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
 import {Distance} from "./distance";
 import * as uuid from "node-uuid";
 import {ConsoleResultHandler} from "./console-result-handler";
 import {FileResultHandler} from "./file-result-handler";
-import {Settings} from "../../settings/settings-interface";
-import {JsonSettings} from "../../settings/json-settings";
 import {ResultHandler} from "./result-handler-interface";
+import {JsonSettings} from "../../core/settings/json-settings";
 
 /************************************************************************************
  *                                  MEASURE TRACK                                   *
@@ -24,8 +22,8 @@ import {ResultHandler} from "./result-handler-interface";
  ************************************************************************************/
 
 
-let settings: Settings = new JsonSettings(),
-    track: Track = settings.getAsTrack("track"),
+let settings = new JsonSettings(),
+    track = settings.getAsTrack("track"),
     scanner = new VehicleScanner(),
     vehicleId: string,
     uniqueId: string = uuid.v4(),

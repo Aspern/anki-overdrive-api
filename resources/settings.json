@@ -28,5 +28,21 @@
       "type": "curve",
       "id": 20
     }
-  ]
+  ],
+  "utils": {
+    "quality": {
+      "rounds": 1,
+      "vehicle": "eb401ef0f82b",
+      "offset": 68.0
+    },
+    "measureTrack": {
+      "resultHandler": "console"
+    },
+    "measureQuality": {
+      "minSpeed": 800,
+      "maxSpeed": 900,
+      "increment": 100,
+      "rounds": 10
+    }
+  }
 }
