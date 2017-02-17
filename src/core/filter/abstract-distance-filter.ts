@@ -3,6 +3,8 @@ import {Vehicle} from "../vehicle/vehicle-interface";
 import {PositionUpdateMessage} from "../message/position-update-message";
 import {Track} from "../track/track-interface";
 import {Distance} from "./distance";
+import {isNullOrUndefined} from "util";
+import reject = Promise.reject;
 
 /**
  * The AbstractDistanceFilter uses a track and a set of vehicles  that travel on the track to
@@ -25,6 +27,7 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
 
     private _vehicles: Array<Vehicle>;
     private _store: {[key: string]: PositionUpdateMessage} = {};
+    private _last: {[key: string]: PositionUpdateMessage} = {};
     private _listener: (output: PositionUpdateMessage) => any = () => {
     };
     private _started = false;
@@ -38,20 +41,37 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
     start(): Promise<void> {
         let me = this;
 
-        return new Promise<void>(resolve => {
-            me._started = true;
-            me.registerVehicleListeners();
-            resolve();
+        return new Promise<void>((resolve, reject) => {
+            try {
+                if (me._started === true)
+                    reject(new Error("Filter has already been started."));
+                else {
+                    me._started = true;
+                    me.registerVehicleListeners();
+                    resolve();
+                }
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 
     stop(): Promise<void> {
         let me = this;
 
-        return new Promise<void>(resolve => {
-            me._started = false;
-            me.unregisterVehicleListeners();
-            resolve();
+        return new Promise<void>((resolve, reject) => {
+            try {
+                if (me._started === false)
+                    reject(new Error("Filter is not running."));
+                else {
+                    me._started = false;
+                    me.unregisterVehicleListeners();
+                    resolve();
+                }
+
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 
@@ -68,9 +88,14 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
             uuid = vehicle.id;
 
             me._listenerInstances[uuid] = (message: PositionUpdateMessage) => {
-                me._store[message.vehicleId] = message;
-                me.enrich(message);
-                me._listener(message);
+                try {
+                    me._store[message.vehicleId] = message;
+                    me.enrich(message);
+                    me._last[message.vehicleId] = message;
+                    me._listener(message);
+                } catch (e) {
+                    me.handleError(e);
+                }
             };
 
             vehicle.addListener(me._listenerInstances[uuid], PositionUpdateMessage);
@@ -84,7 +109,6 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
 
         me._vehicles.forEach(vehicle => {
             uuid = vehicle.id;
-
             vehicle.removeListener(me._listenerInstances[uuid]);
         });
     }
@@ -92,15 +116,13 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
     private enrich(message: PositionUpdateMessage): void {
         let me = this;
 
-        try {
-            message.lane = me._track.findLane(message.piece, message.location);
-            message.position = me._track
-                .findPiece(message.piece)
-                .getLocationIndex(message.lane, message.location);
-            message.distances = me.findDistances(message);
-        } catch (e) {
-            me.handleError(e);
-        }
+
+        message.lane = me._track.findLane(message.piece, message.location);
+        message.position = me._track
+            .findPiece(message.piece)
+            .getLocationIndex(message.lane, message.location);
+        message.distances = me.findDistances(message);
+
     }
 
     private findDistances(message: PositionUpdateMessage): Array<Distance> {
@@ -130,8 +152,25 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
         distance.vehicle = m2.vehicleId;
         distance.vertical = me.verticalDistance(m1, m2);
         distance.horizontal = me.horizontalDistance(m1, m2);
+        distance.delta = me.delta(distance.horizontal, m1.vehicleId, distance.vehicle);
 
         return distance;
+    }
+
+    private delta(horizontal: number, uuid: string, vehicle: string): number {
+        let me = this,
+            last: PositionUpdateMessage = me._last[uuid];
+
+        if (isNullOrUndefined(last))
+            return null;
+
+        for (let i = 0; i < last.distances.length; ++i) {
+            let lastDistance = last.distances[i];
+            if (lastDistance.vehicle === vehicle)
+                return horizontal - lastDistance.horizontal;
+        }
+
+        return null;
     }
 
     private verticalDistance(m1: PositionUpdateMessage, m2: PositionUpdateMessage): number {
@@ -154,12 +193,14 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
         // distance which m2 has additionally returned after sending the message.
         distance += m2.speed * ((currentTimestamp - lastTimestamp) / 1000);
 
+        // remove length of vehicle m2.
+        distance -= 8.5;
+
         return distance;
     }
 
     private approximateLocationFor(m1: PositionUpdateMessage, m2: PositionUpdateMessage): [number, number] {
-        let me = this,
-            lane1 = m1.lane,
+        let lane1 = m1.lane,
             lane2 = this._track.findLane(m2.piece, m2.location),
             piece2 = this._track.findPiece(m2.piece),
             position2 = piece2.getLocationIndex(lane2, m2.location),

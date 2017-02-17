@@ -1,8 +1,9 @@
 class Distance {
+
     private _vehicle: string;
     private _vertical: number;
     private _horizontal: number;
-
+    private _delta: number;
 
     get vehicle(): string {
         return this._vehicle;
@@ -26,6 +27,14 @@ class Distance {
 
     set horizontal(value: number) {
         this._horizontal = value;
+    }
+
+    get delta(): number {
+        return this._delta;
+    }
+
+    set delta(value: number) {
+        this._delta = value;
     }
 }
 

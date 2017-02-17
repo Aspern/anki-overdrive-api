@@ -69,7 +69,7 @@ class AnkiOverdriveTrack implements Track {
             end = to;
         }
 
-        if(start[0] === end[0] && start[1] === end[1])
+        if (start[0] === end[0] && start[1] === end[1])
             return;
 
         let startPiece = this.findPiece(start[0]),
@@ -82,17 +82,21 @@ class AnkiOverdriveTrack implements Track {
             startIndex = startPiece.getLocationIndex(lane, start[1]),
             endIndex = endPiece.getLocationIndex(lane, end[1]);
 
-
-        if (startPiece === endPiece)
-            for (let i = startIndex; i < currentLane.length - 1; ++i) {
-                currentLocation = currentLane[i];
-                nextLocation = currentLane[i + 1];
-                handler([currentPieceId, currentLocation], [currentPieceId, nextLocation]);
-            }
+        for (let i = startIndex; i < currentLane.length - 1; ++i) {
+            currentLocation = currentLane[i];
+            nextLocation = currentLane[i + 1];
+            handler([currentPieceId, currentLocation], [currentPieceId, nextLocation]);
+        }
 
         if (!nextLocation) {
             nextLocation = start[1];
         }
+
+        if(current !== endPiece) {
+            current = current.next;
+            handler([currentPieceId, nextLocation], [current.id, current.getLane(lane)[0]]);
+        }
+
 
         while (current !== endPiece) {
             currentLane = current.getLane(lane);
