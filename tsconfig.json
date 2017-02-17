@@ -25,7 +25,8 @@
     "src/core/filter/abstract-distance-filter.ts",
     "src/core/filter/simple-distance-filter.ts",
     "src/core/filter/distance.ts",
-    
+    "src/core/filter/test.ts",
+
     "src/util/measure/validation-report.ts",
     "src/util/measure/distance.ts",
     "src/util/measure/result-handler-interface.ts",
