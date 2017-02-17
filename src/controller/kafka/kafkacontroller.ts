@@ -35,9 +35,10 @@ class KafkaController implements IConsumerListener{
 
     }
 
-    initializeConsumer(clients: Array<any>): void{
+    initializeConsumer(clients: Array<any>, offset: number): void{
         let Consumer = this.kafka.Consumer;
         this.consumer = new Consumer(this.client, clients, {autoCommit: false});
+        this.consumer.setOffset('test', 0, offset);
         this.consumer.on('message', (message: any) => {
             if (message)
                 this._listeners.forEach((listener) => {
