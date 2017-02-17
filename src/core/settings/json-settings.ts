@@ -4,11 +4,14 @@ import {Settings} from "./settings-interface";
 import {Track} from "../track/track-interface";
 import {isNullOrUndefined} from "util";
 import {Piece} from "../track/piece-interface";
-import {CurvePiece} from "../track/curve-piece";
-import {StraightPiece} from "../track/straight-piece";
+import {Curve} from "../track/curve";
+import {Straight} from "../track/straight";
 import {AnkiOverdriveTrack} from "../track/anki-overdrive-track";
 
-
+/**
+ * This implementation of settings uses a simple json file to find settings. The class uses the
+ * 'resources/settings.json' file as a default if no file is given.
+ */
 class JsonSettings implements Settings {
 
     private _map: {[key: string]: any} = {};
@@ -87,9 +90,9 @@ class JsonSettings implements Settings {
 
         configs.forEach(config => {
             if (config.type === "curve")
-                pieces.push(new CurvePiece(config.id));
+                pieces.push(new Curve(config.id));
             else if (config.type === "straight")
-                pieces.push(new StraightPiece(config.id));
+                pieces.push(new Straight(config.id));
         });
 
         return AnkiOverdriveTrack.build(pieces);

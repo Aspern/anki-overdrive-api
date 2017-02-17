@@ -2,6 +2,10 @@
 import * as jsonfile from "jsonfile";
 import {AbstractDistanceFilter} from "./abstract-distance-filter";
 
+/**
+ * Implementation of the AbstractDistanceFilter. This filter uses a local
+ * 'resources/distances.json' file to find the distances between each location on the track.
+ */
 class SimpleDistanceFilter extends AbstractDistanceFilter {
 
     private _transitionData: {[key: string]: number};

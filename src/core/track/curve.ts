@@ -1,11 +1,9 @@
 import {AnkiOverdrivePiece} from "./anki-overdrive-piece";
 
-class EndPiece extends AnkiOverdrivePiece {
+class Curve extends AnkiOverdrivePiece {
 
-    public static _ID: number = 34;
-
-    constructor() {
-        super(EndPiece._ID);
+    constructor(id: number) {
+        super(id);
     }
 
     initLocations(): Array<Array<number>> {
@@ -20,14 +18,14 @@ class EndPiece extends AnkiOverdrivePiece {
             [14, 15],
             [16, 17],
             [18, 19],
-            [20, 21],
-            [22, 23],
-            [24, 25],
-            [26, 27],
-            [28, 29],
-            [30, 31]
+            [20, 21, 22],
+            [23, 24, 25],
+            [26, 27, 28],
+            [29, 30, 31],
+            [32, 33, 34],
+            [35, 36, 37]
         ];
     }
 }
 
-export {EndPiece};
+export {Curve};

@@ -4,16 +4,31 @@ import {Peripheral} from "noble";
 import {Vehicle} from "./vehicle-interface";
 import {AnkiOverdriveVehicle} from "./anki-overdrive-vehicle";
 
+/**
+ * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
+ * their id or address.
+ */
 class VehicleScanner {
 
     private timeout: number;
     private retries: number;
 
+    /**
+     * Creates a instance of VehicleScanner.
+     *
+     * @param timeout (optional) number of milliseconds before timeout is reached.
+     * @param retries (optional) number of retries before searching fails.
+     */
     constructor(timeout?: number, retries?: number) {
         this.timeout = timeout || 1000;
         this.retries = retries || 3;
     }
 
+    /**
+     * Searches and returns all available vehicles.
+     *
+     * @return {Promise<Array<Vehicle>>|Promise} all available vehicles
+     */
     findAll(): Promise<Array<Vehicle>> {
         let vehicles: Array<Vehicle> = [],
             me = this;
@@ -37,6 +52,12 @@ class VehicleScanner {
         });
     }
 
+    /**
+     * Searches a vehicle by its unique identifier.
+     *
+     * @param id Unique identifier of the vehicle
+     * @return {Promise<Vehicle>|Promise} vehicle
+     */
     findById(id: string): Promise<Vehicle> {
         let me = this;
 
@@ -51,6 +72,12 @@ class VehicleScanner {
         });
     }
 
+    /**
+     * Searches a vehicle by its unique address.
+     *
+     * @param address unique address
+     * @return {Promise<Vehicle>|Promise} vehicle
+     */
     findByAddress(address: string): Promise<Vehicle> {
         let me = this;
 
@@ -65,6 +92,11 @@ class VehicleScanner {
         });
     }
 
+    /**
+     * Searches for any vehicle.
+     *
+     * @return {Promise<Vehicle>|Promise} vehicle
+     */
     findAny(): Promise<Vehicle> {
         let me = this;
 

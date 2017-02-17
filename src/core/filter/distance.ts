@@ -1,3 +1,7 @@
+/**
+ * Describes the distance between two vehicles. It contains a vertical and horizontal value. for
+ * the horizontal value there is also a delta between the last two positions of a vehicle.
+ */
 class Distance {
 
     private _vehicle: string;

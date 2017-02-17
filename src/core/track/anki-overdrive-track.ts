@@ -1,19 +1,19 @@
 import {Track} from "./track-interface";
 import {Piece} from "./piece-interface";
-import {StartPiece} from "./start-piece";
-import {EndPiece} from "./end-piece";
+import {Start} from "./start";
+import {Finish} from "./finish";
 
 class AnkiOverdriveTrack implements Track {
 
-    private _start: StartPiece;
-    private _end: EndPiece;
+    private _start: Start;
+    private _finish: Finish;
 
     constructor() {
-        this._start = new StartPiece();
-        this._end = new EndPiece();
+        this._start = new Start();
+        this._finish = new Finish();
 
-        this.start.previous = this._end;
-        this.end.next = this.start;
+        this.start.previous = this._finish;
+        this.finish.next = this.start;
     }
 
 
@@ -62,7 +62,7 @@ class AnkiOverdriveTrack implements Track {
 
     eachTransition(handler: (t1: [number, number], t2: [number, number]) => any, lane: number, from?: [number, number], to?: [number, number]): void {
         let start: [number, number] = [this.start.id, this.start.getLane(lane)[0]],
-            end: [number, number] = [this.end.id, this.end.getLane(lane)[1]];
+            end: [number, number] = [this.finish.id, this.finish.getLane(lane)[1]];
 
         if (from && to) {
             start = from;
@@ -137,8 +137,8 @@ class AnkiOverdriveTrack implements Track {
             current = piece;
         });
 
-        track.end.previous = last;
-        last.next = track.end;
+        track.finish.previous = last;
+        last.next = track.finish;
 
         return track;
     }
@@ -154,12 +154,12 @@ class AnkiOverdriveTrack implements Track {
         throw new Error("Found no lane for piece [" + pieceId + "] and location [" + location + "].");
     }
 
-    get start(): StartPiece {
+    get start(): Start {
         return this._start;
     }
 
-    get end(): EndPiece {
-        return this._end;
+    get finish(): Finish {
+        return this._finish;
     }
 }
 

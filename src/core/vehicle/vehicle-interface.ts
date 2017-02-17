@@ -2,29 +2,22 @@ import {VehicleMessage} from "../message/vehicle-message";
 import {LightConfig} from "./light-config";
 
 /**
- * Provides methods to interact with a vehicle from Anki OVERDRIVE.
+ * Provides methods to interact with a vehicle.
  */
 interface Vehicle {
 
-    /**
-     * Unique identifier for each vehicle.
-     */
     id: string;
-
-    /**
-     * Unique address for each vehicle.
-     */
     address: string;
 
     /**
-     * Connects the vehicle via Bluetooth-Low-Energy.
+     * Connects the vehicle via BLE.
      *
      * @return {Promise<Vehicle>|Promise} Promise holding the connected vehicle.
      */
     connect(): Promise<Vehicle>;
 
     /**
-     * Disconnects the vehicle via Bluetooth-Low-Energy.
+     * Disconnects the vehicle via BLE.
      *
      * @return {Promise<Vehicle>|Promise} Promise holding the disconnected vehicle.
      */
