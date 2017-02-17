@@ -1,12 +1,12 @@
-/// <reference path="../../decl/jsonfile.d.ts"/>
+/// <reference path="../../../decl/jsonfile.d.ts"/>
 import * as jsonfile from "jsonfile";
 import {Settings} from "./settings-interface";
-import {Track} from "../core/track/track-interface";
+import {Track} from "../track/track-interface";
 import {isNullOrUndefined} from "util";
-import {Piece} from "../core/track/piece-interface";
-import {CurvePiece} from "../core/track/curve-piece";
-import {StraightPiece} from "../core/track/straight-piece";
-import {AnkiOverdriveTrack} from "../core/track/anki-overdrive-track";
+import {Piece} from "../track/piece-interface";
+import {CurvePiece} from "../track/curve-piece";
+import {StraightPiece} from "../track/straight-piece";
+import {AnkiOverdriveTrack} from "../track/anki-overdrive-track";
 
 
 class JsonSettings implements Settings {

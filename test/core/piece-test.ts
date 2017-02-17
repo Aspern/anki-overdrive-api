@@ -59,12 +59,6 @@ class PieceTest {
             expect(curve.getLane(i).length).to.be.equal(3);
     }
 
-    /**
-     * Validates if the piece has the correct id, sequence of locations and number of lanes.
-     *
-     * @param piece Piece to validate.
-     * @param expectedId Expected id for piece.
-     */
     private validatePiece(piece: Piece, expectedId: number): void {
         let i = 0,
             lanes = 0;

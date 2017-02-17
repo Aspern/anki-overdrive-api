@@ -20,35 +20,10 @@
     "src/core/track/end-piece.ts",
     "src/core/track/curve-piece.ts",
     "src/core/track/straight-piece.ts",
-
     "src/core/filter/active-filter.ts",
     "src/core/filter/abstract-distance-filter.ts",
     "src/core/filter/simple-distance-filter.ts",
-    "src/core/filter/distance.ts",
-    "src/core/filter/test.ts",
-
-    "src/util/measure/validation-report.ts",
-    "src/util/measure/distance.ts",
-    "src/util/measure/result-handler-interface.ts",
-    "src/util/measure/console-result-handler.ts",
-    "src/util/measure/file-result-handler.ts",
-    "src/util/measure/measure-track.ts",
-    "src/util/scan/scan.ts",
-    "src/util/runner/track-runner.ts",
-
-    "src/controller/console.ts",
-    "src/controller/main.ts",
-    "src/controller/kafka/kafkacontroller.ts",
-    "src/controller/kafka/kafka-controller.ts",
-    "src/controller/kafka/IConsumerListener.ts",
-    "src/controller/kafka/ConsumerMessage.ts",
-    "src/settings/settings-interface.ts",
-    "src/settings/json-settings.ts",
-
-    "test/core/vehicle-scanner-test.ts",
-    "test/core/vehicle-test.ts",
-    "test/core/piece-test.ts",
-    "test/controller/kafkacontroller-test.ts"
+    "src/core/filter/distance.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

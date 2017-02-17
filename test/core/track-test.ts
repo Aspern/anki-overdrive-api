@@ -8,12 +8,12 @@ import {Piece} from "../../src/core/track/piece-interface";
 import {EndPiece} from "../../src/core/track/end-piece";
 import {StartPiece} from "../../src/core/track/start-piece";
 import {fail} from "assert";
-import {JsonSettings} from "../../src/settings/json-settings";
+import {JsonSettings} from "../../src/core/settings/json-settings";
 
 @suite
 class TrackTest {
 
-    @test "track finds piecs"() {
+    @test "find pieces"() {
         let track: Track = AnkiOverdriveTrack.build([
             new StraightPiece(10),
             new StraightPiece(10),
@@ -30,7 +30,7 @@ class TrackTest {
         });
     }
 
-    @test "track finds single piece"() {
+    @test "find piece"() {
         let track: Track = AnkiOverdriveTrack.build([
             new StraightPiece(10),
             new StraightPiece(10),
@@ -47,6 +47,27 @@ class TrackTest {
             expect(e).not.to.be.null;
         }
     }
+
+    @test "find lane"() {
+        let track: Track = AnkiOverdriveTrack.build([
+            new CurvePiece(0),
+            new CurvePiece(1),
+            new StraightPiece(2),
+            new CurvePiece(3),
+            new CurvePiece(4)
+        ]);
+
+        expect(track.findLane(0, 0)).to.be.equals(0);
+        expect(track.findLane(0, 36)).to.be.equals(15);
+        expect(track.findLane(2, 2)).to.be.equals(0);
+        expect(track.findLane(2, 24)).to.be.equals(8);
+        expect(track.findLane(2, 45)).to.be.equals(15);
+
+        for (let i = 0; i < 16; ++i)
+            expect(track.findLane(StartPiece._ID, i)).to.be.equals(i);
+    }
+
+    s
 
     @test "track has at least start and end pieces"() {
         let track = new AnkiOverdriveTrack();
@@ -73,7 +94,7 @@ class TrackTest {
         }
     }
 
-    @test "track iterates lanes corrently"() {
+    @test "each lane on piece"() {
         let pieces: Array<Piece> = [
                 new CurvePiece(0),
                 new CurvePiece(1),
@@ -106,31 +127,30 @@ class TrackTest {
     }
 
 
-    @test "track finds lane"() {
-        let track: Track = AnkiOverdriveTrack.build([
-            new CurvePiece(0),
-            new CurvePiece(1),
-            new StraightPiece(2),
-            new CurvePiece(3),
-            new CurvePiece(4)
-        ]);
-
-        expect(track.findLane(0, 0)).to.be.equals(0);
-        expect(track.findLane(0, 36)).to.be.equals(15);
-        expect(track.findLane(2, 2)).to.be.equals(0);
-        expect(track.findLane(2, 24)).to.be.equals(8);
-        expect(track.findLane(2, 45)).to.be.equals(15);
-
-        for (let i = 0; i < 16; ++i)
-            expect(track.findLane(StartPiece._ID, i)).to.be.equals(i);
-    }
-
-    @test "test"() {
+    @test "each transition"() {
         let settings = new JsonSettings(),
-            track = settings.getAsTrack("track");
+            track = AnkiOverdriveTrack.build([
+                new StraightPiece(1),
+                new CurvePiece(2)
+            ]),
+            i = 0,
+            validationData: Array<[[number, number], [number, number]]> = [
+                [[33, 0], [1, 0]],
+                [[1, 0], [1, 1]],
+                [[1, 1], [1, 2]],
+                [[1, 2], [2, 0]],
+                [[2, 0], [2, 1]],
+                [[2, 1], [34, 0]],
+                [[34, 0], [34, 1]],
+                [[34, 1], [33, 0]]
+            ];
 
-        track.eachTransition((t1, t2)=> {
-            console.log(t1 + " => " + t2);
-        }, 0, [17,0],[17,0]);
+        track.eachTransition((t1, t2) => {
+            expect(t1[0]).to.be.equals(validationData[i][0][0]);
+            expect(t1[1]).to.be.equals(validationData[i][0][1]);
+            expect(t2[0]).to.be.equals(validationData[i][1][0]);
+            expect(t2[1]).to.be.equals(validationData[i][1][1]);
+            i++;
+        }, 0, [17, 0], [17, 0]);
     }
 }

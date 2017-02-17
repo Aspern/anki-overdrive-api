@@ -1,4 +1,4 @@
-import {Track} from "../core/track/track-interface";
+import {Track} from "../track/track-interface";
 
 interface Settings {
 

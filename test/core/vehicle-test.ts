@@ -6,6 +6,7 @@ import {PositionUpdateMessage} from "../../src/core/message/position-update-mess
 import {VehicleMessage} from "../../src/core/message/vehicle-message";
 import {TransitionUpdateMessage} from "../../src/core/message/transition-update-message";
 import {DrivingDirection} from "../../src/core/message/driving-direction";
+import {LightConfig} from "../../src/core/vehicle/light-config";
 
 
 @suite
@@ -14,17 +15,17 @@ class VehicleTest {
     static _VEHICLE: Vehicle;
 
     @timeout(5000)
-    static before(done: Function) {
+    static before(done) {
         let scanner = new VehicleScanner();
 
-        scanner.findAll().then((vehicles) => {
+        scanner.findAll().then(vehicles => {
             if (vehicles.length > 0) {
                 let vehicle = vehicles[0];
                 VehicleTest._VEHICLE = vehicle;
                 VehicleTest._VEHICLE
                     .connect()
                     .then(() => done())
-                    .catch((e) => done(e));
+                    .catch(e => done(e));
             } else {
                 done(new Error("Found no test vehicle."));
             }
@@ -32,122 +33,125 @@ class VehicleTest {
     }
 
     @timeout(5000)
-    static after(done: Function) {
+    static after(done) {
         this._VEHICLE
             .disconnect()
             .then(() => done())
-            .catch((e) => done(e));
+            .catch(e => done(e));
     }
 
-    @test @timeout(5000) "vehcile drives with expected speed"(done: Function) {
+    @test @timeout(5000) "set speed and acceleration"(done) {
         let speed: number = 500,
+            vehicle = VehicleTest._VEHICLE,
             listener = (msg: PositionUpdateMessage) => {
                 expect(msg.speed).approximately(speed, 30);
-                VehicleTest._VEHICLE.removeListener(listener);
-                VehicleTest._VEHICLE.setSpeed(0, 1500);
+                vehicle.removeListener(listener);
+                vehicle.setSpeed(0, 1500);
                 done();
             };
 
-        VehicleTest._VEHICLE.setSpeed(speed, 250);
+        vehicle.setSpeed(speed, 250);
 
-        // Add listener after 1 second to ensure that vehicle is driving.
         setTimeout(() => {
-            VehicleTest._VEHICLE.addListener(listener, PositionUpdateMessage);
+            vehicle.addListener(listener, PositionUpdateMessage);
         }, 2000);
     }
 
-    @test @timeout(5000) "vehcile changes lane correctly"(done: Function) {
+    @test @timeout(5000) "change lane"(done) {
         let offset: number = 0,
+            vehicle = VehicleTest._VEHICLE,
             listener = (msg: PositionUpdateMessage) => {
                 expect(msg.offset).approximately(offset, 3.0);
-                VehicleTest._VEHICLE.removeListener(listener);
-                VehicleTest._VEHICLE.setSpeed(0, 1500);
+                vehicle.removeListener(listener);
+                vehicle.setSpeed(0, 1500);
                 done();
             };
 
-        VehicleTest._VEHICLE.setSpeed(500, 250);
+        vehicle.setSpeed(500, 250);
 
         setTimeout(() => {
-            VehicleTest._VEHICLE.changeLane(offset);
+            vehicle.changeLane(offset);
 
-            // Add listener after 1 second to ensure that vehicle is driving.
             setTimeout(() => {
-                VehicleTest._VEHICLE.addListener(listener, PositionUpdateMessage);
+                vehicle.addListener(listener, PositionUpdateMessage);
             }, 2000);
         }), 2000;
     }
 
-    @test @timeout(5000) "vehciles queries ping"(done: Function) {
+    @test @timeout(5000) "query ping"(done) {
         VehicleTest._VEHICLE
             .queryPing()
             .then((ping) => {
                 expect(ping).gt(0);
                 done();
-            }).catch((e) => done(e));
+            }).catch(e => done(e));
     }
 
-    @test @timeout(5000) "vehicle quries version"(done: Function) {
+    @test @timeout(5000) "query version"(done) {
         VehicleTest._VEHICLE
             .queryVersion()
             .then((version) => {
                 expect(version).gt(0);
                 done();
-            }).catch((e) => done(e));
+            }).catch(e => done(e));
     }
 
-    @test @timeout(5000) "vehicle queries battery level"(done: Function) {
+    @test @timeout(5000) "query battery level"(done) {
         VehicleTest._VEHICLE
             .queryBatteryLevel()
             .then((batteryLevel) => {
                 expect(batteryLevel).gt(0);
                 done();
-            }).catch((e) => done(e));
+            }).catch(e => done(e));
     }
 
-    @test @timeout(5000)"vehicles executes listeners"(done: Function) {
+    @test @timeout(5000)"executes listener"(done) {
         let accessed = false,
+            vehicle = VehicleTest._VEHICLE,
             listener = (msg: VehicleMessage) => {
                 expect(msg).to.be.instanceof(VehicleMessage);
                 accessed = !accessed;
-                VehicleTest._VEHICLE.removeListener(listener);
+                vehicle.removeListener(listener);
             };
 
-        VehicleTest._VEHICLE.addListener(listener);
-        VehicleTest._VEHICLE.setSpeed(300, 250);
+        vehicle.addListener(listener);
+        vehicle.setSpeed(300, 250);
 
         setTimeout(() => {
-            VehicleTest._VEHICLE.setSpeed(0, 1500);
+            vehicle.setSpeed(0, 1500);
             expect(accessed).to.be.true;
             done();
         }, 3000);
     }
 
-    @test @timeout(5000)"vehicle executes typed listeners"(done: Function) {
-        let listener = (msg: TransitionUpdateMessage) => {
-            expect(msg).to.be.instanceof(TransitionUpdateMessage);
-        }
+    @test @timeout(5000)"executes typed listener"(done) {
+        let vehicle = VehicleTest._VEHICLE,
+            listener = (msg: TransitionUpdateMessage) => {
+                expect(msg).to.be.instanceof(TransitionUpdateMessage);
+            }
 
-        VehicleTest._VEHICLE.addListener(listener, TransitionUpdateMessage);
-        VehicleTest._VEHICLE.setSpeed(300, 250);
+        vehicle.addListener(listener, TransitionUpdateMessage);
+        vehicle.setSpeed(300, 250);
 
         setTimeout(() => {
-            VehicleTest._VEHICLE.setSpeed(0, 1500);
-            VehicleTest._VEHICLE.removeListener(listener);
+            vehicle.setSpeed(0, 1500);
+            vehicle.removeListener(listener);
             done();
         }, 3000);
 
     }
 
-    @test @timeout(5000)"vehicle executes u-turn"(done: Function) {
+    @test @timeout(5000)"u-turn"(done) {
         var direction: DrivingDirection,
             executed = false,
+            vehicle = VehicleTest._VEHICLE,
             listener1 = (msg: TransitionUpdateMessage) => {
                 direction = msg.direction;
-                VehicleTest._VEHICLE.removeListener(listener1);
-                VehicleTest._VEHICLE.addListener(listener2, TransitionUpdateMessage);
+                vehicle.removeListener(listener1);
+                vehicle.addListener(listener2, TransitionUpdateMessage);
 
                 setTimeout(() => {
-                    VehicleTest._VEHICLE.uTurn();
+                    vehicle.uTurn();
                     executed = true;
                 }, 2000);
             },
@@ -158,14 +162,94 @@ class VehicleTest {
                     expect(msg.direction).to.be.equal(DrivingDirection.FORWARD);
             }
 
-        VehicleTest._VEHICLE.addListener(listener1, TransitionUpdateMessage);
-        VehicleTest._VEHICLE.setSpeed(300, 250);
+        vehicle.addListener(listener1, TransitionUpdateMessage);
+        vehicle.setSpeed(300, 250);
 
         setTimeout(() => {
-            VehicleTest._VEHICLE.setSpeed(0, 1500);
-            VehicleTest._VEHICLE.removeListener(listener2);
+            vehicle.setSpeed(0, 1500);
+            vehicle.removeListener(listener2);
             done();
         }, 4000);
 
+    }
+
+    @test @timeout(5000)"set offset"(done) {
+        let vehicle = VehicleTest._VEHICLE,
+            offset = 8.5,
+            listener = (msg: PositionUpdateMessage) => {
+                expect(msg.offset).to.be.approximately(offset, 0.5);
+            };
+
+        vehicle.setOffset(offset);
+        vehicle.addListener(listener, PositionUpdateMessage);
+        vehicle.setSpeed(300, 250);
+
+        setTimeout(() => {
+            vehicle.setSpeed(0, 1500);
+            vehicle.removeListener(listener);
+            done();
+        }, 2000);
+
+    }
+
+    @test @timeout(4000)"set green lights steady"(done) {
+        this.setLightConfig([
+                new LightConfig()
+                    .green()
+                    .steady(),
+                new LightConfig()
+                    .weapon()
+                    .steady()
+            ],
+            3000, done);
+    }
+
+    @test @timeout(4000)"set red lights steady"(done) {
+        this.setLightConfig([
+                new LightConfig()
+                    .red()
+                    .steady(),
+                new LightConfig()
+                    .front()
+                    .steady(),
+                new LightConfig()
+                    .tail()
+                    .steady()
+            ],
+            2000, done);
+    }
+
+    private setLightConfig(config: Array<LightConfig>, timeout: number, done: Function): void {
+        let vehicle = VehicleTest._VEHICLE;
+
+        vehicle.setLights([
+            new LightConfig()
+                .blue()
+                .steady(0),
+            new LightConfig()
+                .green()
+                .steady(0),
+            new LightConfig()
+                .red()
+                .steady(0)
+        ]);
+
+        vehicle.setLights([
+            new LightConfig()
+                .weapon()
+                .steady(0),
+            new LightConfig()
+                .tail()
+                .steady(0),
+            new LightConfig()
+                .front()
+                .steady(0),
+        ]);
+
+        vehicle.setLights(config);
+
+        setTimeout(() => {
+            done();
+        }, timeout);
     }
 }

@@ -1,7 +1,7 @@
 import {suite, test} from "mocha-typescript";
 import {expect} from "chai";
-import {Settings} from "../../src/settings/settings-interface";
-import {JsonSettings} from "../../src/settings/json-settings";
+import {Settings} from "../../src/core/settings/settings-interface";
+import {JsonSettings} from "../../src/core/settings/json-settings";
 import {Track} from "../../src/core/track/track-interface";
 
 @suite
@@ -12,7 +12,6 @@ class JsonSettingsTest {
     constructor() {
         this._settings = new JsonSettings("resources/settings-test.json");
     }
-
 
     @test "get setting"() {
         expect(this._settings.get("key")).to.be.equals("value");
@@ -67,7 +66,6 @@ class JsonSettingsTest {
         let track: Track = this._settings.getAsTrack("track"),
             pieces = [33, 18, 23, 39, 17, 20, 34],
             i = 0;
-
 
         track.eachPiece(piece => {
             expect(piece.id).to.be.equals(pieces[i++]);

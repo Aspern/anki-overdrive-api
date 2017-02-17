@@ -10,7 +10,7 @@ class VehicleScannerTest {
     static _ADDRESS: string;
 
     @timeout(5000)
-    static before(done: Function) {
+    static before(done) {
         let scanner = new VehicleScanner();
 
         scanner.findAll().then((vehicles) => {
@@ -25,40 +25,42 @@ class VehicleScannerTest {
         });
     }
 
-    @test @timeout(5000)"scanner finds all vehicles"(done: Function) {
+    @test @timeout(5000)"find all vehicles"(done) {
         let scanner = new VehicleScanner();
 
         scanner.findAll().then((vehicles) => {
             expect(vehicles.length).not.to.be.empty;
             done();
-        }).catch((e) => done(e));
+        }).catch(e => done(e));
     }
 
-    @test @timeout(5000)"scanner finds vehicles by their id"(done: Function) {
-        let scanner = new VehicleScanner();
+    @test @timeout(5000)"find vehicle by id"(done) {
+        let scanner = new VehicleScanner(),
+            id = VehicleScannerTest._ID;
 
-        scanner.findById(VehicleScannerTest._ID).then((vehicle) => {
+        scanner.findById(id).then(vehicle => {
             expect(vehicle).not.to.be.null;
             done();
         }).catch((e) => done(e));
     }
 
-    @test @timeout(5000)"scanner finds vehicles by their address"(done: Function) {
-        let scanner = new VehicleScanner();
+    @test @timeout(5000)"find vehicle by address"(done) {
+        let scanner = new VehicleScanner(),
+            address = VehicleScannerTest._ADDRESS;
 
-        scanner.findByAddress(VehicleScannerTest._ADDRESS).then((vehicle) => {
+        scanner.findByAddress(address).then(vehicle => {
             expect(vehicle).not.to.be.null;
             done();
-        }).catch((e) => done(e));
+        }).catch(e => done(e));
     }
 
-    @test @timeout(5000)"scanner finds any vehicle"(done: Function) {
+    @test @timeout(5000)"find any vehicle"(done) {
         let scanner = new VehicleScanner();
 
-        scanner.findAny().then((vehicle) => {
+        scanner.findAny().then(vehicle => {
             expect(vehicle).not.to.be.null;
             done();
-        }).catch((e) => done(e));
+        }).catch(e => done(e));
     }
 
 }
