@@ -23,7 +23,13 @@
     "src/core/filter/active-filter.ts",
     "src/core/filter/abstract-distance-filter.ts",
     "src/core/filter/simple-distance-filter.ts",
-    "src/core/filter/distance.ts"
+    "src/core/filter/distance.ts",
+    "src/core/util/console-result-handler.ts",
+    "src/core/util/file-result-handler.ts",
+    "src/core/util/result.ts",
+    "src/core/util/result-handler-interface.ts",
+    "src/core/util/track-runner.ts",
+    "src/core/util/validation-report.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
