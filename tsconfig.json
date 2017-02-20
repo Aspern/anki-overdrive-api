@@ -1,9 +1,5 @@
 {
   "files": [
-    "src/script/measure-track.ts",
-    "src/script/measure-message-quality.ts",
-    "src/script/scan-vehicles.ts",
-
     "src/core/vehicle/vehicle-interface.ts",
     "src/core/vehicle/light-config.ts",
     "src/core/vehicle/anki-overdrive-vehicle.ts",
@@ -28,8 +24,12 @@
     "src/core/filter/abstract-distance-filter.ts",
     "src/core/filter/simple-distance-filter.ts",
     "src/core/filter/distance.ts",
-    "src/core/settings/settings-interface.ts",
-    "src/core/settings/json-settings.ts"
+    "src/core/util/console-result-handler.ts",
+    "src/core/util/file-result-handler.ts",
+    "src/core/util/result.ts",
+    "src/core/util/result-handler-interface.ts",
+    "src/core/util/track-runner.ts",
+    "src/core/util/validation-report.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
