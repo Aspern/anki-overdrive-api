@@ -1,5 +1,5 @@
 import {ResultHandler} from "./result-handler-interface";
-import {Distance} from "./distance";
+import {Distance} from "./Result";
 
 class ConsoleResultHandler implements ResultHandler {
 

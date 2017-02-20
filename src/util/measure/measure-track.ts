@@ -1,7 +1,7 @@
 import {TrackRunner} from "../runner/track-runner";
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
 import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
-import {Distance} from "./distance";
+import {Distance} from "./Result";
 import * as uuid from "node-uuid";
 import {ConsoleResultHandler} from "./console-result-handler";
 import {FileResultHandler} from "./file-result-handler";

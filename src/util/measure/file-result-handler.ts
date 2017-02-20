@@ -1,7 +1,7 @@
 /// <reference path="../../../decl/jsonfile.d.ts"/>
 import * as jsonfile from "jsonfile";
 import {ResultHandler} from "./result-handler-interface";
-import {Distance} from "./distance";
+import {Distance} from "./Result";
 
 
 class FileResultHandler implements ResultHandler {

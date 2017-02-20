@@ -1,4 +1,4 @@
-import {Distance} from "./distance";
+import {Distance} from "./Result";
 
 interface ResultHandler {
 
