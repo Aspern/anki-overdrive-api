@@ -1,14 +1,8 @@
 {
   "files": [
-    "src/util/runner/validation-report.ts",
-    "src/util/measure/Result.ts",
-    "src/util/measure/result-handler-interface.ts",
-    "src/util/measure/console-result-handler.ts",
-    "src/util/measure/file-result-handler.ts",
     "src/util/measure/measure-track.ts",
     "src/util/quality/measure-message-quality.ts",
     "src/util/scan/scan.ts",
-    "src/util/runner/track-runner.ts",
 
     "src/core/vehicle/vehicle-interface.ts",
     "src/core/vehicle/light-config.ts",
