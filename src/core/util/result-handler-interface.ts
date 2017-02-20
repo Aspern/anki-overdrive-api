@@ -1,8 +1,8 @@
-import {Distance} from "./result";
+import {Result} from "./result";
 
 interface ResultHandler {
 
-    handle(result: Array<[Distance, Array<Distance>]>): void
+    handle(result: Array<[Result, Array<Result>]>): void
 
 }
 

@@ -1,5 +1,5 @@
 import {ResultHandler} from "./result-handler-interface";
-import {Distance} from "./result";
+import {Result} from "./result";
 
 class ConsoleResultHandler implements ResultHandler {
 
@@ -10,10 +10,10 @@ class ConsoleResultHandler implements ResultHandler {
         this._table += "------------------------------------------------------------------------------------\n";
     }
 
-    handle(result: Array<[Distance, Array<Distance>]>): void {
+    handle(result: Array<[Result, Array<Result>]>): void {
         for (let lane = 0; lane < result.length; ++lane) {
-            let laneDistance: Distance = result[lane][0],
-                transitionDistances: Array<Distance> = result[lane][1];
+            let laneDistance: Result = result[lane][0],
+                transitionDistances: Array<Result> = result[lane][1];
 
             this.collectLane(laneDistance);
             this.printTransitions(transitionDistances, lane);
@@ -23,7 +23,7 @@ class ConsoleResultHandler implements ResultHandler {
         console.log(this._table);
     }
 
-    private collectLane(distance: Distance): void {
+    private collectLane(distance: Result): void {
         let row: string = "";
 
         row += distance.lane + "\t\t\t";
@@ -34,12 +34,12 @@ class ConsoleResultHandler implements ResultHandler {
         this._table += row;
     }
 
-    private printTransitions(distances: Array<Distance>, lane: number): void {
+    private printTransitions(distances: Array<Result>, lane: number): void {
         let totalDuration: number = 0,
             totalDistance: number = 0;
 
         console.log("Transitions for last lane: " + lane);
-        console.log("Transition \t\t Duration [sec] \t AvgSpeed [mm/sec] \t Distance [mm]");
+        console.log("Transition \t\t Duration [sec] \t AvgSpeed [mm/sec] \t Result [mm]");
         console.log("------------------------------------------------------------------------------------------------");
         for (let i = 0; i < distances.length; ++i) {
             let distance = distances[i],
