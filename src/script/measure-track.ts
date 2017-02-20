@@ -1,18 +1,18 @@
 import {TrackRunner} from "../runner/track-runner";
-import {PositionUpdateMessage} from "../../core/message/position-update-message";
-import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
+import {PositionUpdateMessage} from "../core/message/position-update-message";
+import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
 import {Distance} from "./Result";
 import * as uuid from "node-uuid";
 import {ConsoleResultHandler} from "./console-result-handler";
 import {FileResultHandler} from "./file-result-handler";
 import {ResultHandler} from "./result-handler-interface";
-import {JsonSettings} from "../../core/settings/json-settings";
+import {JsonSettings} from "../core/settings/json-settings";
 
 /************************************************************************************
  *                                  MEASURE TRACK                                   *
  *                                                                                  *
  *  Uses any vehicle to measure the track in mm and handles the result using an     *
- *  implementation on a result-handler interface. Before starting the util,         *
+ *  implementation on a result-handler interface. Before starting the script,         *
  *  please check the 'settings.json' if the track is specified correctly and        *
  *  choose an implementation of the result-handler (default is output to console).  *
  *                                                                                  *

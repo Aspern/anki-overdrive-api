@@ -37,9 +37,9 @@
     "node-mysql-wrapper": "^2.9.3"
   },
   "scripts": {
-    "scan": "gulp && node ./dist/util/scan/scan.js",
-    "measure-track": "gulp && node ./dist/util/measure/measure-track.js",
-    "measure-quality" : "gulp && node ./dist/util/quality/measure-message-quality.js"
+    "scan-vehicles": "gulp && node ./dist/script/scan-vehicles.js",
+    "measure-track": "gulp && node ./dist/script/measure-track.js",
+    "measure-quality" : "gulp && node ./dist/script/measure-message-quality.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [

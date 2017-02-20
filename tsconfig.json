@@ -1,8 +1,8 @@
 {
   "files": [
-    "src/util/measure/measure-track.ts",
-    "src/util/quality/measure-message-quality.ts",
-    "src/util/scan/scan.ts",
+    "src/script/measure-track.ts",
+    "src/script/measure-message-quality.ts",
+    "src/script/scan-vehicles.ts",
 
     "src/core/vehicle/vehicle-interface.ts",
     "src/core/vehicle/light-config.ts",

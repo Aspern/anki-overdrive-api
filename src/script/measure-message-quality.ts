@@ -1,9 +1,9 @@
-import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
+import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
 import {TrackRunner} from "../runner/track-runner";
-import {Vehicle} from "../../core/vehicle/vehicle-interface";
-import {PositionUpdateMessage} from "../../core/message/position-update-message";
+import {Vehicle} from "../core/vehicle/vehicle-interface";
+import {PositionUpdateMessage} from "../core/message/position-update-message";
 import {ValidationReport} from "../runner/validation-report";
-import {JsonSettings} from "../../core/settings/json-settings";
+import {JsonSettings} from "../core/settings/json-settings";
 
 /************************************************************************************
  *                         MEASURE MESSAGE QUALITY                                  *
