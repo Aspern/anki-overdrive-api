@@ -36,7 +36,7 @@
     "noble": "~1.7.0"
   },
   "scripts": {
-    "test-core": "tsc -p . && mocha test/core"
+    "test-core": "tsc -p . && mocha ./test/core"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [
