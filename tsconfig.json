@@ -29,7 +29,11 @@
     "src/core/util/result.ts",
     "src/core/util/result-handler-interface.ts",
     "src/core/util/track-runner.ts",
-    "src/core/util/validation-report.ts"
+    "src/core/util/validation-report.ts",
+
+    "src/script/measure-message-quality.ts",
+    "src/script/scan-vehicles.ts",
+    "src/script/measure-track.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

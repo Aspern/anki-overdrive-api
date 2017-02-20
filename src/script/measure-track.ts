@@ -1,12 +1,10 @@
-import {TrackRunner} from "../runner/track-runner";
 import {PositionUpdateMessage} from "../core/message/position-update-message";
 import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
-import {Distance} from "./Result";
 import * as uuid from "node-uuid";
-import {ConsoleResultHandler} from "./console-result-handler";
-import {FileResultHandler} from "./file-result-handler";
-import {ResultHandler} from "./result-handler-interface";
 import {JsonSettings} from "../core/settings/json-settings";
+import {ResultHandler} from "../core/util/result-handler-interface";
+import {FileResultHandler} from "../core/util/file-result-handler";
+import {ConsoleResultHandler} from "../core/util/console-result-handler";
 
 /************************************************************************************
  *                                  MEASURE TRACK                                   *
