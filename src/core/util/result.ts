@@ -1,4 +1,4 @@
-class Distance {
+class Result {
 
     constructor(uuid: string, vehicleId: string, lane: number, avgSpeed: number, duration: number, transition?: string) {
         this._uuid = uuid;
@@ -76,4 +76,4 @@ class Distance {
     }
 }
 
-export {Distance};
+export {Result};

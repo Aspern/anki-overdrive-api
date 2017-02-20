@@ -1,14 +1,14 @@
 /// <reference path="../../../decl/jsonfile.d.ts"/>
 import * as jsonfile from "jsonfile";
 import {ResultHandler} from "./result-handler-interface";
-import {Distance} from "./result";
+import {Result} from "./result";
 
 
 class FileResultHandler implements ResultHandler {
 
     map: {[key: string]: number} = {};
 
-    handle(result: Array<[Distance, Array<Distance>]>): void {
+    handle(result: Array<[Result, Array<Result>]>): void {
         let me = this;
 
         try {
