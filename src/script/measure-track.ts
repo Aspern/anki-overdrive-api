@@ -5,6 +5,8 @@ import {JsonSettings} from "../core/settings/json-settings";
 import {ResultHandler} from "../core/util/result-handler-interface";
 import {FileResultHandler} from "../core/util/file-result-handler";
 import {ConsoleResultHandler} from "../core/util/console-result-handler";
+import {Result} from "../core/util/result";
+import {TrackRunner} from "../core/util/track-runner";
 
 /************************************************************************************
  *                                  MEASURE TRACK                                   *
@@ -45,7 +47,7 @@ switch (config.resultHandler) {
  * @param lane Current lane
  * @return {Distance} Distance between locations
  */
-function measureDistanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMessage, lane: number): Distance {
+function measureDistanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMessage, lane: number): Result {
     let t1 = m1.timestamp.getTime(),
         t2 = m2.timestamp.getTime(),
         s1 = m1.speed,
@@ -54,7 +56,7 @@ function measureDistanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMes
         avgSpeed = (s1 + s2) / 2,
         transition = m1.piece + "@" + m1.location + " => " + m2.piece + "@" + m2.location;
 
-    return new Distance(uniqueId, vehicleId, lane, avgSpeed, duration, transition);
+    return new Result(uniqueId, vehicleId, lane, avgSpeed, duration, transition);
 
 }
 
@@ -65,8 +67,8 @@ function measureDistanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMes
  * @param lane Current lane
  * @return {Array<Distance>} Distances between all locations on this lane
  */
-function measureDistanceBetweenLocations(messages: Array<PositionUpdateMessage>, lane: number): Array<Distance> {
-    let distances: Array<Distance> = [];
+function measureDistanceBetweenLocations(messages: Array<PositionUpdateMessage>, lane: number): Array<Result> {
+    let distances: Array<Result> = [];
 
     for (let i = 0; i < messages.length - 1; ++i) {
         let m1 = messages[i],
@@ -86,7 +88,7 @@ function measureDistanceBetweenLocations(messages: Array<PositionUpdateMessage>,
  * @param lane Current Lane
  * @return {Distance} Distance for whole lane
  */
-function measureLaneLength(messages: Array<PositionUpdateMessage>, lane: number): Distance {
+function measureLaneLength(messages: Array<PositionUpdateMessage>, lane: number): Result {
     let start = messages[0],
         end = messages[messages.length - 1],
         distance = measureDistanceBetween(start, end, lane),
@@ -111,7 +113,7 @@ function measureLaneLength(messages: Array<PositionUpdateMessage>, lane: number)
  * @param messages Messages for all lanes
  */
 function measureTrack(messages: Array<Array<PositionUpdateMessage>>): void {
-    let result: Array<[Distance, Array<Distance>]> = []
+    let result: Array<[Result, Array<Result>]> = []
 
     for (let lane = 0; lane < messages.length; ++lane) {
         result.push([
