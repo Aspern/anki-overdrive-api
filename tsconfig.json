@@ -34,6 +34,9 @@
     "src/script/measure-message-quality.ts",
     "src/script/scan-vehicles.ts",
     "src/script/measure-track.ts"
+    "src/core/util/validation-report.ts",
+    "src/core/settings/settings-interface.ts",
+    "src/core/settings/json-settings.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
