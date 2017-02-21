@@ -1,10 +1,10 @@
 import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
-import {AnkiConsole} from "./console";
 import {PositionUpdateMessage} from "../core/message/position-update-message";
 import {KafkaController} from "./kafka/kafkacontroller";
 import {ConsumerMessage} from "./kafka/ConsumerMessage";
 import HLJSStatic = hljs.HLJSStatic;
+import {AnkiConsole} from "../core/util/anki-console";
 
 let vehicles: Array<Vehicle>;
 

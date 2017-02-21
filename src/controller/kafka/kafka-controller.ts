@@ -1,27 +1,27 @@
 import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
-import {AnkiConsole} from "../console";
 import {KafkaController} from "./kafkacontroller";
 import {PositionUpdateMessage} from "../../core/message/position-update-message";
 import {AnkiOverdriveTrack} from "../../core/track/anki-overdrive-track";
-import {CurvePiece} from "../../core/track/curve-piece";
-import {StraightPiece} from "../../core/track/straight-piece";
-import {DistanceFilter} from "../../core/enrich/distance-filter";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {wrap} from "node-mysql-wrapper";
 /// <reference path="../../../decl/mysql.d.ts"/>
 import * as mysql from "mysql";
 import {isNullOrUndefined} from "util";
+import {AnkiConsole} from "../../core/util/anki-console";
+import {Curve} from "../../core/track/curve";
+import {Straight} from "../../core/track/straight";
+import {SimpleDistanceFilter} from "../../core/filter/simple-distance-filter";
 
 let scanner = new VehicleScanner(),
     ankiConsole = new AnkiConsole(),
     track = AnkiOverdriveTrack.build([
-        new CurvePiece(18),
-        new CurvePiece(23),
-        new StraightPiece(39),
-        new CurvePiece(17),
-        new CurvePiece(20)
+        new Curve(18),
+        new Curve(23),
+        new Straight(39),
+        new Curve(17),
+        new Curve(20)
     ]),
-    filter = new DistanceFilter(track),
+    filter = new SimpleDistanceFilter(),
     kafka = new KafkaController('localhost:2181'),
     minSpeed = 550,
     maxSpeed = 1150,
@@ -46,8 +46,10 @@ kafka.initializeProducer().then(running => {
 
     scanner.findAll().then(vehicles => {
 
+        filter.init([track, vehicles]);
+
         vehicles.forEach(vehicle => {
-            filter.addVehicle(vehicle);
+
             store[vehicle.id] = vehicle;
         });
 

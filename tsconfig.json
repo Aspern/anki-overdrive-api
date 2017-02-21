@@ -34,7 +34,6 @@
     "src/core/settings/settings-interface.ts",
     "src/core/settings/json-settings.ts",
 
-    "src/controller/console.ts",
     "src/controller/main.ts",
     "src/controller/kafka/kafkacontroller.ts",
     "src/controller/kafka/kafka-controller.ts",
