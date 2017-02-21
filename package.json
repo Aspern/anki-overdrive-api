@@ -39,7 +39,8 @@
   "scripts": {
     "scan-vehicles": "gulp && node ./dist/script/scan-vehicles.js",
     "measure-track": "gulp && node ./dist/script/measure-track.js",
-    "measure-quality" : "gulp && node ./dist/script/measure-message-quality.js"
+    "measure-quality" : "gulp && node ./dist/script/measure-message-quality.js",
+    "anti-collision" : "gulp && node ./dist/script/anti-collision.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [

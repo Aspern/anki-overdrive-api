@@ -31,12 +31,14 @@
     "src/core/util/track-runner.ts",
     "src/core/util/validation-report.ts",
     "src/core/util/validation-report.ts",
+    "src/core/util/anki-console.ts",
     "src/core/settings/settings-interface.ts",
     "src/core/settings/json-settings.ts",
 
     "src/script/measure-message-quality.ts",
     "src/script/scan-vehicles.ts",
-    "src/script/measure-track.ts"
+    "src/script/measure-track.ts",
+    "src/script/anti-collision.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
