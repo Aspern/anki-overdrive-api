@@ -37,7 +37,8 @@
     "kafka-node": "1.3.0"
   },
   "scripts": {
-    "test-controller": "tsc -p . && mocha test/controller"
+    "test-controller": "tsc -p . && mocha test/controller",
+    "start-track-controller" : "gulp && ./dist/controller/kafka/kafka-track-controller.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [

@@ -1,6 +1,6 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
-import {KafkaController} from "../../src/controller/kafka/kafkacontroller";
+import {KafkaController} from "../../src/controller/kafka/kafka-controller";
 
 @suite
 class KafkaControllerTest {

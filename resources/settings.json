@@ -1,12 +1,17 @@
 {
-  "vehicles": {
-    "red": {
-      "uuid": "ed0c94216553"
+  "vehicles": [
+    {
+      "uuid": "ed0c94216553",
+      "name": "Skull",
+      "color": "red"
     },
-    "blue": {
-      "uuid": "eb401ef0f82b"
+    {
+      "uuid": "eb401ef0f82b",
+      "name": "Ground Shock",
+      "color": "blue"
     }
-  },
+  ],
+  "zookeeper.url" : "localhost:2181",
   "track": [
     {
       "type": "curve",

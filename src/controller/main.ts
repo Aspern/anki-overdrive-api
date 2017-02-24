@@ -1,7 +1,7 @@
 import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
 import {PositionUpdateMessage} from "../core/message/position-update-message";
-import {KafkaController} from "./kafka/kafkacontroller";
+import {KafkaController} from "./kafka/kafka-controller";
 import {ConsumerMessage} from "./kafka/ConsumerMessage";
 import HLJSStatic = hljs.HLJSStatic;
 import {AnkiConsole} from "../core/util/anki-console";
@@ -36,7 +36,8 @@ scanner.findAll().then((vehicles)=>{
         console.log("use index " + index + " for car id: " + vehicle.id);
         vehicle.addListener((message) => {
             //console.log(message);
-            isProducerStarted ? kafka.sendPayload([ { topic: 'test', messages: message , partitions: 1 }]): console.log('not started');
+            //isProducerStarted ? kafka.sendPayload([ { topic: 'test', messages: message ,
+            // partitions: 1 }]): console.log('not started');
         }, PositionUpdateMessage);
     });
     ankiConsole.initializePrompt(vehicles);

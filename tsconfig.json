@@ -35,10 +35,12 @@
     "src/core/settings/json-settings.ts",
 
     "src/controller/main.ts",
-    "src/controller/kafka/kafkacontroller.ts",
     "src/controller/kafka/kafka-controller.ts",
     "src/controller/kafka/IConsumerListener.ts",
-    "src/controller/kafka/ConsumerMessage.ts"
+    "src/controller/kafka/ConsumerMessage.ts",
+    "src/controller/kafka/kafka-vehicle-controller.ts",
+    "src/controller/kafka/kafka-distance-filter.ts",
+    "src/controller/kafka/kafka-track-controller.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
