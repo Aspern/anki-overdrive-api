@@ -12,7 +12,7 @@ class KafkaVehicleController {
     private _vehicle: Vehicle;
     private _kafka: KafkaController;
     private _running = false;
-    private _consumer: (message: Command) => any;
+    private _consumer: (message: any) => any;
     private _producer: (message: VehicleMessage) => any;
 
     constructor(vehicle: Vehicle) {
@@ -28,8 +28,9 @@ class KafkaVehicleController {
                 if (me._running) {
                     reject(new Error("Controller is already running."));
                 } else {
-                    me._consumer = (message: Command) => {
-                        me.handleCommand(message);
+                    me._consumer = (message: any) => {
+                        let command = JSON.parse(message.value);
+                        me.handleCommand(command);
                     };
                     me._producer = (message: VehicleMessage) => {
                         me._kafka.sendPayload([{

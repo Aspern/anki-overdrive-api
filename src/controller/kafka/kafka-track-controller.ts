@@ -21,26 +21,24 @@ function handleError(e: Error): void {
     }
 }
 
-configs.forEach(config => {
 
-    scanner.findAll().then(vehicles => {
-        vehicles.forEach(vehicle => {
-            configs.forEach(config => {
-                if (config.uuid === vehicle.id)
-                    usedVehicles.push(vehicle);
-            });
+scanner.findAll().then(vehicles => {
+    vehicles.forEach(vehicle => {
+        configs.forEach(config => {
+            if (config.uuid === vehicle.id)
+                usedVehicles.push(vehicle);
         });
-
-        usedVehicles.forEach(vehicle => {
-            let controller = new KafkaVehicleController(vehicle);
-
-            controller.start().then(() => {
-                vehicleControllers.push(controller);
-            }).catch(handleError);
-        });
-
-        filter = new KafkaDistanceFilter(usedVehicles, track);
-        filter.start().catch(handleError);
     });
 
-});
+    usedVehicles.forEach(vehicle => {
+        let controller = new KafkaVehicleController(vehicle);
+
+        controller.start().then(() => {
+            vehicleControllers.push(controller);
+        }).catch(handleError);
+    });
+
+    filter = new KafkaDistanceFilter(usedVehicles, track);
+    filter.start().catch(handleError);
+}).catch(handleError);
+
