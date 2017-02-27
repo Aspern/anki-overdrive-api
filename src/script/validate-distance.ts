@@ -10,7 +10,7 @@ let scanner = new VehicleScanner(),
     filter = new SimpleDistanceFilter(),
     timeout = 10000,
     store: Array<{
-        timestamp: Date,
+        timestamp: number,
         distance: number,
         to: string,
         speed: number,
@@ -34,7 +34,7 @@ scanner.findAll().then(vehicles => {
     filter.onUpdate(output => {
         output.distances.forEach(distance => {
             store.push({
-                timestamp: output.timestamp,
+                timestamp: output.timestamp.getTime(),
                 distance: distance.horizontal,
                 from: output.vehicleId,
                 speed: output.speed,
