@@ -69,9 +69,6 @@ function speedUp(message: PositionUpdateMessage) {
 }
 
 function handleAntiCollision(message: PositionUpdateMessage, distance: Distance): boolean {
-
-    console.log(distance.horizontal);
-
     if (distance.horizontal <= 500) {
         brake(message);
     } else if (distance.horizontal > 700) {
