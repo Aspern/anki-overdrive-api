@@ -12,37 +12,37 @@ class ConsoleResultHandler implements ResultHandler {
 
     handle(result: Array<[Result, Array<Result>]>): void {
         for (let lane = 0; lane < result.length; ++lane) {
-            let laneDistance: Result = result[lane][0],
-                transitionDistances: Array<Result> = result[lane][1];
+            let laneResult: Result = result[lane][0],
+                transitionResults: Array<Result> = result[lane][1];
 
-            this.collectLane(laneDistance);
-            this.printTransitions(transitionDistances, lane);
+            this.collectLane(laneResult);
+            this.printTransitions(transitionResults, lane);
         }
 
         console.log("");
         console.log(this._table);
     }
 
-    private collectLane(distance: Result): void {
+    private collectLane(result: Result): void {
         let row: string = "";
 
-        row += distance.lane + "\t\t\t";
-        row += this.printNumber(distance.duration) + "\t\t\t\t";
-        row += this.printNumber(distance.avgSpeed) + "\t\t\t";
-        row += this.printNumber(distance.distance) + "\n";
+        row += result.lane + "\t\t\t";
+        row += this.printNumber(result.duration) + "\t\t\t\t";
+        row += this.printNumber(result.avgSpeed) + "\t\t\t";
+        row += this.printNumber(result.distance) + "\n";
 
         this._table += row;
     }
 
-    private printTransitions(distances: Array<Result>, lane: number): void {
+    private printTransitions(results: Array<Result>, lane: number): void {
         let totalDuration: number = 0,
             totalDistance: number = 0;
 
         console.log("Transitions for last lane: " + lane);
         console.log("Transition \t\t Duration [sec] \t AvgSpeed [mm/sec] \t Result [mm]");
         console.log("------------------------------------------------------------------------------------------------");
-        for (let i = 0; i < distances.length; ++i) {
-            let distance = distances[i],
+        for (let i = 0; i < results.length; ++i) {
+            let distance = results[i],
                 row = "";
 
             row += distance.transition + "\t\t\t";

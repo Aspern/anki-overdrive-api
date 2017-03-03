@@ -82,7 +82,7 @@ class AnkiConsole {
                             console.log("error. car is not connected!");
                     }
                     break;
-                // TODO: Other commands are not saved from unconnected vehicles => throw error.
+                    // TODO: Other commands are not saved from unconnected vehicles => throw error.
                 case 'o':
                     vehicles[index].setOffset(parseFloat(params[0]));
                     break;
