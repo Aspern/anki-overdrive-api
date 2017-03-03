@@ -6,7 +6,7 @@ import {AnkiOverdriveVehicle} from "./anki-overdrive-vehicle";
 
 /**
  * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
- * their id or address.
+ * their messageId or address.
  */
 class VehicleScanner {
 
@@ -67,7 +67,7 @@ class VehicleScanner {
                     if (vehicle.id === id)
                         resolve(vehicle);
                 });
-                reject(new Error("Found no vehicle with id [" + id + "]."));
+                reject(new Error("Found no vehicle with messageId [" + id + "]."));
             }).catch(reject);
         });
     }

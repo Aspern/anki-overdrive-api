@@ -4,19 +4,19 @@
  */
 class VehicleMessage {
 
-    private _id: number;
+    private _messageId: number;
     private _vehicleId: string;
     private _timestamp: Date;
 
     constructor(data: Buffer, vehicleId: string) {
         this._vehicleId = vehicleId;
-        this._id = data.readInt8(1);
+        this._messageId = data.readInt8(1);
         this._timestamp = new Date();
     }
 
 
-    get id(): number {
-        return this._id;
+    get messageId(): number {
+        return this._messageId;
     }
 
     get vehicleId(): string {
