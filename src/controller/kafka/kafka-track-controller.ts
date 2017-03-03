@@ -5,6 +5,7 @@ import {isNullOrUndefined} from "util";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
 import {KafkaDistanceFilter} from "./kafka-distance-filter";
+import {AnkiConsole} from "../../core/util/anki-console";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
@@ -12,7 +13,8 @@ let settings: Settings = new JsonSettings(),
     configs: Array<{uuid: string, name: string, color: string}> = settings.getAsObject("vehicles"),
     usedVehicles: Array <Vehicle> = [],
     vehicleControllers: Array<KafkaVehicleController> = [],
-    filter: KafkaDistanceFilter;
+    filter: KafkaDistanceFilter,
+    ankiConsole = new AnkiConsole();
 
 function handleError(e: Error): void {
     if (!isNullOrUndefined(e)) {
@@ -40,5 +42,7 @@ scanner.findAll().then(vehicles => {
 
     filter = new KafkaDistanceFilter(usedVehicles, track);
     filter.start().catch(handleError);
+
+    ankiConsole.initializePrompt(usedVehicles);
 }).catch(handleError);
 
