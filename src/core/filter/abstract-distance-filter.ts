@@ -103,7 +103,7 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
                 }
             };
 
-            vehicle.addListener(me._listenerInstances[uuid], PositionUpdateMessage);
+            vehicle.addListener(me._listenerInstances[uuid]);
         });
 
     }
