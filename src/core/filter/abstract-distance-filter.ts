@@ -5,6 +5,7 @@ import {Track} from "../track/track-interface";
 import {Distance} from "./distance";
 import {isNullOrUndefined} from "util";
 import reject = Promise.reject;
+import {VehicleMessage} from "../message/vehicle-message";
 
 /**
  * The AbstractDistanceFilter uses a track and a set of vehicles  that travel on the track to
@@ -28,7 +29,7 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
     private _vehicles: Array<Vehicle>;
     private _store: {[key: string]: PositionUpdateMessage} = {};
     private _last: {[key: string]: PositionUpdateMessage} = {};
-    private _listener: (output: PositionUpdateMessage) => any = () => {
+    private _listener: (output: PositionUpdateMessage|VehicleMessage) => any = () => {
     };
     private _started = false;
     private _listenerInstances: {[key: string]: (message: PositionUpdateMessage) => any} = {};
@@ -87,14 +88,18 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
         me._vehicles.forEach(vehicle => {
             uuid = vehicle.id;
 
-            me._listenerInstances[uuid] = (message: PositionUpdateMessage) => {
-                try {
-                    me._store[message.vehicleId] = message;
-                    me.enrich(message);
-                    me._last[message.vehicleId] = message;
+            me._listenerInstances[uuid] = (message: VehicleMessage) => {
+                if(message instanceof PositionUpdateMessage) {
+                    try {
+                        me._store[message.vehicleId] = message;
+                        me.enrich(message);
+                        me._last[message.vehicleId] = message;
+                        me._listener(message);
+                    } catch (e) {
+                        me.handleError(e);
+                    }
+                } else {
                     me._listener(message);
-                } catch (e) {
-                    me.handleError(e);
                 }
             };
 
