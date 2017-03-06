@@ -28,6 +28,7 @@ class KafkaDistanceFilter {
                         me._filter.onUpdate(output => {
                             me._kafka.sendPayload([{
                                 topic: "cardata-filtered",
+                                key : output.messageId.toString(),
                                 partitions: 1,
                                 messages: JSON.stringify(output).replace(/_/g, "")
                             }]);
