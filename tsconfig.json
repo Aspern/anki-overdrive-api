@@ -38,7 +38,8 @@
     "src/script/scan-vehicles.ts",
     "src/script/measure-track.ts",
     "src/script/anti-collision.ts",
-    "src/script/validate-distance.ts"
+    "src/script/validate-distance.ts",
+    "src/script/latency-analyse.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

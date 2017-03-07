@@ -41,7 +41,8 @@
     "measure-track": "gulp && node ./dist/script/measure-track.js",
     "measure-quality" : "gulp && node ./dist/script/measure-message-quality.js",
     "anti-collision" : "gulp && node ./dist/script/anti-collision.js",
-    "validate-distance" : "gulp && node ./dist/script/validate-distance.js"
+    "validate-distance" : "gulp && node ./dist/script/validate-distance.js",
+    "latency-analyse" : "gulp && node ./dist/script/latency-analyse.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [

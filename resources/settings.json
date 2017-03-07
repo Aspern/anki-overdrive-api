@@ -39,10 +39,10 @@
       "resultHandler": "console"
     },
     "measureQuality": {
-      "minSpeed": 800,
-      "maxSpeed": 900,
+      "minSpeed": 1000,
+      "maxSpeed": 1200,
       "increment": 100,
-      "rounds": 10
+      "rounds": 20
     }
   }
 }
