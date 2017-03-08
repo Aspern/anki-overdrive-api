@@ -1,11 +1,11 @@
 import {AnkiOverdrivePiece} from "./anki-overdrive-piece";
 
-class StartPiece extends AnkiOverdrivePiece {
+class Start extends AnkiOverdrivePiece {
 
     public static _ID: number = 33;
 
     constructor() {
-        super(StartPiece._ID);
+        super(Start._ID);
     }
 
     initLocations(): Array<Array<number>> {
@@ -30,4 +30,4 @@ class StartPiece extends AnkiOverdrivePiece {
     }
 }
 
-export {StartPiece};
+export {Start};

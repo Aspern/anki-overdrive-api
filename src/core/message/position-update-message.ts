@@ -1,4 +1,5 @@
 import {VehicleMessage} from "./vehicle-message";
+import {Distance} from "../filter/distance";
 
 /**
  * This message is sent by the vehicle when it has crossed a location.
@@ -14,6 +15,9 @@ class PositionUpdateMessage extends VehicleMessage {
     private _lastExecLaneChangeCmd: number;
     private _lastDesiredHorizontalSpeed: number;
     private _lastDesiredSpeed: number;
+    private _distances: Array<Distance>;
+    private _position: number;
+    private _lane: number;
 
     constructor(data: Buffer, vehicleId: string) {
         super(data, vehicleId);
@@ -62,6 +66,32 @@ class PositionUpdateMessage extends VehicleMessage {
 
     get lastDesiredSpeed(): number {
         return this._lastDesiredSpeed;
+    }
+
+
+    get distances(): Array<Distance> {
+        return this._distances;
+    }
+
+    set distances(value: Array<Distance>) {
+        this._distances = value;
+    }
+
+    get position(): number {
+        return this._position;
+    }
+
+    set position(value: number) {
+        this._position = value;
+    }
+
+
+    get lane(): number {
+        return this._lane;
+    }
+
+    set lane(value: number) {
+        this._lane = value;
     }
 }
 

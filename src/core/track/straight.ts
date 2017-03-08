@@ -1,6 +1,6 @@
 import {AnkiOverdrivePiece} from "./anki-overdrive-piece";
 
-class StraightPiece extends AnkiOverdrivePiece {
+class Straight extends AnkiOverdrivePiece {
 
     constructor(id: number) {
         super(id);
@@ -28,4 +28,4 @@ class StraightPiece extends AnkiOverdrivePiece {
     }
 }
 
-export {StraightPiece};
+export {Straight};
