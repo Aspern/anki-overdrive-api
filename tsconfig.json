@@ -41,6 +41,14 @@
     "src/controller/kafka/kafka-vehicle-controller.ts",
     "src/controller/kafka/kafka-distance-filter.ts",
     "src/controller/kafka/kafka-track-controller.ts"
+    "src/core/settings/json-settings.ts",
+
+    "src/script/measure-message-quality.ts",
+    "src/script/scan-vehicles.ts",
+    "src/script/measure-track.ts",
+    "src/script/anti-collision.ts",
+    "src/script/validate-distance.ts",
+    "src/script/latency-analyse.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,
