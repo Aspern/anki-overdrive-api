@@ -12,15 +12,15 @@ console.log("scanning vehicles...");
 let scanner = new VehicleScanner();
 let ankiConsole = new AnkiConsole();
 
-//let kafka = new KafkaController('localhost:2181');
+let kafka = new KafkaController('localhost:2181');
 
-//let canSend: boolean;
+let canSend: boolean;
 
-/*
+
 kafka.initializeProducer().then((isStarted: boolean)=> {
     canSend = isStarted;
 });
-*/
+
 
 scanner.findAll().then((vehicles)=>{
     this.vehicles = vehicles;
@@ -35,13 +35,13 @@ scanner.findAll().then((vehicles)=>{
     }, PositionUpdateMessage);
 });
 
-/*
+
 kafka.addListener((message: any) => {
     console.log(message);
 }, ConsumerMessage);
 
 kafka.initializeConsumer([{ topic: 'test', partition: 0 }]);
-*/
+
 
 
 
