@@ -16,6 +16,7 @@ console.log("scanning vehicles...");
 let scanner = new VehicleScanner();
 let ankiConsole = new AnkiConsole();
 
+
 let x;
 
 

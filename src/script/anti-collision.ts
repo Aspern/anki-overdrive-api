@@ -9,6 +9,8 @@ import {isNullOrUndefined} from "util";
 import {LightConfig} from "../core/vehicle/light-config";
 import {KafkaController} from "../controller/kafka/kafka-controller";
 import {VehicleMessage} from "../core/message/vehicle-message";
+import websocket = require('websocket');
+import http = require('http');
 
 
 let scanner = new VehicleScanner(),
@@ -18,7 +20,14 @@ let scanner = new VehicleScanner(),
     filter = new SimpleDistanceFilter(),
     store: {[key: string]: {speed: number, vehicle: Vehicle}} = {},
     kafkaController = new KafkaController(),
-    antiCollisionOn = false;
+    antiCollisionOn = false,
+    WebSocketClient = require('websocket').client,
+    client = new WebSocketClient(),
+    node_server = 'ws://localhost:8080/';
+
+
+
+
 
 function handleError(e: Error) {
     if (!isNullOrUndefined(e)) {
@@ -120,6 +129,33 @@ function supervise(message: VehicleMessage): void {
         messages: JSON.stringify(message).replace(/_/g, "")
     }]);
 }
+
+client.on('connectFailed', (error: Error) => {
+    console.log('Connect Error: ' + error.toString());
+});
+//if connection is made to the server
+client.on('connect', (connection: websocket.connection) => {
+    console.log('WebSocket client connected');
+    connection.on('error', (error: Error) => {
+        console.log("Connection Error: " + error.toString());
+    });
+
+    connection.on('close', () => {
+        console.log('echo-protocol Connection Closed');
+    });
+
+    connection.on('message', (message: websocket.IMessage) => {
+
+        console.log("Received: '" + message.utf8Data + "'");
+
+    });
+
+
+
+});
+
+//connecting to the node server
+client.connect(node_server, '');
 
 
 console.log("Starting Kafka Controller...");
