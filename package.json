@@ -39,7 +39,8 @@
   },
   "scripts": {
     "test-controller": "tsc -p . && mocha test/controller",
-    "start-track-controller" : "gulp && node ./dist/controller/kafka/kafka-track-controller.js"
+    "test-core": "tsc -p . && mocha ./test/core",
+    "start-track-controller" : "gulp && node ./dist/controller/kafka/kafka-track-controller.js",
     "scan-vehicles": "gulp && node ./dist/script/scan-vehicles.js",
     "measure-track": "gulp && node ./dist/script/measure-track.js",
     "measure-quality" : "gulp && node ./dist/script/measure-message-quality.js",

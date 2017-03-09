@@ -40,7 +40,7 @@
     "src/controller/kafka/ConsumerMessage.ts",
     "src/controller/kafka/kafka-vehicle-controller.ts",
     "src/controller/kafka/kafka-distance-filter.ts",
-    "src/controller/kafka/kafka-track-controller.ts"
+    "src/controller/kafka/kafka-track-controller.ts",
     "src/core/settings/json-settings.ts",
 
     "src/script/measure-message-quality.ts",

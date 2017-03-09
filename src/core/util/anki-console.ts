@@ -1,5 +1,6 @@
 import {isNullOrUndefined} from "util";
 import {Vehicle} from "../vehicle/vehicle-interface";
+import {LightConfig} from "../vehicle/light-config";
 
 /**
  * TODO: Missing documentation
@@ -82,7 +83,7 @@ class AnkiConsole {
                             console.log("error. car is not connected!");
                     }
                     break;
-                    // TODO: Other commands are not saved from unconnected vehicles => throw error.
+                // TODO: Other commands are not saved from unconnected vehicles => throw error.
                 case 'o':
                     vehicles[index].setOffset(parseFloat(params[0]));
                     break;
@@ -107,6 +108,78 @@ class AnkiConsole {
                         isNullOrUndefined(result) ? console.log('no data, may be car not connected.') : console.log(result);
                     });
                     break;
+                case 'anti-collision':
+                    if (params[0] === "on")
+                        vehicles.forEach(vehicle => {
+                            vehicle.setLights([
+                                new LightConfig()
+                                    .green()
+                                    .steady(0),
+                                new LightConfig()
+                                    .red()
+                                    .steady(0),
+                                new LightConfig()
+                                    .blue()
+                                    .steady(0)
+                            ]);
+                            vehicle.setLights([
+                                new LightConfig()
+                                    .weapon()
+                                    .flash(0, 10),
+                                new LightConfig()
+                                    .green()
+                                    .flash(0, 10)
+                            ]);
+                            setTimeout(() => {
+                                vehicle.setLights([
+                                    new LightConfig()
+                                        .weapon()
+                                        .steady(0),
+                                    new LightConfig()
+                                        .blue()
+                                        .steady(),
+                                    new LightConfig()
+                                        .green()
+                                        .steady(0),
+                                ]);
+                            }, 2000);
+                        });
+                    else
+                        vehicles.forEach(vehicle => {
+                            vehicle.setLights([
+                                new LightConfig()
+                                    .green()
+                                    .steady(0),
+                                new LightConfig()
+                                    .red()
+                                    .steady(0),
+                                new LightConfig()
+                                    .blue()
+                                    .steady(0)
+                            ]);
+                            vehicle.setLights([
+                                new LightConfig()
+                                    .front()
+                                    .flash(0, 10),
+                                new LightConfig()
+                                    .red()
+                                    .flash(0, 10)
+                            ]);
+                            setTimeout(() => {
+                                vehicle.setLights([
+                                    new LightConfig()
+                                        .front()
+                                        .steady(0),
+                                    new LightConfig()
+                                        .red()
+                                        .steady(0),
+                                    new LightConfig()
+                                        .blue()
+                                        .steady()
+                                ]);
+                            }, 2000);
+                        });
+
                 default:
                     console.log('command not found');
                     break;

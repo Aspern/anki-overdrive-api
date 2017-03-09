@@ -7,31 +7,33 @@ import {AnkiConsole} from "../core/util/anki-console";
 import {Distance} from "../core/filter/distance";
 import {isNullOrUndefined} from "util";
 import {LightConfig} from "../core/vehicle/light-config";
+import {KafkaController} from "../controller/kafka/kafka-controller";
+import {VehicleMessage} from "../core/message/vehicle-message";
+
 
 let scanner = new VehicleScanner(),
     settings = new JsonSettings(),
     ankiConsole = new AnkiConsole(),
     track = settings.getAsTrack("track"),
     filter = new SimpleDistanceFilter(),
-    store: {[key: string]: {speed: number, vehicle: Vehicle}} = {};
+    store: {[key: string]: {speed: number, vehicle: Vehicle}} = {},
+    kafkaController = new KafkaController(),
+    antiCollisionOn = false;
+
+function handleError(e: Error) {
+    if (!isNullOrUndefined(e)) {
+        console.error(e);
+        process.exit();
+    }
+}
 
 function driveNormal(message: PositionUpdateMessage): void {
     let record = store[message.vehicleId];
 
-    if (message.speed - 20 < record.speed)
+    if (message.speed < record.speed - 30)
         speedUp(message);
     else
-        record.vehicle.setLights([
-            new LightConfig()
-                .green()
-                .steady(0),
-            new LightConfig()
-                .red()
-                .steady(0),
-            new LightConfig()
-                .blue()
-                .steady()
-        ]);
+        holdSpeed(message);
 }
 
 function brake(message: PositionUpdateMessage) {
@@ -48,6 +50,22 @@ function brake(message: PositionUpdateMessage) {
         new LightConfig()
             .blue()
             .steady(0)
+    ]);
+}
+
+function holdSpeed(message: PositionUpdateMessage): void {
+    let record = store[message.vehicleId];
+
+    record.vehicle.setLights([
+        new LightConfig()
+            .green()
+            .steady(0),
+        new LightConfig()
+            .red()
+            .steady(0),
+        new LightConfig()
+            .blue()
+            .steady()
     ]);
 }
 
@@ -69,48 +87,70 @@ function speedUp(message: PositionUpdateMessage) {
 }
 
 function handleAntiCollision(message: PositionUpdateMessage, distance: Distance): boolean {
-    if (distance.horizontal <= 500) {
+    if (distance.horizontal <= 500)
         brake(message);
-    } else if (distance.horizontal > 700) {
+    else if (distance.horizontal > 700)
         driveNormal(message);
-    }
+    else
+        holdSpeed(message);
+
 
     return true;
 }
 
-function supervise(message: PositionUpdateMessage): void {
-    let distances = message.distances,
-        onCollision = false;
+function supervise(message: VehicleMessage): void {
+    if (antiCollisionOn && message instanceof PositionUpdateMessage) {
+        let distances = message.distances,
+            onCollision = false;
 
-    distances.forEach(distance => {
-        if (!isNullOrUndefined(distance.delta)
-            && distance.delta < 0
-            && distance.vertical <= 34)
-            onCollision = handleAntiCollision(message, distance);
-    });
+        distances.forEach(distance => {
+            if (!isNullOrUndefined(distance.delta)
+                && distance.delta < 0
+                && distance.vertical <= 34)
+                onCollision = handleAntiCollision(message, distance);
+        });
 
-    if (!onCollision)
-        driveNormal(message);
+        if (!onCollision)
+            driveNormal(message);
+    }
+
+    kafkaController.sendPayload([{
+        topic: "cardata-filtered",
+        partitions: 1,
+        messages: JSON.stringify(message).replace(/_/g, "")
+    }]);
 }
 
-scanner.findAll().then(vehicles => {
 
-    vehicles.forEach(vehicle => {
-        store[vehicle.id] = {
-            speed: 0,
-            vehicle: vehicle
-        };
-    });
+console.log("Starting Kafka Controller...");
+kafkaController.initializeProducer().then(online => {
+    if (!online)
+        handleError(new Error("Kafka Server is offline."));
 
-    filter.init([track, vehicles]);
-    filter.onUpdate(supervise);
-    filter.start();
+    console.log("Searching for vehicles in BLE...");
+    scanner.findAll().then(vehicles => {
 
-    ankiConsole.onCommand((cmd, params, vehicle) => {
-        if (cmd === 's')
-            store[vehicle].speed = parseInt(params[0]);
-    }).initializePrompt(vehicles);
-}).catch(e => {
-    console.error(e);
-    process.exit();
-});
+        vehicles.forEach(vehicle => {
+            store[vehicle.id] = {
+                speed: 0,
+                vehicle: vehicle
+            };
+        });
+
+        console.log("Found " + vehicles.length + " vehicles.");
+
+
+        filter.init([track, vehicles]);
+        filter.onUpdate(supervise);
+        filter.start().catch(handleError);
+
+        ankiConsole.onCommand((cmd, params, vehicle) => {
+            if (cmd === 's')
+                store[vehicle].speed = parseInt(params[0]);
+            else if(cmd === 'anti-collision')
+                antiCollisionOn = params[0] === 'on';
+        }).initializePrompt(vehicles);
+
+    }).catch(handleError);
+
+}).catch(handleError);

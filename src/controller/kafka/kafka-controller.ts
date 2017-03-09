@@ -1,5 +1,6 @@
 import {isNullOrUndefined} from "util";
 import {IConsumerListener} from "./IConsumerListener";
+import reject = Promise.reject;
 
 /**
  * TODO: Missing documentation
@@ -30,9 +31,16 @@ class KafkaController implements IConsumerListener{
     initializeProducer(): Promise<boolean>{
         let Producer = this.kafka.Producer;
         this.producer = new Producer(this.client, this.producerConfig);
-        return new Promise<boolean>((resolve) => {
-            return this.producer.on('ready', function(){
+        return new Promise<boolean>((resolve,reject) => {
+            let timeout =setTimeout(() => {
+                reject(new Error("Timeout [5000ms] for connection to Kafka Server."));
+            }, 5000);
+            this.producer.on('ready', function(){
                 resolve(true);
+            });
+            this.producer.on('error', function(e:Error) {
+                clearTimeout(timeout);
+                reject(e);
             });
         });
 

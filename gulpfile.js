@@ -5,7 +5,9 @@ var typedoc = require("gulp-typedoc");
 
 gulp.task("default", function () {
     return tsProject.src()
-        .pipe(tsProject())
+        .pipe(tsProject({
+            experimentalDecorators: true
+        }))
         .js.pipe(gulp.dest("dist"));
 });
 
@@ -16,6 +18,7 @@ gulp.task("typedoc", function () {
             module: "commonjs",
             target: "es5",
             out: "docs/",
+
             name: "Anki OVERDRIVE API"
         }));
 });
