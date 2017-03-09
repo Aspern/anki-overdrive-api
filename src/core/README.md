@@ -38,7 +38,7 @@ Following example finds all vehicles with BLE and prints them to the console.
     let scanner = new VehicleScanner();
     
     // Find all vehicles and print them to console.
-    scanner.findAll().then((vehicles: Array<Vehicle>) => {
+    scanner.findAll().then(vehicles=> {
         vehicles.forEach(console.log);
     }).catch(console.error);
 ```
@@ -55,7 +55,7 @@ with a speed of 500mm/sec for one minute.
     let scanner = new VehicleScanner();
     
     // Find all vehicles and print them to console.
-    scanner.findAll().then((vehicles: Array<Vehicle>) => {
+    scanner.findAll().then(vehicles => {
         vehicles.forEach((vehicle: Vehicle) => {
             vehicle.connect().then(() => {
                vehicle.setSpeed(500);
@@ -82,8 +82,8 @@ driving. The following example logs all types of messages while driving for one 
     let scanner = new VehicleScanner();
     
     // Find all vehicles and print them to console.
-    scanner.findAll().then((vehicles: Array<Vehicle>) => {
-        vehicles.forEach((vehicle: Vehicle) => {
+    scanner.findAll().then(vehicles => {
+        vehicles.forEach(vehicle => {
             vehicle.connect().then(() => {
                 
                 let listener = (message: VehicleMessage) 
@@ -114,4 +114,93 @@ The vehicle can also listen to specific messages, using the message type.
     }, PositionUpdateMessage) // Specify the type of the message.
     
     // Disconnect and remove listener...
+```
+
+### Using Settings
+
+Different settings are required for different scenarios. These can be stored in a JSON file and read
+and used with the <code>JsonSettings</code> class. The default settings can be found
+in <code>resources/settings.json</code>. Following code shows the example usage.
+```typescript
+    // This searches for the default settings.json.
+    let settings = new JsonSettings(),
+        url = settings.getAsString("url"),
+        port = settings.getAsInt("port");
+
+    // Loading settings from own file.
+    let userSettings = new JsonSettings("resources/user-settings.json");
+    
+    let track = userSettings.getAsTrack("track"),
+        config = userSettings.getAsObject("config");
+    
+    let var 1 = config.var1;
+```
+### Track and Pieces
+
+Each vehicle runs on a track. This is also available as a class and consists of a two-chained list 
+of pieces. With the help of the track, position information, such as a specific piece or individual 
+locations on the piece, can be queried. The track can be used as a settings in the <code>settings
+.json</code> file or build manually.
+
+```typescript
+    let track = AnkiOverdriveTrack.build([
+        new CurvePiece(17),
+        new CurvePiece(20),
+        new StraightPiece(39),
+        new CurvePiece(18),
+        new CurvePiece(23)
+    ]);
+
+    track.eachPiece(piece => {
+        // Do something with each piece...
+    });
+    
+    track.eachTransition((l1, l2) => {
+        // Handles each transition on lane 0
+        // The look like [piece,location] => [piece,location].
+    }, 0);
+    
+    track.eachTransition((l1, l2) => {
+        // Handles only the transitions between [33,15] and [39,47].
+    }, 15, [33,15],[39,47]);
+    
+    // Returns lane 10 on piece 17.
+    let lane = track.findLane(17, 10),
+        l1 = lane[1];
+```
+
+###Distances
+
+In order to calculate distances between vehicles, information is required from the vehicles as well 
+as position data from the track. A filter class uses both classes to merge this information. An 
+exmaple implementaion is the <code>SimpleDistanceFilter</code>. This class uses a local 
+<code>resources/distances.json</code> file to calculate the horizontal distances over the single 
+transitions on a track.
+```typescript
+let settings = new JsonSettings(),
+    track = settings.getAsTrack("track"),
+    scanner = new VehicleScanner(),
+    filter = new SimpleDistanceFilter();
+
+// First find all available vehicles.
+scanner.findAll().then(vehicles => {
+    
+    filter.init([track, vehicles]);
+    filter.onUpdate(output => {
+        let distances = output.distances;
+        
+        distances.forEach(distance => {
+            let vertical = distance.vertical,
+                horizontal = distance.horizontal,
+                delta = distance.delta;
+            
+            // Do something with the information...
+        });
+    });
+    
+    filter.start().catch(console.error);
+    
+    // Start or controll vehicles here...
+    
+});
 ```

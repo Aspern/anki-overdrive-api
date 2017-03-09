@@ -1,5 +1,10 @@
 import {isNullOrUndefined} from "util";
 import {IConsumerListener} from "./IConsumerListener";
+import reject = Promise.reject;
+
+/**
+ * TODO: Missing documentation
+ */
 class KafkaController implements IConsumerListener{
 
     private kafka: any;
@@ -17,26 +22,34 @@ class KafkaController implements IConsumerListener{
     private _listeners: Array<{l: (message: any) => any, f: any}> = [];
 
 
-    constructor(zookeeper: string){
-        zookeeper = isNullOrUndefined(zookeeper) ? 'localhost:2181' : zookeeper;
+    constructor(zookeeper = "localhost:2181"){
         this.kafka = require('kafka-node');
-        this.client = new this.kafka.Client(zookeeper);
+        this.client = new this.kafka.Client(zookeeper);;
+
     }
 
     initializeProducer(): Promise<boolean>{
         let Producer = this.kafka.Producer;
         this.producer = new Producer(this.client, this.producerConfig);
-        return new Promise<boolean>((resolve) => {
-            return this.producer.on('ready', function(){
+        return new Promise<boolean>((resolve,reject) => {
+            let timeout =setTimeout(() => {
+                reject(new Error("Timeout [5000ms] for connection to Kafka Server."));
+            }, 5000);
+            this.producer.on('ready', function(){
                 resolve(true);
+            });
+            this.producer.on('error', function(e:Error) {
+                clearTimeout(timeout);
+                reject(e);
             });
         });
 
     }
 
-    initializeConsumer(clients: Array<any>): void{
+    initializeConsumer(clients: Array<any>, offset: number): void{
         let Consumer = this.kafka.Consumer;
         this.consumer = new Consumer(this.client, clients, {autoCommit: false});
+        this.consumer.setOffset('test', 0, offset);
         this.consumer.on('message', (message: any) => {
             if (message)
                 this._listeners.forEach((listener) => {
@@ -47,8 +60,6 @@ class KafkaController implements IConsumerListener{
 
     createProducerTopics(topics: Array<string>): any{
             this.producer.createTopics(topics, false, (err: any, data: any) => {
-                console.log(err);
-                console.log(data);
                 err ? err : data;
             });
     }
@@ -79,6 +90,19 @@ class KafkaController implements IConsumerListener{
         });
     }
 
+    getAllTopics(): Promise<any>{
+        return new Promise<any>((resolve, reject) => {
+            this.client.loadMetadataForTopics([], function (error: any, results: any) {
+                console.log(error);
+                console.log(results);
+                if(error)
+                    reject(error);
+                else
+                    resolve(results);
+            });
+        });
+    }
+
     addListener(listener: (message: any) => any, filter?: any): void {
         this._listeners.push({l: listener, f: filter});
     }
@@ -88,6 +112,10 @@ class KafkaController implements IConsumerListener{
             if (this._listeners[i].l === listener)
                 this._listeners.splice(i, 1);
         }
+    }
+
+    close(): void{
+
     }
 }
 export {KafkaController}

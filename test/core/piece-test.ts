@@ -1,32 +1,32 @@
 import {suite, test} from "mocha-typescript";
 import {expect} from "chai";
 import {Piece} from "../../src/core/track/piece-interface";
-import {StartPiece} from "../../src/core/track/start-piece";
-import {EndPiece} from "../../src/core/track/end-piece";
-import {StraightPiece} from "../../src/core/track/straight-piece";
-import {CurvePiece} from "../../src/core/track/curve-piece";
+import {Start} from "../../src/core/track/start";
+import {Finish} from "../../src/core/track/finish";
+import {Straight} from "../../src/core/track/straight";
+import {Curve} from "../../src/core/track/curve";
 
 @suite
 class PieceTest {
 
     @test "start piece correct initilaized"() {
-        this.validatePiece(new StartPiece(), StartPiece._ID);
+        this.validatePiece(new Start(), Start._ID);
     }
 
     @test "end piece correct initilaized"() {
-        this.validatePiece(new EndPiece(), EndPiece._ID);
+        this.validatePiece(new Finish(), Finish._ID);
     }
 
     @test "straight piece correct initilaized"() {
-        this.validatePiece(new StraightPiece(42), 42);
+        this.validatePiece(new Straight(42), 42);
     }
 
     @test "curve piece correct initilaized"() {
-        this.validatePiece(new CurvePiece(4711), 4711);
+        this.validatePiece(new Curve(4711), 4711);
     }
 
     @test "start pieces have 1 location on each lane"() {
-        let start = new StartPiece();
+        let start = new Start();
 
         start.eachLane((lane) => {
             expect(lane.length).to.be.equal(1);
@@ -34,7 +34,7 @@ class PieceTest {
     }
 
     @test "end pieces have 2 locations on each lane"() {
-        let end = new EndPiece();
+        let end = new Finish();
 
         end.eachLane((lane) => {
             expect(lane.length).to.be.equal(2);
@@ -42,7 +42,7 @@ class PieceTest {
     }
 
     @test "straight pieces have 3 locations on each lane"() {
-        let straight = new StraightPiece(42);
+        let straight = new Straight(42);
 
         straight.eachLane((lane) => {
             expect(lane.length).to.be.equal(3);
@@ -50,7 +50,7 @@ class PieceTest {
     }
 
     @test "curve pieces have 3 locations outside and 2 inside"() {
-        let curve = new CurvePiece(42);
+        let curve = new Curve(42);
 
         for (let i = 0; i < 10; ++i)
             expect(curve.getLane(i).length).to.be.equal(2);
@@ -59,12 +59,6 @@ class PieceTest {
             expect(curve.getLane(i).length).to.be.equal(3);
     }
 
-    /**
-     * Validates if the piece has the correct id, sequence of locations and number of lanes.
-     *
-     * @param piece Piece to validate.
-     * @param expectedId Expected id for piece.
-     */
     private validatePiece(piece: Piece, expectedId: number): void {
         let i = 0,
             lanes = 0;

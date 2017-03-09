@@ -30,20 +30,23 @@
     "@types/es6-collections": "^0.5.29",
     "@types/es6-promise": "0.0.32",
     "@types/node": "^6.0.56",
+    "@types/node-mysql-wrapper": "0.0.29",
     "@types/node-uuid": "0.0.28",
-    "elasticsearch": "^12.1.3",
-    "kafka-node": "1.3.0",
+    "jsonfile": "^2.4.0",
     "noble": "~1.7.0",
-    "node-uuid": "^1.4.7",
-    "readline": "1.3.0"
+    "node-mysql-wrapper": "^2.9.3",
+    "kafka-node": "1.3.0"
   },
   "scripts": {
-    "test": "tsc -p . && mocha test/*",
-    "test-core": "tsc -p . && mocha test/core",
-    "test-util": "tsc -p . && mocha test/util",
-    "scan": "gulp && node ./dist/src/util/scan/scan.js",
-    "measure-track": "gulp && node ./dist/src/util/measure/measure-track.js",
-    "prepublish": "tsc -p ."
+    "test-controller": "tsc -p . && mocha test/controller",
+    "test-core": "tsc -p . && mocha ./test/core",
+    "start-track-controller" : "gulp && node ./dist/controller/kafka/kafka-track-controller.js",
+    "scan-vehicles": "gulp && node ./dist/script/scan-vehicles.js",
+    "measure-track": "gulp && node ./dist/script/measure-track.js",
+    "measure-quality" : "gulp && node ./dist/script/measure-message-quality.js",
+    "anti-collision" : "gulp && node ./dist/script/anti-collision.js",
+    "validate-distance" : "gulp && node ./dist/script/validate-distance.js",
+    "latency-analyse" : "gulp && node ./dist/script/latency-analyse.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [

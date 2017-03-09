@@ -75,7 +75,7 @@ Then we will start consumer and producer to send and receive data:
 ```
 bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test –from-beginning
 
-bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
 ```
 
 Now, to send a test message, we can use below command to send a message for the created topic, such as in our case “test”:

@@ -1,0 +1,53 @@
+{
+  "vehicles": [
+    {
+      "uuid": "ed0c94216553",
+      "name": "Skull",
+      "color": "red"
+    },
+    {
+      "uuid": "eb401ef0f82b",
+      "name": "Ground Shock",
+      "color": "blue"
+    }
+  ],
+  "zookeeper.url" : "localhost:2181",
+  "track": [
+    {
+      "type": "curve",
+      "id": 18
+    },
+    {
+      "type": "curve",
+      "id": 23
+    },
+    {
+      "type": "straight",
+      "id": 39
+    },
+    {
+      "type": "curve",
+      "id": 17
+    },
+    {
+      "type": "curve",
+      "id": 20
+    }
+  ],
+  "utils": {
+    "quality": {
+      "rounds": 1,
+      "vehicle": "eb401ef0f82b",
+      "offset": 68.0
+    },
+    "measureTrack": {
+      "resultHandler": "console"
+    },
+    "measureQuality": {
+      "minSpeed": 1000,
+      "maxSpeed": 1200,
+      "increment": 100,
+      "rounds": 20
+    }
+  }
+}
