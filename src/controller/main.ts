@@ -6,9 +6,10 @@ import {KafkaController} from "./kafka/kafka-controller";
 import {ConsumerMessage} from "./kafka/ConsumerMessage";
 import HLJSStatic = hljs.HLJSStatic;
 import {AnkiConsole} from "../core/util/anki-console";
-import {VehicleMessage} from "../core/message/vehicle-message";
 
 let vehicles: Array<Vehicle>;
+
+let peice_17 = 0,peice_18 = 0,peice_20 = 0,peice_23 = 0, peice_34 = 0,peice_33 = 0,peice_39 = 0;
 
 console.log("scanning vehicles...");
 
@@ -17,7 +18,7 @@ let ankiConsole = new AnkiConsole();
 
 let x;
 
-/*
+
 let kafka = new KafkaController('localhost:2181');
 
 let canSend: boolean;
@@ -34,10 +35,9 @@ kafka.initializeConsumer([{ topic: 'test', partition: 0 }], 6);
 
 kafka.initializeProducer().then((isStarted: boolean)=> {
     isProducerStarted = isStarted;
-    //isStarted ? kafka.sendPayload([ { topic: 'test', messages: "finally working again" , partitions: 1 }]): console.log('not started');
+    isStarted ? kafka.sendPayload([ { topic: 'test', messages: "finally working again" , partitions: 1 }]): console.log('not started');
 });
 
-*/
 
 scanner.findAll().then((vehicles)=>{
     this.vehicles = vehicles;
@@ -45,25 +45,19 @@ scanner.findAll().then((vehicles)=>{
         console.log("use index " + index + " for car id: " + vehicle.id);
         vehicle.addListener((message) => {
 
-            x = JSON.stringify(message);
-            console.log(x);
+            x = JSON.parse(JSON.stringify(message));
 
-            //isProducerStarted ? kafka.sendPayload([ { topic: 'test', messages: message ,
-            // partitions: 1 }]): console.log('not started');
+            isProducerStarted ? kafka.sendPayload([ { topic: 'test', messages: message , partitions: 1 }]): console.log('not started');
         }, PositionUpdateMessage);
     });
     ankiConsole.initializePrompt(vehicles);
 });
 
-
-
-
-
 /*kafka.addListener((message: any) => {
     console.log(message);
 }, ConsumerMessage); */
 
-//kafka.initializeConsumer([{ topic: 'test', partition: 0 }]);
+kafka.initializeConsumer([{ topic: 'test', partition: 0 }],0);
 
 
 /*var propertiesFileName = 'config.properties';
