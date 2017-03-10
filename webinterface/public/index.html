@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Chat</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+	<script src="bower_components/ng-websocket/ng-websocket.js"></script>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="main.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+  	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  	<link rel="stylesheet" href="css/style.css">
+  	<link rel="stylesheet" href="css/animation.css">
+
+
+</head>
+<body ng-app="app">
+
+<div ng-controller="MyCtrl">
+
+ <div class='wrapper'>
+   <div class='package'>
+    <div class='name'>Anti Collision</div>
+      <hr>
+      <a class="btn" ng-click="send('A1')" ng-hide="hidden" ng-class="{fade: startFade}">Start </a>
+      <p ng-hide="!hidden" class="saving">Preparing to Start<span>.</span><span>.</span><span>.</span></p>
+
+    
+
+  </div>
+  <div class='package'>
+    <div class='name'>Scenario B</div>
+      <hr>
+      <a class="btn" ng-click='send("B1")'>Start </a>
+
+  </div>
+  <div class='package'>
+    <div class='name'>Scenario C</div>
+      <hr>
+      <a class="btn" ng-click='send("C1")'>Start </a>
+
+  </div>
+
+  <div class='terminal'> 
+      Status
+      <hr> 
+
+  </div>
+
+</div>
+
+
+
+
+</div>
+			
+</body>
+</html>
