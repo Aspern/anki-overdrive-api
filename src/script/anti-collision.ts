@@ -148,6 +148,12 @@ client.on('connect', (connection: websocket.connection) => {
 
         console.log("Received: '" + message.utf8Data + "'");
 
+        if(message.utf8Data == "A1")
+            antiCollisionOn = true;
+
+        else if(message.utf8Data == "A0")
+            antiCollisionOn = false;
+
     });
 
 
