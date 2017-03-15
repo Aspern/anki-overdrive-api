@@ -1,4 +1,24 @@
 {
+  "setup": {
+    "name": "kit-adrian",
+    "vehicles": [
+      {
+        "uuid": "ed0c94216553"
+      },
+      {
+        "uuid": "eb401ef0f82b"
+      }
+    ],
+    "track": [
+      {"piece": 33},
+      {"piece": 18},
+      {"piece": 23},
+      {"piece": 39},
+      {"piece": 17},
+      {"piece": 20},
+      {"piece": 34}
+    ]
+  },
   "vehicles": [
     {
       "uuid": "ed0c94216553",
@@ -11,7 +31,7 @@
       "color": "blue"
     }
   ],
-  "zookeeper.url" : "localhost:2181",
+  "zookeeper.url": "localhost:2181",
   "track": [
     {
       "type": "curve",
