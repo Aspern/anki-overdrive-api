@@ -5,7 +5,6 @@ import {isNullOrUndefined} from "util";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
 import {KafkaDistanceFilter} from "./kafka-distance-filter";
-import {AnkiConsole} from "../../core/util/anki-console";
 import {Piece} from "../../core/track/piece-interface";
 import {Start} from "../../core/track/start";
 import {Finish} from "../../core/track/finish";
