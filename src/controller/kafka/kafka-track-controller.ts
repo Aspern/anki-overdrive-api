@@ -14,7 +14,7 @@ import {KafkaController} from "./kafka-controller";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
-    setup : {name:string} = settings.getAsObject("setup"),
+    setup: any = settings.getAsObject("setup"),
     track = settings.getAsTrack("track"),
     configs: Array<{uuid: string, name: string, color: string}> = settings.getAsObject("vehicles"),
     usedVehicles: Array <Vehicle> = [],
@@ -28,6 +28,16 @@ function handleError(e: Error): void {
         process.exit();
     }
 }
+
+
+process.on('exit', () => {
+    setup.online = false;
+    kafkaController.sendPayload([{
+        topic: "setup",
+        partitions: 1,
+        messages: JSON.stringify(setup)
+    }]);
+});
 
 function getPieceDescription(piece: Piece) {
     if (piece instanceof Start)
@@ -91,12 +101,11 @@ kafkaController.initializeProducer().then(online => {
         filter = new KafkaDistanceFilter(usedVehicles, track);
         filter.start().catch(handleError);
 
+        setup.online = true;
         kafkaController.sendPayload([{
             topic: "setup",
             partitions: 1,
-            messages: JSON.stringify(
-                settings.getAsObject("setup")
-            )
+            messages: JSON.stringify(setup)
         }]);
 
         console.log("Waiting for messages.");

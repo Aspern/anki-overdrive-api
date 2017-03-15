@@ -2,21 +2,8 @@
   "setup": {
     "name": "kit-adrian",
     "vehicles": [
-      {
-        "uuid": "ed0c94216553"
-      },
-      {
-        "uuid": "eb401ef0f82b"
-      }
-    ],
-    "track": [
-      {"piece": 33},
-      {"piece": 18},
-      {"piece": 23},
-      {"piece": 39},
-      {"piece": 17},
-      {"piece": 20},
-      {"piece": 34}
+      "ed0c94216553",
+      "eb401ef0f82b"
     ]
   },
   "vehicles": [
