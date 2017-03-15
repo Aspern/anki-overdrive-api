@@ -1,5 +1,5 @@
-import {VehicleMessage} from "./vehicle-message";
-import {DrivingDirection} from "./driving-direction";
+import {VehicleMessage} from "../vehicle-message";
+import {DrivingDirection} from "../driving-direction";
 
 /**
  * This message is sent by the vehicle when it has crossed a piece.
