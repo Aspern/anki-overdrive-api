@@ -17,7 +17,6 @@ let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
     setup: Setup = settings.getAsSetup("setup"),
     track = settings.getAsTrack("track"),
-    configs: Array<{uuid: string, name: string, color: string}> = settings.getAsObject("vehicles"),
     usedVehicles: Array <Vehicle> = [],
     vehicleControllers: Array<KafkaVehicleController> = [],
     filter: KafkaDistanceFilter,
@@ -36,7 +35,7 @@ process.on('exit', () => {
     kafkaController.sendPayload([{
         topic: "setup",
         partitions: 1,
-        messages: JSON.stringify(setup)
+        messages: JSON.stringify(setup).replace(/_/g, "")
     }]);
 });
 
@@ -63,7 +62,7 @@ kafkaController.initializeProducer().then(online => {
     scanner.findAll().then(vehicles => {
         console.log(vehicles.length);
         vehicles.forEach(vehicle => {
-            configs.forEach(config => {
+            setup.vehicles.forEach(config => {
                 if (config.uuid === vehicle.id)
                     usedVehicles.push(vehicle);
             });
@@ -106,7 +105,7 @@ kafkaController.initializeProducer().then(online => {
         kafkaController.sendPayload([{
             topic: "setup",
             partitions: 1,
-            messages: JSON.stringify(setup)
+            messages: JSON.stringify(setup).replace(/_/g, "")
         }]);
 
         console.log("Waiting for messages.");
