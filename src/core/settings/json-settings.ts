@@ -7,6 +7,7 @@ import {Piece} from "../track/piece-interface";
 import {Curve} from "../track/curve";
 import {Straight} from "../track/straight";
 import {AnkiOverdriveTrack} from "../track/anki-overdrive-track";
+import {Setup} from "../setup";
 
 /**
  * This implementation of settings uses a simple json file to find settings. The class uses the
@@ -96,6 +97,22 @@ class JsonSettings implements Settings {
         });
 
         return AnkiOverdriveTrack.build(pieces);
+    }
+
+
+    getAsSetup(key: string): Setup {
+        let object : {
+            uuid : string,
+            vehicles: Array<{uuid:string, address:string, name:string}>,
+            track : {pieces:Array<{pieceId: number, type: string}>}
+        } = this.getAsObject("setup"),
+            setup = new Setup();
+
+        setup.uuid = object.uuid;
+        setup.vehicles = object.vehicles;
+        setup.track = object.track;
+
+        return setup;
     }
 }
 

@@ -1,24 +1,59 @@
 {
   "setup": {
-    "name": "kit-adrian",
+    "uuid": "ao-adrian",
     "vehicles": [
-      "ed0c94216553",
-      "eb401ef0f82b"
-    ]
-  },
-  "vehicles": [
-    {
-      "uuid": "ed0c94216553",
-      "name": "Skull",
-      "color": "red"
-    },
-    {
-      "uuid": "eb401ef0f82b",
-      "name": "Ground Shock",
-      "color": "blue"
+      {
+        "uuid": "eb401ef0f82b",
+        "address": "eb:40:1e:f0:f8:2b",
+        "name": "Ground Shock"
+      },
+      {
+        "uuid": "ed0c94216553",
+        "address": "ed:0c:94:21:65:53",
+        "name": "Skull"
+      }
+    ],
+    "track": {
+      "pieces": [
+        {
+          "type": "start",
+          "id": 18
+        },
+        {
+          "type": "curve",
+          "id": 18
+        },
+        {
+          "type": "curve",
+          "id": 23
+        },
+        {
+          "type": "straight",
+          "id": 39
+        },
+        {
+          "type": "curve",
+          "id": 17
+        },
+        {
+          "type": "curve",
+          "id": 20
+        },
+        {
+          "type": "finish",
+          "id": 18
+        },
+      ]
     }
-  ],
-  "zookeeper.url": "localhost:2181",
+  },
+  "vehicles": {
+    "red": {
+      "uuid": "ed0c94216553"
+    },
+    "blue": {
+      "uuid": "eb401ef0f82b"
+    }
+  },
   "track": [
     {
       "type": "curve",
