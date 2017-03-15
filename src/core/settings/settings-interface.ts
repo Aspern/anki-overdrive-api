@@ -1,4 +1,5 @@
 import {Track} from "../track/track-interface";
+import {Setup} from "../setup";
 
 /**
  * Class to access user defined settings for the application.
@@ -64,7 +65,14 @@ interface Settings {
      *
      * @param key Name of the setting
      */
-    getAsTrack(key: string): Track
+    getAsTrack(key: string): Track;
+
+    /**
+     * Returns setting as a setup object of a whole Track with vehicles.
+     *
+     * @param key Name of the setting
+     */
+    getAsSetup(key: string) : Setup;
 
 }
 

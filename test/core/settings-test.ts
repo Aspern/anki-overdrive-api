@@ -3,6 +3,7 @@ import {expect} from "chai";
 import {Settings} from "../../src/core/settings/settings-interface";
 import {JsonSettings} from "../../src/core/settings/json-settings";
 import {Track} from "../../src/core/track/track-interface";
+import {Setup} from "../../src/core/setup";
 
 @suite
 class JsonSettingsTest {
@@ -70,5 +71,12 @@ class JsonSettingsTest {
         track.eachPiece(piece => {
             expect(piece.id).to.be.equals(pieces[i++]);
         });
+    }
+
+    @test "get as setup"() {
+        let setup : Setup = this._settings.getAsSetup("setup");
+
+        expect(setup).not.to.be.null;
+        expect(setup.vehicles.length).to.be.equals(2);
     }
 }
