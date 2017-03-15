@@ -69,13 +69,13 @@ class VehicleScanner {
                                 });
                             }
                         });
-                        setTimeout(() => {
-                            vehiclePeripherals.forEach((vehcPer) => {
-                                vehicles.push(new AnkiOverdriveVehicle(vehcPer));
-                            });
-                            resolve(vehicles);
-                        }, me.timeout);
                     });
+                    setTimeout(() => {
+                        vehiclePeripherals.forEach((vehcPer) => {
+                            vehicles.push(new AnkiOverdriveVehicle(vehcPer));
+                        });
+                        resolve(vehicles);
+                    }, me.timeout);
                 }, this.timeout);
             }).catch(reject);
         });
