@@ -32,6 +32,7 @@ declare module "noble" {
     }
 
     export class Service {
+        public uuid: string;
     }
 
     export class Characteristic {

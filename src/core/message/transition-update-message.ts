@@ -32,7 +32,7 @@ class TransitionUpdateMessage extends VehicleMessage {
         this._upHillCounter = data.readUInt8(15);
         this._downHillCounter = data.readUInt8(16);
         this._leftWheelDistance = data.readInt8(17);
-        this._rightWheelDistance = data.readUInt8(18);
+        //this._rightWheelDistance = data.readUInt8(18);
     }
 
 
