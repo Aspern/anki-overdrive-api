@@ -1,6 +1,4 @@
-import {VehicleMessage} from "./vehicle-message";
-import {DrivingDirection} from "./driving-direction";
-import {IntersectionCode} from "./intersection-code";
+import {VehicleMessage} from "../vehicle-message";
 
 /**
  * This message is sent by the vehicle when it is no longer on the track.

@@ -29,7 +29,7 @@ interface Vehicle {
      * @param speed The requested vehicle speed in mm/sec.
      * @param acceleration The acceleration in mm/sec^2.
      */
-    setSpeed(speed: number, acceleration?: number): void;
+    setSpeed(speed: number, acceleration?: number, limit?: boolean): void;
 
     /**
      * Sets the offset from road center of the vehicle.
@@ -50,7 +50,7 @@ interface Vehicle {
      * @param speed The horizontal speed at for the lane change in mm/sec.
      * @param acceleration The horizontal acceleration for the lane change in mm/sec.
      */
-    changeLane(offset: number, speed?: number, acceleration?: number): void;
+    changeLane(offset: number, speed?: number, acceleration?: number, hopIntent?: number, tag?: number): void;
 
     /**
      * Cancel the current lane change.

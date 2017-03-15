@@ -1,6 +1,6 @@
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {Track} from "../../core/track/track-interface";
-import {PositionUpdateMessage} from "../../core/message/position-update-message";
+import {PositionUpdateMessage} from "../message/v2c/position-update-message";
 import {ValidationReport} from "./validation-report";
 import {Start} from "../../core/track/start";
 
