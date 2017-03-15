@@ -11,10 +11,11 @@ import {Finish} from "../../core/track/finish";
 import {Straight} from "../../core/track/straight";
 import {Curve} from "../../core/track/curve";
 import {KafkaController} from "./kafka-controller";
+import {Setup} from "../../core/setup";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
-    setup: any = settings.getAsObject("setup"),
+    setup: Setup = settings.getAsSetup("setup"),
     track = settings.getAsTrack("track"),
     configs: Array<{uuid: string, name: string, color: string}> = settings.getAsObject("vehicles"),
     usedVehicles: Array <Vehicle> = [],
