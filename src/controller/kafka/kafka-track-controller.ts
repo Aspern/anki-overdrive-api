@@ -39,6 +39,9 @@ process.on('exit', () => {
         partitions: 1,
         messages: JSON.stringify(setup).replace(/_/g, "")
     }]);
+    usedVehicles.forEach(vehicle => {
+        vehicle.disconnect();
+    })
 });
 
 function getPieceDescription(piece: Piece) {
