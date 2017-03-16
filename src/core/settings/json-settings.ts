@@ -103,7 +103,7 @@ class JsonSettings implements Settings {
     getAsSetup(key: string): Setup {
         let object : {
             uuid : string,
-            vehicles: Array<{uuid:string, address:string, name:string}>,
+            vehicles: Array<{uuid:string, address:string, name:string, offset:number}>,
             track : {pieces:Array<{pieceId: number, type: string}>}
         } = this.getAsObject("setup"),
             setup = new Setup();
