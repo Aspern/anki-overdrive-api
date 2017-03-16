@@ -23,8 +23,9 @@
    <div class='package'>
     <div class='name'>Anti Collision</div>
       <hr>
-      <a class="btn" ng-click="send('A1')" ng-hide="hidden" ng-class="{fade: startFade}">Start </a>
-      <p ng-hide="!hidden" class="saving">Preparing to Start<span>.</span><span>.</span><span>.</span></p>
+      <a class="btn" ng-click="send('A1')" ng-hide="hidden">Start </a>
+      <a class="btn" style="background-color: #f67c7c;" ng-click="send('A0')" ng-hide="!hidden">Stop </a>
+
 
     
 
@@ -45,7 +46,7 @@
   <div class='terminal'> 
       Status
       <hr> 
-
+        <div  id="status"></div>
   </div>
 
 </div>

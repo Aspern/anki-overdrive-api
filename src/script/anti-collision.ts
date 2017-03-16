@@ -25,6 +25,9 @@ let scanner = new VehicleScanner(),
     client = new WebSocketClient(),
     node_server = 'ws://localhost:8080/';
 
+var connection_new;
+
+
 
 
 
@@ -136,25 +139,36 @@ client.on('connectFailed', (error: Error) => {
 //if connection is made to the server
 client.on('connect', (connection: websocket.connection) => {
     console.log('WebSocket client connected');
+    //connection_new = connection;
     connection.on('error', (error: Error) => {
         console.log("Connection Error: " + error.toString());
     });
 
     connection.on('close', () => {
-        console.log('echo-protocol Connection Closed');
+        console.log('Connection Closed');
     });
 
     connection.on('message', (message: websocket.IMessage) => {
 
-        console.log("Received: '" + message.utf8Data + "'");
 
         if(message.utf8Data == "A1")
+        {
+            console.log("Received: '" + message.utf8Data + "'");
             antiCollisionOn = true;
+            connection.send('{"event":"webgui","data":"Started"}');
+        }
 
         else if(message.utf8Data == "A0")
+        {
             antiCollisionOn = false;
+            console.log("Received: '" + message.utf8Data + "'");
+            connection.send('{"event":"webgui","data":"Stop"}');
+
+
+        }
 
     });
+
 
 
 
