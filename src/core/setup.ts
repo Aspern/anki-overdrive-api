@@ -1,7 +1,7 @@
 class Setup {
 
     private _uuid: string;
-    private _vehicles: Array<{uuid: string, address: string, name: string, offset:number}>
+    private _vehicles: Array<{uuid: string, address: string, name: string, offset: number}>
     private _track: {pieces: Array<{pieceId: number, type: string}>}
     private _online: boolean;
 
@@ -13,11 +13,11 @@ class Setup {
         this._uuid = value;
     }
 
-    get vehicles(): Array<{uuid: string; address: string; name: string}> {
+    get vehicles(): Array<{uuid: string; address: string; name: string; offset: number}> {
         return this._vehicles;
     }
 
-    set vehicles(value: Array<{uuid: string; address: string; name: string}>) {
+    set vehicles(value: Array<{uuid: string; address: string; name: string; offset: number}>) {
         this._vehicles = value;
     }
 
