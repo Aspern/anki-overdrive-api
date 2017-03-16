@@ -4,6 +4,7 @@ class Setup {
     private _vehicles: Array<{uuid: string, address: string, name: string}>
     private _track: {pieces: Array<{pieceId: number, type: string}>}
     private _online: boolean;
+    private _offset: number;
 
     get uuid(): string {
         return this._uuid;
@@ -36,6 +37,14 @@ class Setup {
 
     set online(value: boolean) {
         this._online = value;
+    }
+
+    get offset(): number {
+        return this._offset;
+    }
+
+    set offset(value: number) {
+        this._offset = value;
     }
 }
 
