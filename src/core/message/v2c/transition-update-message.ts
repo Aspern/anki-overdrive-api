@@ -21,18 +21,33 @@ class TransitionUpdateMessage extends VehicleMessage {
 
     constructor(data: Buffer, vehicleId: string) {
         super(data, vehicleId);
+        // this._piece = data.readInt8(2);
+        // this._previousPiece = data.readInt8(3);
+        // this._offset = data.readFloatLE(4);
+        // this._direction = data.readInt8(8);
+        // this._lastLaneChangeCmd = data.readInt8(9);
+        // this._lastExecLaneChangeCmd = data.readInt8(10);
+        // this._lastDesiredHorizontalSpeed = data.readInt16LE(11);
+        // this._lastDesiredSpeed = data.readInt16LE(13);
+        // this._upHillCounter = data.readUInt8(15);
+        // this._downHillCounter = data.readUInt8(16);
+        // this._leftWheelDistance = data.readInt8(17);
+        // this._rightWheelDistance = data.readUInt8(18);
+
         this._piece = data.readInt8(2);
         this._previousPiece = data.readInt8(3);
         this._offset = data.readFloatLE(4);
-        this._direction = data.readInt8(8);
-        this._lastLaneChangeCmd = data.readInt8(9);
-        this._lastExecLaneChangeCmd = data.readInt8(10);
-        this._lastDesiredHorizontalSpeed = data.readInt16LE(11);
-        this._lastDesiredSpeed = data.readInt16LE(13);
-        this._upHillCounter = data.readUInt8(15);
-        this._downHillCounter = data.readUInt8(16);
-        this._leftWheelDistance = data.readInt8(17);
-        //this._rightWheelDistance = data.readUInt8(18);
+
+        this._lastLaneChangeCmd = data.readInt8(8);
+        this._lastExecLaneChangeCmd = data.readInt8(9);
+        //this._direction = data.readInt8(9);
+        this._lastDesiredHorizontalSpeed = data.readInt16LE(10);
+        this._lastDesiredSpeed = data.readInt16LE(12);
+        this._upHillCounter = data.readUInt8(14);
+        this._downHillCounter = data.readUInt8(15);
+        this._leftWheelDistance = data.readInt8(16);
+        this._rightWheelDistance = data.readUInt8(17);
+
     }
 
 
