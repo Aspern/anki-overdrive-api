@@ -3,6 +3,9 @@ import {LightConfig} from "../../vehicle/light-config";
 
 class SetLights extends VehicleMessage {
 
+    private _lightConfig: LightConfig|Array<LightConfig>;
+    private _channelCount: number;
+
     constructor(vehicleId: string, config: LightConfig|Array<LightConfig>) {
         super(new Buffer(18), vehicleId, 0x33, 17);
         let channelCount = 1,
@@ -14,7 +17,9 @@ class SetLights extends VehicleMessage {
             config = [config];
 
         this.data.writeUInt8(channelCount, pos++);
+        this._channelCount = channelCount;
         this.writeLightConfig(pos, config);
+        this._lightConfig = config;
 
     }
 
