@@ -41,7 +41,7 @@ process.on('exit', () => {
     }]);
     usedVehicles.forEach(vehicle => {
         vehicle.disconnect();
-    })
+    });
 });
 
 function getPieceDescription(piece: Piece) {
@@ -112,6 +112,9 @@ kafkaController.initializeProducer().then(online => {
                     if (vehicle.id === config.uuid)
                         vehicle.setOffset(config.offset);
                 });
+                setInterval(() => {
+                    vehicle.queryBatteryLevel();
+                }, 1000);
             });
         });
 
