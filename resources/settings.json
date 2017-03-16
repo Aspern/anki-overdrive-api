@@ -5,44 +5,46 @@
       {
         "uuid": "eb401ef0f82b",
         "address": "eb:40:1e:f0:f8:2b",
-        "name": "Ground Shock"
+        "name": "Ground Shock",
+        "offset" : -68.0
       },
       {
         "uuid": "ed0c94216553",
         "address": "ed:0c:94:21:65:53",
-        "name": "Skull"
+        "name": "Skull",
+        "offset" : 68.0
       }
     ],
     "track": {
       "pieces": [
         {
           "type": "start",
-          "id": 18
+          "pieceId": 33
         },
         {
           "type": "curve",
-          "id": 18
+          "pieceId": 18
         },
         {
           "type": "curve",
-          "id": 23
+          "pieceId": 23
         },
         {
           "type": "straight",
-          "id": 39
+          "pieceId": 39
         },
         {
           "type": "curve",
-          "id": 17
+          "pieceId": 17
         },
         {
           "type": "curve",
-          "id": 20
+          "pieceId": 20
         },
         {
           "type": "finish",
-          "id": 18
-        },
+          "pieceId": 34
+        }
       ]
     }
   },

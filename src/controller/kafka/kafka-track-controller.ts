@@ -12,6 +12,7 @@ import {Straight} from "../../core/track/straight";
 import {Curve} from "../../core/track/curve";
 import {KafkaController} from "./kafka-controller";
 import {Setup} from "../../core/setup";
+import {AnkiConsole} from "../../core/util/anki-console";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
@@ -20,7 +21,8 @@ let settings: Settings = new JsonSettings(),
     usedVehicles: Array <Vehicle> = [],
     vehicleControllers: Array<KafkaVehicleController> = [],
     filter: KafkaDistanceFilter,
-    kafkaController = new KafkaController();
+    kafkaController = new KafkaController(),
+    ankiConsole = new AnkiConsole();
 
 function handleError(e: Error): void {
     if (!isNullOrUndefined(e)) {
@@ -101,6 +103,15 @@ kafkaController.initializeProducer().then(online => {
         filter = new KafkaDistanceFilter(usedVehicles, track);
         filter.start().catch(handleError);
 
+        usedVehicles.forEach(vehicle => {
+            vehicle.connect().then(() => {
+                setup.vehicles.forEach(config => {
+                    if (vehicle.id === config.uuid)
+                        vehicle.setOffset(config.offset);
+                });
+            });
+        });
+
         setup.online = true;
         kafkaController.sendPayload([{
             topic: "setup",
@@ -109,6 +120,8 @@ kafkaController.initializeProducer().then(online => {
         }]);
 
         console.log("Waiting for messages.");
+        ankiConsole.initializePrompt(usedVehicles);
+
     }).catch(handleError);
 
 }).catch(handleError);
