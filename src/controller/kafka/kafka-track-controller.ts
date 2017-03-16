@@ -112,15 +112,18 @@ kafkaController.initializeProducer().then(online => {
             });
         });
 
-        setup.online = true;
-        kafkaController.sendPayload([{
-            topic: "setup",
-            partitions: 1,
-            messages: JSON.stringify(setup).replace(/_/g, "")
-        }]);
+        // Wait 3 seconds before interacting with the resources.
+        setTimeout(() => {
+            setup.online = true;
+            kafkaController.sendPayload([{
+                topic: "setup",
+                partitions: 1,
+                messages: JSON.stringify(setup).replace(/_/g, "")
+            }]);
 
-        console.log("Waiting for messages.");
-        ankiConsole.initializePrompt(usedVehicles);
+            console.log("Waiting for messages.");
+            ankiConsole.initializePrompt(usedVehicles);
+        }, 3000);
 
     }).catch(handleError);
 
