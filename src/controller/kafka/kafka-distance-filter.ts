@@ -2,6 +2,7 @@ import {SimpleDistanceFilter} from "../../core/filter/simple-distance-filter";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {Track} from "../../core/track/track-interface";
 import {KafkaController} from "./kafka-controller";
+import {unescape} from "querystring";
 
 class KafkaDistanceFilter {
 
@@ -28,9 +29,13 @@ class KafkaDistanceFilter {
                         me._filter.onUpdate(output => {
                             me._kafka.sendPayload([{
                                 topic: "cardata-filtered",
-                                key : output.messageId.toString(),
+                                key: output.messageId.toString(),
                                 partitions: 1,
-                                messages: JSON.stringify(output).replace(/_/g, "")
+                                messages: JSON.stringify(output, (key, value) => {
+                                    if (key === '_data')
+                                        return undefined;
+                                    return value;
+                                }).replace(/_/g, "")
                             }]);
                         });
 

@@ -1,5 +1,5 @@
-import {VehicleMessage} from "./vehicle-message";
-import {Distance} from "../filter/distance";
+import {VehicleMessage} from "../vehicle-message";
+import {Distance} from "../../filter/distance";
 
 /**
  * This message is sent by the vehicle when it has crossed a location.
