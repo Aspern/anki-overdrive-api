@@ -2,12 +2,25 @@
 import {Peripheral, Characteristic} from "noble";
 import {Vehicle} from "./vehicle-interface";
 import {VehicleMessage} from "../message/vehicle-message";
-import {PositionUpdateMessage} from "../message/position-update-message";
-import {TransitionUpdateMessage} from "../message/transition-update-message";
-import {IntersectionUpdateMessage} from "../message/intersection-update-message";
+import {PositionUpdateMessage} from "../message/v2c/position-update-message";
+import {TransitionUpdateMessage} from "../message/v2c/transition-update-message";
+import {IntersectionUpdateMessage} from "../message/v2c/intersection-update-message";
 import {TurnType} from "../message/turn-type";
-import {VehicleDelocalizedMessage} from "../message/vehicle-delocalized-message";
+import {VehicleDelocalizedMessage} from "../message/v2c/vehicle-delocalized-message";
 import {LightConfig} from "./light-config";
+import {SetSpeed} from "../message/c2v/set-speed";
+import {SetOffset} from "../message/c2v/set-offset";
+import {ChangeLane} from "../message/c2v/change-lane";
+import {CancelLaneChange} from "../message/c2v/cancel-lane-change";
+import {Turn} from "../message/c2v/turn";
+import {SdkMode} from "../message/c2v/sdk-mode";
+import {PingRequest} from "../message/c2v/ping-request";
+import {PingResponse} from "../message/v2c/ping-response";
+import {VersionResponse} from "../message/v2c/version-response";
+import {BatteryLevelResponse} from "../message/v2c/battery-level-response";
+import {VersionRequest} from "../message/c2v/version-request";
+import {BatteryLevelRequest} from "../message/c2v/battery-level-request";
+import {SetLights} from "../message/c2v/set-lights";
 
 /**
  * Default implementation of `Vehicle`. The connection with the vehicle will enable the SDK mode
@@ -67,46 +80,37 @@ class AnkiOverdriveVehicle implements Vehicle {
         });
     }
 
-    setSpeed(speed: number, acceleration = 250): void {
-        let data = new Buffer(7);
-
-        data.writeUInt8(6, 0);
-        data.writeUInt8(0x24, 1); // ANKI_VEHICLE_MSG_C2V_SET_SPEED
-        data.writeUInt16LE(speed, 2);
-        data.writeUInt16LE(acceleration, 4);
-
-        this._write.write(data);
+    setSpeed(speed: number, acceleration = 250, limit = false): void {
+        this.sendMessage(new SetSpeed(
+            this._id,
+            speed,
+            acceleration,
+            limit
+        ));
     }
 
     setOffset(offset: number): void {
-        let data = new Buffer(6);
-
-        data.writeUInt8(5, 0);
-        data.writeUInt8(0x2c, 1); // ANKI_VEHICLE_MSG_C2V_SET_OFFSET_FROM_ROAD_CENTER
-        data.writeFloatLE(offset, 2);
-
-        this._write.write(data);
+        this.sendMessage(new SetOffset(
+            this._id,
+            offset
+        ));
     }
 
-    changeLane(offset: number, speed = 300, acceleration = 250): void {
-        let data = new Buffer(12);
-
-        data.writeUInt8(11, 0);
-        data.writeUInt8(0x25, 1); // ANKI_VEHICLE_MSG_C2V_CHANGE_LANE
-        data.writeUInt16LE(speed, 2);
-        data.writeUInt16LE(acceleration, 4);
-        data.writeFloatLE(offset, 6);
-
-        this._write.write(data);
+    changeLane(offset: number, speed = 300, acceleration = 250, hopIntent = 0x0, tag = 0x0): void {
+        this.sendMessage(new ChangeLane(
+            this._id,
+            offset,
+            speed,
+            acceleration,
+            hopIntent,
+            tag
+        ));
     }
 
     cancelLaneChange(): void {
-        let data = new Buffer(2);
-
-        data.writeUInt8(1, 0);
-        data.writeUInt8(0x26, 1) // ANKI_VEHICLE_MSG_C2V_CANCEL_LANE_CHANGE
-
-        this._write.write(data);
+        this.sendMessage(new CancelLaneChange(
+            this._id
+        ));
     }
 
     turnLeft(): void {
@@ -126,14 +130,10 @@ class AnkiOverdriveVehicle implements Vehicle {
     }
 
     setSdkMode(on: boolean): void {
-        let data = new Buffer(4);
-
-        data.writeUInt8(3, 0);
-        data.writeUInt8(0x90, 1); // ANKI_VEHICLE_MSG_C2V_SDK_MODE
-        data.writeUInt8(on ? 0x1 : 0x0, 2);
-        data.writeUInt8(0x1, 3);
-
-        this._write.write(data);
+        this.sendMessage(new SdkMode(
+            this._id,
+            on
+        ));
     }
 
     queryPing(): Promise<number> {
@@ -141,15 +141,12 @@ class AnkiOverdriveVehicle implements Vehicle {
             start = new Date().getTime();
 
         return new Promise<number>((resolve, reject) => {
-            let request = new Buffer(2);
-            request.writeUInt8(1, 0);
-            request.writeUInt8(0x16, 1); // ANKI_VEHICLE_MSG_C2V_PING_REQUEST
+            let request = new PingRequest(me._id);
 
             me.readOnce(request, 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
                 .then(() => {
                     resolve(new Date().getTime() - start);
-                })
-                .catch(reject);
+                }).catch(reject);
         });
     }
 
@@ -157,13 +154,11 @@ class AnkiOverdriveVehicle implements Vehicle {
         let me = this;
 
         return new Promise<number>((resolve, reject) => {
-            let request = new Buffer(2);
-            request.writeUInt8(1, 0);
-            request.writeUInt8(0x18, 1); // ANKI_VEHICLE_MSG_C2V_VERSION_REQUEST
+            let request = new VersionRequest(me._id);
 
             me.readOnce(request, 0x19) // ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
-                .then((data: Buffer) => {
-                    resolve(data.readUInt16LE(2));
+                .then((response: VersionResponse) => {
+                    resolve(response.version);
                 })
                 .catch(reject);
         });
@@ -173,13 +168,11 @@ class AnkiOverdriveVehicle implements Vehicle {
         let me = this;
 
         return new Promise<number>((resolve, reject) => {
-            let request = new Buffer(2);
-            request.writeUInt8(1, 0);
-            request.writeUInt8(0x1a, 1); // ANKI_VEHICLE_MSG_C2V_BATTERY_LEVEL_REQUEST
+            let request = new BatteryLevelRequest(me._id);
 
-            me.readOnce(request, 0x1b) // ANKI_VEHICLE_MSG_V2C_BATTERY_LEVEL_RESPONSE
-                .then((data: Buffer) => {
-                    resolve(data.readUInt16LE(2));
+            me.readOnce(request, 0x1b)
+                .then((response: BatteryLevelResponse) => {
+                    resolve(response.batteryLevel);
                 })
                 .catch(reject);
         });
@@ -198,33 +191,25 @@ class AnkiOverdriveVehicle implements Vehicle {
 
 
     setLights(config: LightConfig|Array<LightConfig>): void {
-        let data = new Buffer(18),
-            channelCount = 1,
-            pos = 0;
-
-        data.writeUInt8(17, pos++);
-        data.writeUInt8(0x33, pos++);
-
-        if (config instanceof Array)
-            channelCount = config.length > 3 ? 3 : config.length;
-        else
-            config = [config];
-
-        data.writeUInt8(channelCount, pos++);
-        this.writeLightConfig(data, pos, config);
-
-        this._write.write(data);
+        this.sendMessage(new SetLights(
+            this._id,
+            config
+        ));
     }
 
-    private writeLightConfig(data: Buffer, pos: number, configs: Array<LightConfig>): void {
-        for (let i = 0; i < configs.length && i < 3; ++i) {
-            let config = configs[i];
-            data.writeUInt8(config.channel, pos++);
-            data.writeUInt8(config.effect, pos++);
-            data.writeUInt8(config.start, pos++);
-            data.writeUInt8(config.end, pos++);
-            data.writeUInt8(config.cycles, pos++);
-        }
+    private sendMessage(message: VehicleMessage): void {
+        let me = this;
+
+        me._write.write(message.data, false, () => {
+            me._listeners.forEach((listener) => {
+                if (listener.f) {
+                    if (message instanceof listener.f)
+                        listener.l(message);
+                } else {
+                    listener.l(message);
+                }
+            });
+        });
     }
 
     /**
@@ -267,28 +252,41 @@ class AnkiOverdriveVehicle implements Vehicle {
         let me = this;
 
         this._read.on('data', (data: Buffer) => {
-            var id = data.readUInt8(1),
-                message: VehicleMessage;
-
-            if (id === 0x27) // ANKI_VEHICLE_MSG_V2C_LOCALIZATION_POSITION_UPDATE
-                message = new PositionUpdateMessage(data, me._id);
-            else if (id === 0x29) // ANKI_VEHICLE_MSG_V2C_LOCALIZATION_TRANSITION_UPDATE
-                message = new TransitionUpdateMessage(data, me._id);
-            else if (id === 0x2a) //ANKI_VEHICLE_MSG_V2C_LOCALIZATION_INTERSECTION_UPDATE
-                message = new IntersectionUpdateMessage(data, me._id);
-            else if (id === 0x2b) // ANKI_VEHICLE_MSG_V2C_VEHICLE_DELOCALIZED
-                message = new VehicleDelocalizedMessage(data, me._id);
-
-            if (message)
-                me._listeners.forEach((listener) => {
-                    if (listener.f) {
-                        if (message instanceof listener.f)
-                            listener.l(message);
-                    } else {
-                        listener.l(message);
-                    }
-                });
+            me.createMessageAndInvokeListeners(data);
         });
+    }
+
+    private createMessageAndInvokeListeners(data: Buffer): VehicleMessage {
+        let me = this,
+            id = data.readUInt8(1),
+            message: VehicleMessage;
+
+        if (id === 0x27) // ANKI_VEHICLE_MSG_V2C_LOCALIZATION_POSITION_UPDATE
+            message = new PositionUpdateMessage(data, me._id);
+        else if (id === 0x29) // ANKI_VEHICLE_MSG_V2C_LOCALIZATION_TRANSITION_UPDATE
+            message = new TransitionUpdateMessage(data, me._id);
+        else if (id === 0x2a) //ANKI_VEHICLE_MSG_V2C_LOCALIZATION_INTERSECTION_UPDATE
+            message = new IntersectionUpdateMessage(data, me._id);
+        else if (id === 0x2b) // ANKI_VEHICLE_MSG_V2C_VEHICLE_DELOCALIZED
+            message = new VehicleDelocalizedMessage(data, me._id);
+        else if (id === 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
+            message = new PingResponse(data, me._id)
+        else if (id === 0x19) // ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
+            message = new VersionResponse(data, me._id);
+        else if (id === 0x1b) // ANKI_VEHICLE_MSG_V2C_BATTERY_LEVEL_RESPONSE
+            message = new BatteryLevelResponse(data, me._id);
+
+        if (message)
+            me._listeners.forEach((listener) => {
+                if (listener.f) {
+                    if (message instanceof listener.f)
+                        listener.l(message);
+                } else {
+                    listener.l(message);
+                }
+            });
+
+        return message;
     }
 
     /**
@@ -301,11 +299,10 @@ class AnkiOverdriveVehicle implements Vehicle {
      * second)
      * @return {Promise<Buffer>|Promise} Promise holding the response message.
      */
-    private readOnce(request: Buffer, responseId: number, timeout = 1000): Promise<Buffer> {
+    private readOnce(request: VehicleMessage, responseId: number, timeout = 1000): Promise<VehicleMessage> {
         let me = this;
 
-
-        return new Promise<Buffer>((resolve, reject) => {
+        return new Promise<VehicleMessage>((resolve, reject) => {
             let handler = setTimeout(() => {
                     reject(new Error("Received no message after " + timeout + "ms."));
                 }, timeout),
@@ -315,12 +312,12 @@ class AnkiOverdriveVehicle implements Vehicle {
                     if (id === responseId) {
                         clearTimeout(handler);
                         me._read.removeListener("data", listener);
-                        resolve(data);
+                        resolve(me.createMessageAndInvokeListeners(data));
                     }
                 };
 
             me._read.on('data', listener);
-            me._write.write(request);
+            me.sendMessage(request);
         });
     }
 
@@ -330,13 +327,10 @@ class AnkiOverdriveVehicle implements Vehicle {
      * @param type Type of the turn.
      */
     private turn(type: TurnType): void {
-        let data = new Buffer(4);
-
-        data.writeUInt8(3, 0);
-        data.writeUInt8(0x32, 1); // ANKI_VEHICLE_MSG_C2V_TURN
-        data.writeUInt8(type, 2);
-
-        this._write.write(data);
+        this.sendMessage(new Turn(
+            this._id,
+            type
+        ));
     }
 
 
