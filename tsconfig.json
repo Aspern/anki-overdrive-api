@@ -15,7 +15,6 @@
     "src/core/message/v2c/ping-response.ts",
     "src/core/message/v2c/version-response.ts",
     "src/core/message/v2c/battery-level-response.ts",
-    "src/core/message/c2v/battery-level-request.ts",
     "src/core/message/c2v/cancel-lane-change.ts",
     "src/core/message/c2v/change-lane.ts",
     "src/core/message/c2v/ping-request.ts",
