@@ -38,6 +38,7 @@
     "kafka-node": "1.3.0"
   },
   "scripts": {
+    "scenario-runner" : "gulp && node ./dist/controller/scenario/scenario-runner.js",
     "test-controller": "tsc -p . && mocha test/controller",
     "test-core": "tsc -p . && mocha ./test/core",
     "start-track-controller" : "gulp && node ./dist/controller/kafka/kafka-track-controller.js",

@@ -5,6 +5,8 @@ import {KafkaController} from "./kafka-controller";
 import {unescape} from "querystring";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 import {Distance} from "../../core/filter/distance";
+import {VehicleMessage} from "../../core/message/vehicle-message";
+import {isNullOrUndefined} from "util";
 
 class KafkaDistanceFilter {
 
@@ -12,11 +14,19 @@ class KafkaDistanceFilter {
     private _kafka: KafkaController;
     private _running = false;
     private _store: {[key: string]: PositionUpdateMessage} = {};
+    private _updateHandler: {scope: any, handler: (message: VehicleMessage) => any};
 
     constructor(vehicles: Array<Vehicle>, track: Track) {
         this._filter = new SimpleDistanceFilter();
         this._filter.init([track, vehicles]);
         this._kafka = new KafkaController();
+    }
+
+    registerUpdateHandler(handler: (message: VehicleMessage) => any, scope?: any) {
+        if (isNullOrUndefined(scope))
+            scope = this;
+
+        this._updateHandler = {scope: scope, handler: handler};
     }
 
     start(): Promise<void> {
@@ -64,6 +74,10 @@ class KafkaDistanceFilter {
                                 }]);
 
                                 me._store[output.vehicleId] = output;
+                            }
+
+                            if (!isNullOrUndefined(me._updateHandler)) {
+                                me._updateHandler.handler.call(me._updateHandler.scope, output, me._updateHandler.scope);
                             }
                         });
 

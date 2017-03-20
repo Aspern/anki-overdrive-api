@@ -58,6 +58,7 @@
     "src/controller/kafka/kafka-track-controller.ts",
     "src/controller/scenario/scenario-interface.ts",
     "src/controller/scenario/collision-scenario.ts",
+    "src/controller/scenario/scenario-runner.ts",
 
     "src/script/measure-message-quality.ts",
     "src/script/scan-vehicles.ts",
