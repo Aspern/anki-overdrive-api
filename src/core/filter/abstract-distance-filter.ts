@@ -1,6 +1,6 @@
 import {ActiveFilter} from "./active-filter";
 import {Vehicle} from "../vehicle/vehicle-interface";
-import {PositionUpdateMessage} from "../message/position-update-message";
+import {PositionUpdateMessage} from "../message/v2c/position-update-message";
 import {Track} from "../track/track-interface";
 import {Distance} from "./distance";
 import {isNullOrUndefined} from "util";

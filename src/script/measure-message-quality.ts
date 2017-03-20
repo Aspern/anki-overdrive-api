@@ -1,6 +1,5 @@
 import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
-import {PositionUpdateMessage} from "../core/message/position-update-message";
 import {JsonSettings} from "../core/settings/json-settings";
 import {TrackRunner} from "../core/util/track-runner";
 import {ValidationReport} from "../core/util/validation-report";

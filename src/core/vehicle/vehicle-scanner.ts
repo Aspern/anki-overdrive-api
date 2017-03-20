@@ -3,6 +3,7 @@ import * as noble from "noble";
 import {Peripheral} from "noble";
 import {Vehicle} from "./vehicle-interface";
 import {AnkiOverdriveVehicle} from "./anki-overdrive-vehicle";
+import {isNullOrUndefined} from "util";
 
 /**
  * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
@@ -31,12 +32,14 @@ class VehicleScanner {
      */
     findAll(): Promise<Array<Vehicle>> {
         let vehicles: Array<Vehicle> = [],
+            peripherals: Array<Peripheral> = [],
+            vehiclePeripherals: Array<Peripheral> = [],
             me = this;
 
         return new Promise<Array<Vehicle>>((resolve, reject) => {
             me.onAdapterOnline().then(() => {
                 let callback = (peripheral: Peripheral) => {
-                    vehicles.push(new AnkiOverdriveVehicle(peripheral));
+                    peripherals.push(peripheral);
                 };
 
                 noble.startScanning();
@@ -46,7 +49,33 @@ class VehicleScanner {
                 setTimeout(() => {
                     noble.stopScanning();
                     noble.removeListener('discover', callback);
-                    resolve(vehicles);
+                    peripherals.forEach(peripheral => {
+                        peripheral.connect((e: Error) => {
+                            if (!isNullOrUndefined(e)) {
+                                peripheral.disconnect(() => {
+                                    reject(e);
+                                });
+                            } else {
+                                peripheral.discoverAllServicesAndCharacteristics((e, services) => {
+                                    if (isNullOrUndefined(e) && !isNullOrUndefined(services))
+                                        for (let i = 0; i < services.length; i++) {
+                                            if (services[i].uuid === "be15beef6186407e83810bd89c4d8df4") {
+                                                vehiclePeripherals.push(peripheral);
+                                                break;
+                                            }
+                                        }
+
+                                    peripheral.disconnect();
+                                });
+                            }
+                        });
+                    });
+                    setTimeout(() => {
+                        vehiclePeripherals.forEach((vehcPer) => {
+                            vehicles.push(new AnkiOverdriveVehicle(vehcPer));
+                        });
+                        resolve(vehicles);
+                    }, me.timeout);
                 }, this.timeout);
             }).catch(reject);
         });

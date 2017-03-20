@@ -2,13 +2,13 @@ import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
 import {JsonSettings} from "../core/settings/json-settings";
 import {SimpleDistanceFilter} from "../core/filter/simple-distance-filter";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
-import {PositionUpdateMessage} from "../core/message/position-update-message";
 import {AnkiConsole} from "../core/util/anki-console";
 import {Distance} from "../core/filter/distance";
 import {isNullOrUndefined} from "util";
 import {LightConfig} from "../core/vehicle/light-config";
 import {KafkaController} from "../controller/kafka/kafka-controller";
 import {VehicleMessage} from "../core/message/vehicle-message";
+import {PositionUpdateMessage} from "../core/message/v2c/position-update-message";
 
 
 let scanner = new VehicleScanner(),
@@ -18,7 +18,7 @@ let scanner = new VehicleScanner(),
     filter = new SimpleDistanceFilter(),
     store: {[key: string]: {speed: number, vehicle: Vehicle}} = {},
     kafkaController = new KafkaController(),
-    antiCollisionOn = false;
+    antiCollisionOn = true;
 
 function handleError(e: Error) {
     if (!isNullOrUndefined(e)) {
