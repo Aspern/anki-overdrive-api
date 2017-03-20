@@ -3,12 +3,15 @@ import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {Track} from "../../core/track/track-interface";
 import {KafkaController} from "./kafka-controller";
 import {unescape} from "querystring";
+import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
+import {Distance} from "../../core/filter/distance";
 
 class KafkaDistanceFilter {
 
     private _filter: SimpleDistanceFilter;
     private _kafka: KafkaController;
     private _running = false;
+    private _store: {[key: string]: PositionUpdateMessage} = {};
 
     constructor(vehicles: Array<Vehicle>, track: Track) {
         this._filter = new SimpleDistanceFilter();
@@ -37,6 +40,31 @@ class KafkaDistanceFilter {
                                     return value;
                                 }).replace(/_/g, "")
                             }]);
+
+
+                            if (output instanceof PositionUpdateMessage) {
+                                let distances: Array<Distance> = [];
+                                for (let key in me._store) {
+                                    if (me._store.hasOwnProperty(key)) {
+                                        let message = me._store[key];
+                                        distances = distances.concat(message.distances);
+                                    }
+                                }
+
+                                let data = {
+                                    timestamp: new Date(),
+                                    messageId: 4711,
+                                    mergedDistances: distances
+                                };
+
+                                me._kafka.sendPayload([{
+                                    topic: "cardata-filtered",
+                                    partitions: 1,
+                                    messages: JSON.stringify(data).replace(/_/g, "")
+                                }]);
+
+                                me._store[output.vehicleId] = output;
+                            }
                         });
 
                         me._filter.start()

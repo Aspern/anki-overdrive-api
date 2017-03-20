@@ -13,6 +13,8 @@ import {Curve} from "../../core/track/curve";
 import {KafkaController} from "./kafka-controller";
 import {Setup} from "../../core/setup";
 import {AnkiConsole} from "../../core/util/anki-console";
+import {Scenario} from "../scenario/scenario-interface";
+import {CollisionScenario} from "../scenario/collision-scenario";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
@@ -126,6 +128,22 @@ kafkaController.initializeProducer().then(online => {
                 partitions: 1,
                 messages: JSON.stringify(setup).replace(/_/g, "")
             }]);
+
+            kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
+            kafkaController.addListener(message => {
+                let info: {scenario: string} = JSON.parse(message),
+                    scenario: Scenario;
+                switch (info.scenario) {
+                    case  'collision':
+                        scenario = new CollisionScenario(usedVehicles[0], usedVehicles[1]);
+                        scenario.start().catch(handleError);
+                        break;
+                    case 'anti-collision' :
+                        break;
+                    default:
+                        console.error("Found no scenario with name '" + info.scenario + "'.");
+                }
+            });
 
             console.log("Waiting for messages.");
             ankiConsole.initializePrompt(usedVehicles);
