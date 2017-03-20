@@ -25,8 +25,6 @@ let scanner = new VehicleScanner(),
     client = new WebSocketClient(),
     node_server = 'ws://localhost:8080/';
 
-var connection_new;
-
 
 
 
