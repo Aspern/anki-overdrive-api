@@ -1,4 +1,3 @@
-import {PositionUpdateMessage} from "../core/message/position-update-message";
 import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
 import * as uuid from "node-uuid";
 import {JsonSettings} from "../core/settings/json-settings";
@@ -7,6 +6,7 @@ import {FileResultHandler} from "../core/util/file-result-handler";
 import {ConsoleResultHandler} from "../core/util/console-result-handler";
 import {Result} from "../core/util/result";
 import {TrackRunner} from "../core/util/track-runner";
+import {PositionUpdateMessage} from "../core/message/v2c/position-update-message";
 
 /************************************************************************************
  *                                  MEASURE TRACK                                   *
