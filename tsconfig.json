@@ -56,7 +56,8 @@
     "src/controller/kafka/kafka-vehicle-controller.ts",
     "src/controller/kafka/kafka-distance-filter.ts",
     "src/controller/kafka/kafka-track-controller.ts",
-    "src/core/settings/json-settings.ts",
+    "src/controller/scenario/scenario-interface.ts",
+    "src/controller/scenario/collision-scenario.ts",
 
     "src/script/measure-message-quality.ts",
     "src/script/scan-vehicles.ts",
