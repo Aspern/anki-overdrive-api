@@ -98,7 +98,7 @@ function createScneario(name: string) {
     switch (name) {
         case  'collision':
             return new CollisionScenario(usedVehicles[0], usedVehicles[1])
-        case 'anti-collision:':
+        case 'anti-collision':
             return new AntiCollisionScenario(usedVehicles[0], usedVehicles[1]);
         case 'max-speed' :
             return new MaxSpeedScenario(usedVehicles[0]);
@@ -185,18 +185,24 @@ kafkaController.initializeProducer().then(online => {
                 let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
                 if (info.interrupt && !isNullOrUndefined(scenario)) {
                     scenario.interrupt().then(() => {
+                        initializeVehicles();
                         console.info("Interrupted scenario '" + info.name + "'.");
                     }).catch(handleError);
                 } else {
-                    if (scenario.isRunning()) {
+                    if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
                         console.error("Another scenario is still running!");
                     } else {
                         scenario = createScneario(info.name);
-                        scenario.start().then(() => {
-                            initializeVehicles();
-                            console.log("Finished scenario.")
-                        }).catch(handleError);
-                        console.log("Started scenario.");
+                        if (isNullOrUndefined(scenario)) {
+                            console.error("Unknown Scenario for config: " + info);
+                        } else {
+                            filter.registerUpdateHandler(scenario.onUpdate, scenario);
+                            scenario.start().then(() => {
+                                initializeVehicles();
+                                console.log("Finished scenario.")
+                            }).catch(handleError);
+                            console.log("Started scenario.");
+                        }
                     }
                 }
             });

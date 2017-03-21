@@ -30,38 +30,52 @@ class AntiCollisionScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
+                console.log("ACS (0): Starting");
                 v1.setSpeed(400, 100);
                 me._store[v1.id].speed = 400;
                 v2.setSpeed(600, 100);
-                me._store[v1.id].speed = 600;
+                me._store[v2.id].speed = 600;
 
                 setTimeout(() => {
-                    v1.changeLane(-68);
-                    v2.changeLane(68);
-                }, 3000);
+                    console.log("ACS (0:06): Changing lane different");
+                    v1.changeLane(-68.0);
+                    v2.changeLane(68.0);
+                }, 6000);
 
                 setTimeout(() => {
-                    v1.changeLane(68);
-                }, 10000);
+                    console.log("ACS (0:20): Changing lane same");
+                    v1.changeLane(68.0);
+                }, 20000);
 
                 setTimeout(() => {
+                    console.log("ACS (1:00): Speeding up slow vehicle");
                     v1.setSpeed(700, 100);
                     me._store[v1.id].speed = 700;
-                }, 30000);
+                }, 60000);
 
                 setTimeout(() => {
+                    console.log("ACS (1:30): Slowing down slow vehicle");
                     v2.setSpeed(350, 50);
                     me._store[v2.id].speed = 350;
-                }, 50000);
+                }, 90000);
 
                 setTimeout(() => {
+                    console.log("ACS (2:00): Change slow vehicle inner lane");
                     v2.changeLane(-68)
-                }, 70000);
+                }, 120000);
 
                 setTimeout(() => {
-                    me._running = false;
-                    resolve();
-                }, 100000);
+                    console.log("ACS (2:30): Slowing down both vehicles");
+                    v1.setSpeed(0, 300);
+                    me._store[v2.id].speed = 0;
+                    v2.setSpeed(0, 300);
+                    me._store[v2.id].speed = 0;
+                    setTimeout(() => {
+                        console.log("ACS (2:35): Finishing scenario");
+                        me._running = false;
+                        resolve();
+                    }, 155000);
+                }, 150000);
 
             } catch (e) {
                 me._running = false;
@@ -168,7 +182,7 @@ class AntiCollisionScenario implements Scenario {
 
     onUpdate(message: VehicleMessage): void {
         let me = this;
-        if (message instanceof PositionUpdateMessage) {
+        if (message instanceof PositionUpdateMessage && me._running) {
             let distances = message.distances,
                 onCollision = false;
 

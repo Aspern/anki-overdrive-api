@@ -9,7 +9,7 @@ class CollisionScenario implements Scenario {
 
     private _vehicle1: Vehicle;
     private _vehicle2: Vehicle;
-    private _store: {[key: string]: Vehicle} = {};
+    private _store: { [key: string]: Vehicle } = {};
     private _collided = false;
     private _running = false;
 
@@ -103,7 +103,7 @@ class CollisionScenario implements Scenario {
     onUpdate(message: VehicleMessage): void {
         let me = this;
 
-        if (message instanceof PositionUpdateMessage) {
+        if (message instanceof PositionUpdateMessage && me._running) {
 
             message.distances.forEach(distance => {
                 if (distance.vertical < 34 && distance.horizontal < 200)
