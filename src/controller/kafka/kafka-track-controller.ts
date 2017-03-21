@@ -16,12 +16,14 @@ import {AnkiConsole} from "../../core/util/anki-console";
 import {Scenario} from "../scenario/scenario-interface";
 import {CollisionScenario} from "../scenario/collision-scenario";
 import {LightConfig} from "../../core/vehicle/light-config";
+import {AntiCollisionScenario} from "../scenario/anti-collision-scenario";
+import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
     setup: Setup = settings.getAsSetup("setup"),
     track = settings.getAsTrack("track"),
-    vehicleConfig: Array <{offset: number, vehicle: Vehicle}> = [],
+    vehicleConfig: Array<{ offset: number, vehicle: Vehicle }> = [],
     usedVehicles: Array<Vehicle> = [],
     vehicleControllers: Array<KafkaVehicleController> = [],
     filter: KafkaDistanceFilter,
@@ -90,6 +92,19 @@ function initializeVehicles(handler?: (vehicle: Vehicle) => any) {
         if (!isNullOrUndefined(handler))
             handler(config.vehicle);
     });
+}
+
+function createScneario(name: string) {
+    switch (name) {
+        case  'collision':
+            return new CollisionScenario(usedVehicles[0], usedVehicles[1])
+        case 'anti-collision:':
+            return new AntiCollisionScenario(usedVehicles[0], usedVehicles[1]);
+        case 'max-speed' :
+            return new MaxSpeedScenario(usedVehicles[0]);
+        default:
+            return null;
+    }
 }
 
 console.log("Starting Kafka Producer...");
@@ -167,21 +182,22 @@ kafkaController.initializeProducer().then(online => {
 
             kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
             kafkaController.addListener(message => {
-                let info: {name: string} = JSON.parse(message.value);
-                switch (info.name) {
-                    case  'collision':
-                        scenario = new CollisionScenario(usedVehicles[0], usedVehicles[1]);
-                        filter.registerUpdateHandler(scenario.onUpdate, scenario);
+                let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
+                if (info.interrupt && !isNullOrUndefined(scenario)) {
+                    scenario.interrupt().then(() => {
+                        console.info("Interrupted scenario '" + info.name + "'.");
+                    }).catch(handleError);
+                } else {
+                    if (scenario.isRunning()) {
+                        console.error("Another scenario is still running!");
+                    } else {
+                        scenario = createScneario(info.name);
                         scenario.start().then(() => {
                             initializeVehicles();
-                            console.log("Finished collision scenario.")
+                            console.log("Finished scenario.")
                         }).catch(handleError);
-                        console.log("Starting collision scenario")
-                        break;
-                    case 'anti-collision' :
-                        break;
-                    default:
-                        console.error("Found no scenario with name '" + info.name + "'.");
+                        console.log("Started scenario.");
+                    }
                 }
             });
 

@@ -11,6 +11,7 @@ class CollisionScenario implements Scenario {
     private _vehicle2: Vehicle;
     private _store: {[key: string]: Vehicle} = {};
     private _collided = false;
+    private _running = false;
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
         this._vehicle1 = vehicle1;
@@ -25,6 +26,7 @@ class CollisionScenario implements Scenario {
             v1 = me._vehicle1,
             v2 = me._vehicle2;
 
+        me._running = true;
         return new Promise<void>((resolve, reject) => {
             try {
                 v1.setSpeed(350, 100);
@@ -42,23 +44,27 @@ class CollisionScenario implements Scenario {
                 let interval = setInterval(() => {
                     if (me._collided) {
                         clearInterval(interval);
+                        me._running = false;
                         resolve();
                     }
 
-                }, 200)
-
+                }, 200);
             } catch (e) {
+                me._running = false;
                 reject(e);
             }
         });
     }
 
     interrupt(): Promise<void> {
+        let me = this;
+
         return new Promise<void>((resolve, reject) => {
             try {
                 this._vehicle1.setSpeed(0, 1500);
                 this._vehicle2.setSpeed(0, 1500);
                 setTimeout(() => {
+                    me._running = false;
                     resolve();
                 }, 1000);
             } catch (e) {
@@ -107,6 +113,10 @@ class CollisionScenario implements Scenario {
         } else if (message instanceof VehicleDelocalizedMessage) {
             me.showCollision();
         }
+    }
+
+    isRunning(): boolean {
+        return this._running;
     }
 }
 

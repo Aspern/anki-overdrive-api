@@ -7,6 +7,8 @@ interface Scenario {
 
     interrupt() : Promise<void>;
 
+    isRunning() : boolean;
+
 }
 
 export {Scenario}
