@@ -18,6 +18,7 @@ import {CollisionScenario} from "../scenario/collision-scenario";
 import {LightConfig} from "../../core/vehicle/light-config";
 import {AntiCollisionScenario} from "../scenario/anti-collision-scenario";
 import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
+import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
@@ -63,9 +64,8 @@ function getPieceDescription(piece: Piece) {
     return "Undefined";
 }
 
-function initializeVehicles(handler?: (vehicle: Vehicle) => any) {
+function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number) => any) {
     vehicleConfig.forEach(config => {
-        config.vehicle.setOffset(config.offset);
         config.vehicle.setLights([
             new LightConfig()
                 .blue()
@@ -90,9 +90,52 @@ function initializeVehicles(handler?: (vehicle: Vehicle) => any) {
         ]);
 
         if (!isNullOrUndefined(handler))
-            handler(config.vehicle);
+            handler(config.vehicle, config.offset);
     });
 }
+
+function findStartLane() {
+
+
+    vehicleConfig.forEach(config => {
+        let vehicle = config.vehicle,
+            listener = (message: PositionUpdateMessage) => {
+                if (message.piece === 33) {
+                    vehicle.removeListener(listener);
+                    vehicle.setSpeed(0, 1000);
+                    config.vehicle.setLights([
+                        new LightConfig()
+                            .blue()
+                            .steady(),
+                        new LightConfig()
+                            .green()
+                            .steady(0),
+                        new LightConfig()
+                            .weapon()
+                            .steady(0)
+                    ]);
+                }
+            };
+
+        config.vehicle.addListener(listener);
+        config.vehicle.setLights([
+            new LightConfig()
+                .blue()
+                .steady(0),
+            new LightConfig()
+                .green()
+                .flash(0, 10, 10),
+            new LightConfig()
+                .weapon()
+                .flash(0, 10, 10)
+        ]);
+        config.vehicle.setSpeed(500, 250);
+        setTimeout(() => {
+            config.vehicle.changeLane(config.offset);
+        }, 2000);
+    });
+}
+
 
 function createScneario(name: string) {
     switch (name) {
@@ -167,10 +210,12 @@ kafkaController.initializeProducer().then(online => {
 
         // Wait 3 seconds before interacting with the resources.
         setTimeout(() => {
-            initializeVehicles(vehicle => {
+            initializeVehicles((vehicle, offset) => {
                 setInterval(() => {
                     vehicle.queryBatteryLevel();
                 }, 1000);
+                console.log("Initialize [" + vehicle.id + "] with offset [" + offset + "mm].")
+                vehicle.setOffset(offset);
             });
 
             setup.online = true;
@@ -186,6 +231,9 @@ kafkaController.initializeProducer().then(online => {
                 if (info.interrupt && !isNullOrUndefined(scenario)) {
                     scenario.interrupt().then(() => {
                         initializeVehicles();
+                        scenario = null;
+                        filter.unregisterUpdateHandler();
+                        findStartLane();
                         console.info("Interrupted scenario '" + info.name + "'.");
                     }).catch(handleError);
                 } else {
@@ -199,7 +247,10 @@ kafkaController.initializeProducer().then(online => {
                             filter.registerUpdateHandler(scenario.onUpdate, scenario);
                             scenario.start().then(() => {
                                 initializeVehicles();
-                                console.log("Finished scenario.")
+                                console.log("Finished scenario.");
+                                scenario = null;
+                                filter.unregisterUpdateHandler();
+                                findStartLane();
                             }).catch(handleError);
                             console.log("Started scenario.");
                         }

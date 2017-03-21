@@ -29,20 +29,24 @@ class CollisionScenario implements Scenario {
         me._running = true;
         return new Promise<void>((resolve, reject) => {
             try {
+                console.log("CS (0): Starting");
                 v1.setSpeed(350, 100);
                 v2.setSpeed(900, 100);
 
                 setTimeout(() => {
+                    console.log("CS (0:09): Changing on different lanes");
                     v1.changeLane(-68);
                     v2.changeLane(50.5);
-                }, 3000);
+                }, 9000);
 
                 setTimeout(() => {
+                    console.log("ACS (0:30): Slow vehicle changes to outer lane.");
                     v1.changeLane(68);
-                }, 13000);
+                }, 30000);
 
                 let interval = setInterval(() => {
                     if (me._collided) {
+                        console.log("CS (?): Scenario Finished.");
                         clearInterval(interval);
                         me._running = false;
                         resolve();
@@ -76,6 +80,7 @@ class CollisionScenario implements Scenario {
 
     showCollision() {
         let me = this;
+        console.log("CS (?): Collision.");
 
         for (let key in me._store) {
             if (me._store.hasOwnProperty(key)) {

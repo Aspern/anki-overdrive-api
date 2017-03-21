@@ -14,10 +14,16 @@ class AntiCollisionScenario implements Scenario {
     private _running = false;
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
-        this._vehicle1 = vehicle1;
-        this._vehicle2 = vehicle2;
-        this._store[vehicle1.id] = {vehicle: vehicle1, speed: 0};
-        this._store[vehicle2.id] = {vehicle: vehicle2, speed: 0};
+        if(vehicle1.id === "eb401ef0f82b") {
+            this._vehicle1 = vehicle1;
+            this._vehicle2 = vehicle2;
+        } else {
+            this._vehicle1 = vehicle2;
+            this._vehicle2 = vehicle1;
+        }
+
+        this._store[this._vehicle1.id] = {vehicle: this._vehicle1, speed: 0};
+        this._store[this._vehicle2.id] = {vehicle: this._vehicle2, speed: 0};
     }
 
 
@@ -43,9 +49,9 @@ class AntiCollisionScenario implements Scenario {
                 }, 6000);
 
                 setTimeout(() => {
-                    console.log("ACS (0:20): Changing lane same");
+                    console.log("ACS (0:18): Changing lane same");
                     v1.changeLane(68.0);
-                }, 20000);
+                }, 18000);
 
                 setTimeout(() => {
                     console.log("ACS (1:00): Speeding up slow vehicle");
@@ -67,14 +73,14 @@ class AntiCollisionScenario implements Scenario {
                 setTimeout(() => {
                     console.log("ACS (2:30): Slowing down both vehicles");
                     v1.setSpeed(0, 300);
-                    me._store[v2.id].speed = 0;
+                    me._store[v1.id].speed = 0;
                     v2.setSpeed(0, 300);
                     me._store[v2.id].speed = 0;
                     setTimeout(() => {
                         console.log("ACS (2:35): Finishing scenario");
                         me._running = false;
                         resolve();
-                    }, 155000);
+                    }, 5000);
                 }, 150000);
 
             } catch (e) {
@@ -87,12 +93,13 @@ class AntiCollisionScenario implements Scenario {
     interrupt(): Promise<void> {
         let me = this;
 
+        me._running = false;
+
         return new Promise<void>((resolve, reject) => {
             try {
                 this._vehicle1.setSpeed(0, 1500);
                 this._vehicle2.setSpeed(0, 1500);
                 setTimeout(() => {
-                    me._running = false;
                     resolve();
                 }, 1000);
             } catch (e) {
@@ -103,11 +110,12 @@ class AntiCollisionScenario implements Scenario {
     }
 
 
-    brake(message: PositionUpdateMessage) {
+    brake(message: PositionUpdateMessage, speed: number) {
         let me = this,
-            record = me._store[message.vehicleId];
+            record = me._store[message.vehicleId],
+            newSpeed = message.speed - speed;
 
-        record.vehicle.setSpeed(message.speed - 50, 200);
+        record.vehicle.setSpeed(newSpeed, newSpeed);
         record.vehicle.setLights([
             new LightConfig()
                 .green()
@@ -158,12 +166,15 @@ class AntiCollisionScenario implements Scenario {
 
     handleAntiCollision(message: PositionUpdateMessage, distance: Distance): boolean {
         let me = this;
-        if (distance.horizontal <= 500)
-            me.brake(message);
-        else if (distance.horizontal > 700)
+        if (distance.horizontal <= 500) {
+            let newSpeed = 50;//Math.round(message.speed / (distance.horizontal /
+            // Math.abs(distance.delta)));
+            me.brake(message, newSpeed);
+        } else if (distance.horizontal > 700) {
             me.driveNormal(message);
-        else
+        } else {
             me.holdSpeed(message);
+        }
 
 
         return true;
@@ -196,8 +207,6 @@ class AntiCollisionScenario implements Scenario {
             if (!onCollision)
                 me.driveNormal(message);
         }
-
-
     }
 
 

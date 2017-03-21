@@ -29,6 +29,10 @@ class KafkaDistanceFilter {
         this._updateHandler = {scope: scope, handler: handler};
     }
 
+    unregisterUpdateHandler() {
+        this._updateHandler = null;
+    }
+
     start(): Promise<void> {
         let me = this;
 
