@@ -19,6 +19,7 @@ import {LightConfig} from "../../core/vehicle/light-config";
 import {AntiCollisionScenario} from "../scenario/anti-collision-scenario";
 import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
+import * as log4js from "log4js";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
@@ -32,6 +33,16 @@ let settings: Settings = new JsonSettings(),
     ankiConsole = new AnkiConsole(),
     scenario: Scenario;
 
+
+log4js.configure({
+    appenders: [
+        {type: 'console'},
+        {type: 'file', filename: 'logs/setup.log', category: 'setup'}
+    ]
+});
+
+let logger = log4js.getLogger("setup");
+
 function handleError(e: Error): void {
     if (!isNullOrUndefined(e)) {
         console.error(e);
@@ -42,14 +53,18 @@ function handleError(e: Error): void {
 
 process.on('exit', () => {
     setup.online = false;
+    let message = JSON.stringify(setup).replace(/_/g, "");
+    logger.info("Shutting down setup: " + message);
     kafkaController.sendPayload([{
         topic: "setup",
         partitions: 1,
-        messages: JSON.stringify(setup).replace(/_/g, "")
+        messages: message
     }]);
+    logger.info("Disconnecting vehicles...");
     vehicleConfig.forEach(config => {
         config.vehicle.disconnect();
     });
+    logger.info("Setup disconnected.");
 });
 
 function getPieceDescription(piece: Piece) {
@@ -95,8 +110,6 @@ function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number)
 }
 
 function findStartLane() {
-
-
     vehicleConfig.forEach(config => {
         let vehicle = config.vehicle,
             listener = (message: PositionUpdateMessage) => {
@@ -137,7 +150,7 @@ function findStartLane() {
 }
 
 
-function createScneario(name: string) {
+function createScenario(name: string) {
     switch (name) {
         case  'collision':
             return new CollisionScenario(usedVehicles[0], usedVehicles[1])
@@ -150,16 +163,16 @@ function createScneario(name: string) {
     }
 }
 
-console.log("Starting Kafka Producer...");
+logger.info("Starting setup...")
+logger.info("Starting Kafka Producer...");
 kafkaController.initializeProducer().then(online => {
     if (!online) {
-        console.error("Kafka Server is not running.");
+        logger.error("Kafka Server is not running.");
         process.exit();
     }
 
-    console.log("Searching for vehicles in the setup...");
+    logger.info("Searching vehicles...");
     scanner.findAll().then(vehicles => {
-        console.log(vehicles.length);
         vehicles.forEach(vehicle => {
             setup.vehicles.forEach(config => {
                 if (config.uuid === vehicle.id) {
@@ -173,22 +186,22 @@ kafkaController.initializeProducer().then(online => {
         });
 
         if (vehicleConfig.length === 0) {
-            console.log("No vehicles found for this setup.");
+            logger.info("No vehicles found for this setup.");
             process.exit();
         }
 
         if (isNullOrUndefined(track)) {
-            console.log("No track found for this setup");
+            logger.info("No track found for this setup");
             process.exit()
         }
 
 
-        console.log("Found " + vehicleConfig.length + " vehicles:");
+        logger.info("Found " + vehicleConfig.length + " vehicles:");
         let i = 1;
         vehicleConfig.forEach(config => {
             let v = config.vehicle;
             let controller = new KafkaVehicleController(v);
-            console.log("\t" + i++ + "\t" + v.id + "\t" + v.address);
+            logger.info("\t" + i++ + "\t" + v.id + "\t" + v.address);
 
             controller.start().then(() => {
                 vehicleControllers.push(controller);
@@ -197,15 +210,16 @@ kafkaController.initializeProducer().then(online => {
 
         i = 0;
 
-        console.log("Found 1 track for setup:")
+        logger.info("Found 1 track for setup:")
         track.eachPiece(piece => {
-            console.log("\t" + i++ + "\t" + piece.id + "\t(" + getPieceDescription(piece) + ")");
+            logger.info("\t" + i++ + "\t" + piece.id + "\t(" + getPieceDescription(piece) + ")");
         });
 
-        console.log("Starting distance filter...");
+        logger.info("Starting distance filter...");
         filter = new KafkaDistanceFilter(usedVehicles, track);
         filter.start().catch(handleError);
 
+        logger.info("Connecting vehicles...");
         usedVehicles.forEach(vehicle => vehicle.connect());
 
         // Wait 3 seconds before interacting with the resources.
@@ -214,51 +228,55 @@ kafkaController.initializeProducer().then(online => {
                 setInterval(() => {
                     vehicle.queryBatteryLevel();
                 }, 1000);
-                console.log("Initialize [" + vehicle.id + "] with offset [" + offset + "mm].")
+                logger.info("Initialize [" + vehicle.id + "] with offset [" + offset + "mm].")
                 vehicle.setOffset(offset);
             });
 
             setup.online = true;
+            let message = JSON.stringify(setup).replace(/_/g, "");
+            logger.info("Sending setup to 'setup': " + message);
             kafkaController.sendPayload([{
                 topic: "setup",
                 partitions: 1,
-                messages: JSON.stringify(setup).replace(/_/g, "")
+                messages: message
             }]);
 
+            logger.info("Initializing Kafka Consumer for topic 'scenario'...");
             kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
             kafkaController.addListener(message => {
                 let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
+                logger.info("Received message from server: " + JSON.stringify(message));
                 if (info.interrupt && !isNullOrUndefined(scenario)) {
                     scenario.interrupt().then(() => {
                         initializeVehicles();
                         scenario = null;
                         filter.unregisterUpdateHandler();
                         findStartLane();
-                        console.info("Interrupted scenario '" + info.name + "'.");
+                        logger.info("Interrupted scenario '" + info.name + "'.");
                     }).catch(handleError);
                 } else {
                     if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
-                        console.error("Another scenario is still running!");
+                        logger.warn("Another scenario is still running!");
                     } else {
-                        scenario = createScneario(info.name);
+                        scenario = createScenario(info.name);
                         if (isNullOrUndefined(scenario)) {
-                            console.error("Unknown Scenario for config: " + info);
+                            logger.error("Unknown Scenario for config: " + info);
                         } else {
                             filter.registerUpdateHandler(scenario.onUpdate, scenario);
                             scenario.start().then(() => {
                                 initializeVehicles();
-                                console.log("Finished scenario.");
+                                logger.info("Finished scenario.");
                                 scenario = null;
                                 filter.unregisterUpdateHandler();
                                 findStartLane();
                             }).catch(handleError);
-                            console.log("Started scenario.");
+                            logger.info("Started scenario.");
                         }
                     }
                 }
             });
 
-            console.log("Waiting for messages.");
+            logger.info("Waiting for messages.");
             ankiConsole.initializePrompt(usedVehicles);
         }, 3000);
 
