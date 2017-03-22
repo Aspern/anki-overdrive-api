@@ -1,4 +1,3 @@
-import {isNullOrUndefined} from "util";
 import {IConsumerListener} from "./IConsumerListener";
 import reject = Promise.reject;
 
@@ -24,8 +23,7 @@ class KafkaController implements IConsumerListener{
 
     constructor(zookeeper = "localhost:2181"){
         this.kafka = require('kafka-node');
-        this.client = new this.kafka.Client(zookeeper);;
-
+        this.client = new this.kafka.Client(zookeeper);
     }
 
     initializeProducer(): Promise<boolean>{
@@ -47,14 +45,17 @@ class KafkaController implements IConsumerListener{
     }
 
     initializeConsumer(clients: Array<any>, offset: number): void{
-        let Consumer = this.kafka.Consumer;
-        this.consumer = new Consumer(this.client, clients, {autoCommit: true});
-        this.consumer.setOffset('test', 0, offset);
+        let HighLevelConsumer= this.kafka.HighLevelConsumer;
+        this.consumer = new HighLevelConsumer(this.client, clients, {autoCommit: true});
+       // this.consumer.setOffset('test', 0, offset);
         this.consumer.on('message', (message: any) => {
             if (message)
                 this._listeners.forEach((listener) => {
                     listener.l(message);
                 });
+        });
+        this.consumer.on('error', (e:any) => {
+           console.error(e);
         });
     }
 

@@ -4,6 +4,7 @@ import {VehicleDelocalizedMessage} from "../../core/message/v2c/vehicle-delocali
 import {LightConfig} from "../../core/vehicle/light-config";
 import {VehicleMessage} from "../../core/message/vehicle-message";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
+import * as log4js from "log4js";
 
 class CollisionScenario implements Scenario {
 
@@ -12,12 +13,21 @@ class CollisionScenario implements Scenario {
     private _store: { [key: string]: Vehicle } = {};
     private _collided = false;
     private _running = false;
+    private _logger = log4js.getLogger("collision");
+    private _timeouts : Array<any> = [];
+    private _intervals : Array<any> = [];
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
-        this._vehicle1 = vehicle1;
-        this._vehicle2 = vehicle2;
-        this._store[vehicle1.id] = vehicle1;
-        this._store[vehicle2.id] = vehicle2;
+        if (vehicle1.id === "eb401ef0f82b") {
+            this._vehicle1 = vehicle1;
+            this._vehicle2 = vehicle2;
+        } else {
+            this._vehicle1 = vehicle2;
+            this._vehicle2 = vehicle1;
+        }
+
+        this._store[this._vehicle1.id] = this._vehicle1;
+        this._store[this._vehicle2.id] = this._vehicle2;
     }
 
 
@@ -29,30 +39,31 @@ class CollisionScenario implements Scenario {
         me._running = true;
         return new Promise<void>((resolve, reject) => {
             try {
-                console.log("CS (0): Starting");
+                me._logger.info("(0): Starting");
                 v1.setSpeed(350, 100);
                 v2.setSpeed(900, 100);
 
-                setTimeout(() => {
-                    console.log("CS (0:09): Changing on different lanes");
+                me._timeouts.push(setTimeout(() => {
+                    me._logger.info("(0:09): Changing on different lanes");
                     v1.changeLane(-68);
                     v2.changeLane(50.5);
-                }, 9000);
+                }, 9000));
 
-                setTimeout(() => {
-                    console.log("ACS (0:30): Slow vehicle changes to outer lane.");
+                me._timeouts.push(setTimeout(() => {
+                    me._logger.info("(0:30): Slow vehicle changes to outer lane.");
                     v1.changeLane(68);
-                }, 30000);
+                }, 30000));
 
                 let interval = setInterval(() => {
                     if (me._collided) {
-                        console.log("CS (?): Scenario Finished.");
+                        me._logger.info("(?): Scenario Finished.");
                         clearInterval(interval);
                         me._running = false;
                         resolve();
                     }
 
                 }, 200);
+                me._intervals.push(interval);
             } catch (e) {
                 me._running = false;
                 reject(e);
@@ -65,8 +76,10 @@ class CollisionScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
-                this._vehicle1.setSpeed(0, 1500);
-                this._vehicle2.setSpeed(0, 1500);
+                me._timeouts.forEach(clearTimeout);
+                me._intervals.forEach(clearInterval)
+                me._vehicle1.setSpeed(0, 1500);
+                me._vehicle2.setSpeed(0, 1500);
                 setTimeout(() => {
                     me._running = false;
                     resolve();
@@ -80,7 +93,7 @@ class CollisionScenario implements Scenario {
 
     showCollision() {
         let me = this;
-        console.log("CS (?): Collision.");
+        me._logger.info("(?): Collision.");
 
         for (let key in me._store) {
             if (me._store.hasOwnProperty(key)) {
@@ -111,7 +124,7 @@ class CollisionScenario implements Scenario {
         if (message instanceof PositionUpdateMessage && me._running) {
 
             message.distances.forEach(distance => {
-                if (distance.vertical < 34 && distance.horizontal < 200)
+                if (distance.vertical < 34 && distance.horizontal < 250)
                     me.showCollision();
             });
 

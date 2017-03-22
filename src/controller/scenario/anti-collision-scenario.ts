@@ -5,6 +5,7 @@ import {PositionUpdateMessage} from "../../core/message/v2c/position-update-mess
 import {isNullOrUndefined} from "util";
 import {Distance} from "../../core/filter/distance";
 import {LightConfig} from "../../core/vehicle/light-config";
+import * as log4js from "log4js";
 
 class AntiCollisionScenario implements Scenario {
 
@@ -12,6 +13,8 @@ class AntiCollisionScenario implements Scenario {
     private _vehicle2: Vehicle;
     private _store: { [key: string]: { vehicle: Vehicle, speed: number } } = {};
     private _running = false;
+    private _logger = log4js.getLogger("anti-collision");
+    private _timeouts : Array<any> = [];
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
         if(vehicle1.id === "eb401ef0f82b") {
@@ -36,52 +39,52 @@ class AntiCollisionScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
-                console.log("ACS (0): Starting");
+               me._logger.info("(0): Starting");
                 v1.setSpeed(400, 100);
                 me._store[v1.id].speed = 400;
                 v2.setSpeed(600, 100);
                 me._store[v2.id].speed = 600;
 
-                setTimeout(() => {
-                    console.log("ACS (0:06): Changing lane different");
+                me._timeouts.push(setTimeout(() => {
+                   me._logger.info("(0:06): Changing lane different");
                     v1.changeLane(-68.0);
                     v2.changeLane(68.0);
-                }, 6000);
+                }, 6000));
 
-                setTimeout(() => {
-                    console.log("ACS (0:18): Changing lane same");
+                me._timeouts.push(setTimeout(() => {
+                   me._logger.info("(0:18): Changing lane same");
                     v1.changeLane(68.0);
-                }, 18000);
+                }, 18000));
 
-                setTimeout(() => {
-                    console.log("ACS (1:00): Speeding up slow vehicle");
+                me._timeouts.push(setTimeout(() => {
+                   me._logger.info("(1:00): Speeding up slow vehicle");
                     v1.setSpeed(700, 100);
                     me._store[v1.id].speed = 700;
-                }, 60000);
+                }, 60000));
 
-                setTimeout(() => {
-                    console.log("ACS (1:30): Slowing down slow vehicle");
+                me._timeouts.push(setTimeout(() => {
+                   me._logger.info("(1:30): Slowing down slow vehicle");
                     v2.setSpeed(350, 50);
                     me._store[v2.id].speed = 350;
-                }, 90000);
+                }, 90000));
 
-                setTimeout(() => {
-                    console.log("ACS (2:00): Change slow vehicle inner lane");
+                me._timeouts.push(setTimeout(() => {
+                   me._logger.info("(2:00): Change slow vehicle inner lane");
                     v2.changeLane(-68)
-                }, 120000);
+                }, 120000));
 
-                setTimeout(() => {
-                    console.log("ACS (2:30): Slowing down both vehicles");
+                me._timeouts.push(setTimeout(() => {
+                   me._logger.info("(2:30): Slowing down both vehicles");
                     v1.setSpeed(0, 300);
                     me._store[v1.id].speed = 0;
                     v2.setSpeed(0, 300);
                     me._store[v2.id].speed = 0;
-                    setTimeout(() => {
-                        console.log("ACS (2:35): Finishing scenario");
+                    me._timeouts.push(setTimeout(() => {
+                       me._logger.info("(2:35): Finishing scenario");
                         me._running = false;
                         resolve();
-                    }, 5000);
-                }, 150000);
+                    }, 5000));
+                }, 150000));
 
             } catch (e) {
                 me._running = false;
@@ -97,8 +100,9 @@ class AntiCollisionScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
-                this._vehicle1.setSpeed(0, 1500);
-                this._vehicle2.setSpeed(0, 1500);
+                me._timeouts.forEach(clearTimeout);
+                me._vehicle1.setSpeed(0, 1500);
+                me._vehicle2.setSpeed(0, 1500);
                 setTimeout(() => {
                     resolve();
                 }, 1000);

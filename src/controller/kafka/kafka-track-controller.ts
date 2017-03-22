@@ -3,7 +3,6 @@ import {JsonSettings} from "../../core/settings/json-settings";
 import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
 import {isNullOrUndefined} from "util";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
-import {KafkaVehicleController} from "./kafka-vehicle-controller";
 import {KafkaDistanceFilter} from "./kafka-distance-filter";
 import {Piece} from "../../core/track/piece-interface";
 import {Start} from "../../core/track/start";
@@ -27,11 +26,15 @@ let settings: Settings = new JsonSettings(),
     track = settings.getAsTrack("track"),
     vehicleConfig: Array<{ offset: number, vehicle: Vehicle }> = [],
     usedVehicles: Array<Vehicle> = [],
-    vehicleControllers: Array<KafkaVehicleController> = [],
+    //vehicleControllers: Array<KafkaVehicleController> = [],
     filter: KafkaDistanceFilter,
     kafkaController = new KafkaController(),
     ankiConsole = new AnkiConsole(),
-    scenario: Scenario;
+    scenario: Scenario,
+    resetTimeouts : {[key:string]:number} = {
+        "eb401ef0f82b": 0,
+        "ed0c94216553": 1000
+    };
 
 
 log4js.configure({
@@ -110,25 +113,29 @@ function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number)
 }
 
 function findStartLane() {
+    let counters: { [key: string]: number } = {};
     vehicleConfig.forEach(config => {
-        let vehicle = config.vehicle,
-            listener = (message: PositionUpdateMessage) => {
-                if (message.piece === 33) {
-                    vehicle.removeListener(listener);
-                    vehicle.setSpeed(0, 1000);
-                    config.vehicle.setLights([
-                        new LightConfig()
-                            .blue()
-                            .steady(),
-                        new LightConfig()
-                            .green()
-                            .steady(0),
-                        new LightConfig()
-                            .weapon()
-                            .steady(0)
-                    ]);
-                }
-            };
+        let vehicle = config.vehicle;
+        counters[vehicle.id] = 0;
+        let listener = (message: PositionUpdateMessage) => {
+            if (message.piece === 34 && message.position === 0 && counters[message.vehicleId] === 1) {
+                vehicle.removeListener(listener);
+                counters[message.vehicleId] = 0;
+                vehicle.setSpeed(0, 1000);
+                config.vehicle.setLights([
+                    new LightConfig()
+                        .blue()
+                        .steady(),
+                    new LightConfig()
+                        .green()
+                        .steady(0),
+                    new LightConfig()
+                        .weapon()
+                        .steady(0)
+                ]);
+            } else if (message.piece === 34 && message.position === 0)
+                counters[message.vehicleId] = 1;
+        };
 
         config.vehicle.addListener(listener);
         config.vehicle.setLights([
@@ -142,10 +149,12 @@ function findStartLane() {
                 .weapon()
                 .flash(0, 10, 10)
         ]);
-        config.vehicle.setSpeed(500, 250);
         setTimeout(() => {
-            config.vehicle.changeLane(config.offset);
-        }, 2000);
+            config.vehicle.setSpeed(500, 250);
+            setTimeout(() => {
+                config.vehicle.changeLane(config.offset);
+            }, 2000);
+        }, resetTimeouts[vehicle.id] || 0);
     });
 }
 
@@ -200,12 +209,12 @@ kafkaController.initializeProducer().then(online => {
         let i = 1;
         vehicleConfig.forEach(config => {
             let v = config.vehicle;
-            let controller = new KafkaVehicleController(v);
+            //let controller = new KafkaVehicleController(v);
             logger.info("\t" + i++ + "\t" + v.id + "\t" + v.address);
 
-            controller.start().then(() => {
-                vehicleControllers.push(controller);
-            }).catch(handleError);
+            // controller.start().then(() => {
+            //     vehicleControllers.push(controller);
+            // }).catch(handleError);
         });
 
         i = 0;
@@ -242,6 +251,8 @@ kafkaController.initializeProducer().then(online => {
             }]);
 
             logger.info("Initializing Kafka Consumer for topic 'scenario'...");
+
+
             kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
             kafkaController.addListener(message => {
                 let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
@@ -265,12 +276,10 @@ kafkaController.initializeProducer().then(online => {
                             filter.registerUpdateHandler(scenario.onUpdate, scenario);
                             scenario.start().then(() => {
                                 initializeVehicles();
-                                logger.info("Finished scenario.");
                                 scenario = null;
                                 filter.unregisterUpdateHandler();
                                 findStartLane();
                             }).catch(handleError);
-                            logger.info("Started scenario.");
                         }
                     }
                 }
