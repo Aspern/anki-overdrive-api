@@ -41,7 +41,7 @@ class CollisionScenario implements Scenario {
             try {
                 me._logger.info("(0): Starting");
                 v1.setSpeed(350, 100);
-                v2.setSpeed(900, 100);
+                v2.setSpeed(800, 100);
 
                 me._timeouts.push(setTimeout(() => {
                     me._logger.info("(0:09): Changing on different lanes");

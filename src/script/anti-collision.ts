@@ -117,7 +117,11 @@ function supervise(message: VehicleMessage): void {
     kafkaController.sendPayload([{
         topic: "cardata-filtered",
         partitions: 1,
-        messages: JSON.stringify(message).replace(/_/g, "")
+        messages: JSON.stringify(message, (key, value) => {
+            if (key === '_data')
+                return undefined;
+            return value;
+        }).replace(/_/g, "")
     }]);
 }
 
