@@ -36,7 +36,11 @@ class AnkiOverdriveVehicle implements Vehicle {
     private _peripheral: Peripheral;
     private _read: Characteristic;
     private _write: Characteristic;
-    private _listeners: Array<{l: (message: VehicleMessage) => any, f: any}> = [];
+    private _listeners: Array<{ l: (message: VehicleMessage) => any, f: any }> = [];
+    private _speed: number;
+    private _dataListener = (message: PositionUpdateMessage) => {
+        this._speed = message.speed;
+    };
 
     constructor(peripheral: Peripheral, name?: string) {
         this._id = peripheral.id;
@@ -60,6 +64,7 @@ class AnkiOverdriveVehicle implements Vehicle {
                         .then(() => {
                             me.setSdkMode(true);
                             me.setOffset(AnkiOverdriveVehicle._DEFAULT_OFFSET);
+                            me.addListener(me._dataListener, PositionUpdateMessage);
                             resolve(me);
                         })
                         .catch(reject);
@@ -75,6 +80,7 @@ class AnkiOverdriveVehicle implements Vehicle {
                 if (e)
                     reject(e);
 
+                me.removeListener(me._dataListener);
                 resolve(me);
             });
         });
@@ -190,11 +196,92 @@ class AnkiOverdriveVehicle implements Vehicle {
     }
 
 
-    setLights(config: LightConfig|Array<LightConfig>): void {
+    setLights(config: LightConfig | Array<LightConfig>): void {
         this.sendMessage(new SetLights(
             this._id,
             config
         ));
+    }
+
+    brake(strength = 0.10): void {
+        let speed = this._speed,
+            acceleration = 0,
+            lightConfig = new LightConfig()
+                .red()
+                .steady(),
+            timeout: number;
+
+        speed -= speed * strength;
+        timeout = Math.round(1000 / (speed / 180));
+
+        if (strength > 0.6) {
+            acceleration = speed;
+        } else {
+            acceleration = Math.round(0.5 * speed);
+            timeout += 500;
+            lightConfig = new LightConfig()
+                .red()
+                .fade(0, 15, 15);
+        }
+
+        this.setSpeed(speed, acceleration);
+        this.setLights([
+            new LightConfig()
+                .green()
+                .steady(0),
+            new LightConfig()
+                .blue()
+                .steady(0),
+            lightConfig
+        ]);
+
+        setTimeout(() => {
+            this.setLights([
+                new LightConfig()
+                    .green()
+                    .steady(0),
+                new LightConfig()
+                    .blue()
+                    .steady(),
+                new LightConfig()
+                    .red()
+                    .steady(0),
+            ]);
+        }, timeout);
+    }
+
+    accelerate(maxSpeed: number, strength = 0.25): void {
+        let me = this,
+            listener = (message: PositionUpdateMessage) => {
+                if (message.speed >= maxSpeed) {
+                    me.removeListener(listener);
+                    me.setLights([
+                        new LightConfig()
+                            .green()
+                            .steady(0),
+                        new LightConfig()
+                            .blue()
+                            .steady(),
+                        new LightConfig()
+                            .red()
+                            .steady(0),
+                    ]);
+                }
+            };
+
+        me.addListener(listener);
+        me.setSpeed(maxSpeed, maxSpeed * strength);
+        me.setLights([
+            new LightConfig()
+                .green()
+                .steady(),
+            new LightConfig()
+                .blue()
+                .steady(0),
+            new LightConfig()
+                .red()
+                .steady(0),
+        ]);
     }
 
     private sendMessage(message: VehicleMessage): void {

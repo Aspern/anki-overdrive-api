@@ -129,6 +129,23 @@ interface Vehicle {
      */
     setLights(config: LightConfig | Array<LightConfig>): void;
 
+    /**
+     * Brakes the vehicle with different strengths.
+     *
+     * @param strength Strength for the brake in percent.
+     */
+    brake(strength?: number): void
+
+    /**
+     *
+     * Accelerates the vehicle until the maximum speed is reached. The acceleration can take
+     * place in several strengths.
+     *
+     * @param maxSpeed Speed to accelerate.
+     * @param strength Strength for acceleration
+     */
+    accelerate(maxSpeed: number, strength?: number): void
+
 
 }
 

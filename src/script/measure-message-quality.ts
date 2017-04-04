@@ -3,6 +3,7 @@ import {Vehicle} from "../core/vehicle/vehicle-interface";
 import {JsonSettings} from "../core/settings/json-settings";
 import {TrackRunner} from "../core/util/track-runner";
 import {ValidationReport} from "../core/util/validation-report";
+import {PositionUpdateMessage} from "../core/message/v2c/position-update-message";
 
 /************************************************************************************
  *                         MEASURE MESSAGE QUALITY                                  *

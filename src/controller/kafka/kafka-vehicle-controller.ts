@@ -96,6 +96,12 @@ class KafkaVehicleController {
                 case "u-turn":
                     this._vehicle.uTurn();
                     break;
+                case "brake":
+                    this._vehicle.brake(command.params[0]);
+                    break;
+                case "accelerate" :
+                    this._vehicle.accelerate(command.params[0]);
+                    break;
                 default:
                     console.error("Unknown command: " + command.name);
             }

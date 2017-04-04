@@ -19,6 +19,7 @@ import {AntiCollisionScenario} from "../scenario/anti-collision-scenario";
 import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 import * as log4js from "log4js";
+import {KafkaVehicleController} from "./kafka-vehicle-controller";
 
 let settings: Settings = new JsonSettings(),
     scanner = new VehicleScanner(),
@@ -26,7 +27,7 @@ let settings: Settings = new JsonSettings(),
     track = settings.getAsTrack("track"),
     vehicleConfig: Array<{ offset: number, vehicle: Vehicle }> = [],
     usedVehicles: Array<Vehicle> = [],
-    //vehicleControllers: Array<KafkaVehicleController> = [],
+    vehicleControllers: Array<KafkaVehicleController> = [],
     filter: KafkaDistanceFilter,
     kafkaController = new KafkaController(),
     ankiConsole = new AnkiConsole(),
@@ -209,12 +210,12 @@ kafkaController.initializeProducer().then(online => {
         let i = 1;
         vehicleConfig.forEach(config => {
             let v = config.vehicle;
-            //let controller = new KafkaVehicleController(v);
+            let controller = new KafkaVehicleController(v);
             logger.info("\t" + i++ + "\t" + v.id + "\t" + v.address);
 
-            // controller.start().then(() => {
-            //     vehicleControllers.push(controller);
-            // }).catch(handleError);
+            controller.start().then(() => {
+                vehicleControllers.push(controller);
+            }).catch(handleError);
         });
 
         i = 0;
