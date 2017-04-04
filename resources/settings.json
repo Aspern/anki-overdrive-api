@@ -48,7 +48,7 @@
       ]
     }
   },
-  "vehicles": {
+  "vehicles": { //deprecated use setup instead!
     "red": {
       "uuid": "ed0c94216553"
     },
@@ -56,7 +56,7 @@
       "uuid": "eb401ef0f82b"
     }
   },
-  "track": [
+  "track": [ //deprecated use setup instead!
     {
       "type": "curve",
       "id": 18
@@ -79,7 +79,7 @@
     }
   ],
   "utils": {
-    "quality": {
+    "quality": { // deprecated do not use!
       "rounds": 1,
       "vehicle": "eb401ef0f82b",
       "offset": 68.0

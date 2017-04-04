@@ -251,6 +251,10 @@ class AnkiOverdriveVehicle implements Vehicle {
     }
 
     accelerate(maxSpeed: number, strength = 0.25): void {
+        // Only accelerate if necessary
+        if ((Math.abs(maxSpeed - this._speed)) < 25)
+            return;
+
         let me = this,
             listener = (message: PositionUpdateMessage) => {
                 if (message.speed >= maxSpeed) {

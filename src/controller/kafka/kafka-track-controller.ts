@@ -71,6 +71,9 @@ process.on('exit', () => {
     logger.info("Setup disconnected.");
 });
 
+// Because many listeners are used in process.
+process.setMaxListeners(500);
+
 function getPieceDescription(piece: Piece) {
     if (piece instanceof Start)
         return "Start";
