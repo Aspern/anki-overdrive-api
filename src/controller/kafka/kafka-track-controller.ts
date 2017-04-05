@@ -32,7 +32,7 @@ let settings: Settings = new JsonSettings(),
     kafkaController = new KafkaController(),
     ankiConsole = new AnkiConsole(),
     scenario: Scenario,
-    resetTimeouts : {[key:string]:number} = {
+    resetTimeouts: { [key: string]: number } = {
         "eb401ef0f82b": 0,
         "ed0c94216553": 1000
     };
@@ -53,8 +53,6 @@ function handleError(e: Error): void {
         process.exit();
     }
 }
-
-
 process.on('exit', () => {
     setup.online = false;
     let message = JSON.stringify(setup).replace(/_/g, "");
@@ -71,7 +69,7 @@ process.on('exit', () => {
     logger.info("Setup disconnected.");
 });
 
-// Because many listeners are used in process.
+// Because many listeners are used in process.ü
 process.setMaxListeners(500);
 
 function getPieceDescription(piece: Piece) {
