@@ -1,4 +1,5 @@
 import {VehicleMessage} from "../vehicle-message";
+import {Vehicle} from "../../vehicle/vehicle-interface";
 
 class SetSpeed extends VehicleMessage {
 
@@ -6,8 +7,8 @@ class SetSpeed extends VehicleMessage {
     private _acceleration: number;
     private _limit: boolean;
 
-    constructor(vehicleId: string, speed: number, acceleration = 250, limit = false) {
-        super(new Buffer(7), vehicleId, 0x24, 6);
+    constructor(vehicle: Vehicle, speed: number, acceleration = 250, limit = false) {
+        super(new Buffer(7), vehicle, 0x24, 6);
         this.data.writeUInt16LE(speed, 2);
         this._speed = speed;
         this.data.writeUInt16LE(acceleration, 4);

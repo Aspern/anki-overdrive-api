@@ -31,9 +31,10 @@ class KafkaController implements IConsumerListener{
         this.producer = new Producer(this.client, this.producerConfig);
         return new Promise<boolean>((resolve,reject) => {
             let timeout =setTimeout(() => {
-                reject(new Error("Timeout [5000ms] for connection to Kafka Server."));
+                reject("Timeout [5000ms] for connection to Kafka Server.");
             }, 5000);
             this.producer.on('ready', function(){
+                clearTimeout(timeout);
                 resolve(true);
             });
             this.producer.on('error', function(e:Error) {

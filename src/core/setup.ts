@@ -1,16 +1,25 @@
 class Setup {
 
-    private _uuid: string;
+    private _ean: string;
+    private _name: string;
     private _vehicles: Array<{uuid: string, address: string, name: string, offset: number}>
     private _track: {pieces: Array<{pieceId: number, type: string}>}
     private _online: boolean;
 
-    get uuid(): string {
-        return this._uuid;
+    get ean(): string {
+        return this._ean;
     }
 
-    set uuid(value: string) {
-        this._uuid = value;
+    set ean(value: string) {
+        this._ean = value;
+    }
+
+    get name(): string {
+        return this._name;
+    }
+
+    set name(value: string) {
+        this._name = value;
     }
 
     get vehicles(): Array<{uuid: string; address: string; name: string; offset: number}> {

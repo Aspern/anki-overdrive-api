@@ -1,80 +1,122 @@
-DELETE anki-messages
-
-PUT anki-messages
+PUT _template/anki
 {
+  "template": "anki-*",
   "settings": {
-    "number_of_replicas": 0,
-    "number_of_shards": 1
+    "refresh_interval": "1s",
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  },
+  "aliases": {
+    "anki": {}
   },
   "mappings": {
     "_default_": {
+      "dynamic_templates": [
+        {
+          "commands": {
+            "match": "last*Cmd",
+            "mapping": {
+              "type": "byte"
+            }
+          }
+        },
+        {
+          "lastDesried": {
+            "match": "lastDesired*",
+            "mapping": {
+              "type": "byte"
+            }
+          }
+        },
+        {
+          "offset": {
+            "match": "offset",
+            "mapping": {
+              "type": "float"
+            }
+          }
+        },
+        {
+          "piece": {
+            "match": "piece",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "direction": {
+            "match": "direction",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "flags": {
+            "match": "flags",
+            "mapping": {
+              "type": "byte"
+            }
+          }
+        },
+        {
+          "speed": {
+            "match": "speed",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        }
+      ],
       "properties": {
         "timestamp": {
-          "type": "date"
-        },
-        "id": {
-          "type": "integer"
+          "type": "date",
+          "format": "yyyy-MM-dd HH:mm:ss.SSSZ"
         },
         "vehicleId": {
           "type": "keyword"
+        },
+        "messageId": {
+          "type": "integer"
+        },
+        "setupId" : {
+          "type" : "keyword"
         }
       }
     },
-    "position-update": {
+    "positionUpdate": {
       "properties": {
         "location": {
           "type": "integer"
         },
-        "piece": {
+        "position": {
           "type": "integer"
         },
-        "offset": {
-          "type": "float"
-        },
-        "speed": {
+        "lane": {
           "type": "integer"
         },
-        "flags": {
-          "type": "byte"
-        },
-        "lastLaneChangeCmd": {
-          "type": "byte"
-        },
-        "lastExecLaneChangeCmd": {
-          "type": "byte"
-        },
-        "lastDesiredSpeed": {
-          "type": "integer"
-        },
-        "lastDesiredHorizontalSpeed": {
-          "type": "integer"
+        "distances": {
+          "properties": {
+            "vehicle": {
+              "type": "text"
+            },
+            "vertical": {
+              "type": "float"
+            },
+            "horizontal": {
+              "type": "float"
+            },
+            "delta": {
+              "type": "float"
+            }
+          }
         }
       }
     },
-    "transition-update": {
+    "transitionUpdate": {
       "properties": {
-        "piece": {
-          "type": "integer"
-        },
         "previousPiece": {
-          "type": "integer"
-        },
-        "offset": {
-          "type": "float"
-        },
-        "direction": {
-          "type": "short"
-        },
-        "lastLaneChangeCmd": {
-          "type": "byte"
-        },
-        "lastExecLaneChangeCmd": {
-          "type": "byte"
-        },
-        "lastDesiredSpeed": {
-          "type": "integer"
-        },
-        "lastDesiredHorizontalSpeed": {
           "type": "integer"
         },
         "upHillCounter": {
@@ -91,17 +133,8 @@ PUT anki-messages
         }
       }
     },
-    "intersection-update": {
+    "intersectionUpdate": {
       "properties": {
-        "piece": {
-          "type": "integer"
-        },
-        "offset": {
-          "type": "float"
-        },
-        "direction": {
-          "type": "short"
-        },
         "code": {
           "type": "integer"
         },
@@ -113,8 +146,95 @@ PUT anki-messages
         }
       }
     },
-    "delocalized": {
-      "properties": {}
+    "delocalized": {},
+    "pingRequest": {},
+    "pingResponse": {},
+    "versionRequest": {},
+    "versionResponse": {
+      "properties": {
+        "version": {
+          "type": "integer"
+        }
+      }
+    },
+    "batteryLevelRequest": {},
+    "batteryLevelResponse": {
+      "properties": {
+        "batterLevel": {
+          "type": "integer"
+        }
+      }
+    },
+    "setSdkMode": {
+      "properties": {
+        "on": {
+          "type": "boolean"
+        }
+      }
+    },
+    "setSpeed": {
+      "properties": {
+        "acceleration": {
+          "type": "integer"
+        },
+        "speedLimit": {
+          "type": "boolean"
+        }
+      }
+    },
+    "setOffset": {},
+    "turn": {
+      "properties": {
+        "type": {
+          "type": "integer"
+        },
+        "trigger": {
+          "type": "integer"
+        }
+      }
+    },
+    "changeLane": {
+      "properties": {
+        "horizontalSpeed": {
+          "type": "integer"
+        },
+        "horizontalAcceleration": {
+          "type": "integer"
+        },
+        "hopIntent": {
+          "type": "integer"
+        },
+        "tag": {
+          "type": "integer"
+        }
+      }
+    },
+    "cancelLaneChange": {},
+    "setLights": {
+      "properties": {
+        "channelCount": {
+          "type": "integer"
+        },
+        "channelConfig": {
+          "properties": {
+            "channel": {
+              "type": "integer"
+            },
+            "effect": {
+              "type": "integer"
+            },
+            "start": {
+              "type": "integer"
+            },
+            "end": {
+              "type": "integer"
+            },
+            "cycles": {
+              "type": "integer"
+            }
+          }
+        }
+      }
     }
   }
 }

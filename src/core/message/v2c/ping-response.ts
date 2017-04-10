@@ -1,9 +1,10 @@
 import {VehicleMessage} from "../vehicle-message";
+import {Vehicle} from "../../vehicle/vehicle-interface";
 
 class PingResponse extends VehicleMessage {
 
-    constructor(data: Buffer, vehicleId: string) {
-        super(data, vehicleId);
+    constructor(data: Buffer, vehicle: Vehicle) {
+        super(data, vehicle);
     }
 
 }

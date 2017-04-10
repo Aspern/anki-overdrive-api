@@ -1,13 +1,14 @@
 import {VehicleMessage} from "../vehicle-message";
 import {LightConfig} from "../../vehicle/light-config";
+import {Vehicle} from "../../vehicle/vehicle-interface";
 
 class SetLights extends VehicleMessage {
 
     private _lightConfig: LightConfig|Array<LightConfig>;
     private _channelCount: number;
 
-    constructor(vehicleId: string, config: LightConfig|Array<LightConfig>) {
-        super(new Buffer(18), vehicleId, 0x33, 17);
+    constructor(vehicle: Vehicle, config: LightConfig|Array<LightConfig>) {
+        super(new Buffer(18), vehicle, 0x33, 17);
         let channelCount = 1,
             pos = 2;
 

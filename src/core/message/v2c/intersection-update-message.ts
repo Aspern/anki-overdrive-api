@@ -1,6 +1,7 @@
 import {VehicleMessage} from "../vehicle-message";
 import {DrivingDirection} from "../driving-direction";
 import {IntersectionCode} from "../intersection-code";
+import {Vehicle} from "../../vehicle/vehicle-interface";
 
 /**
  * This message is sent by the vehicle when it has crossed a piece of the type `collision`.
@@ -14,8 +15,8 @@ class IntersectionUpdateMessage extends VehicleMessage {
     private _turn: number;
     private _exiting: boolean;
 
-    constructor(data: Buffer, vehicleId: string) {
-        super(data, vehicleId);
+    constructor(data: Buffer, vehicle: Vehicle) {
+        super(data, vehicle);
         this._piece = data.readInt8(2);
         this._offset = data.readFloatLE(3);
         this._direction = data.readInt8(7);

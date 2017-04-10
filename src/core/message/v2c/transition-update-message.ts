@@ -1,5 +1,6 @@
 import {VehicleMessage} from "../vehicle-message";
 import {DrivingDirection} from "../driving-direction";
+import {Vehicle} from "../../vehicle/vehicle-interface";
 
 /**
  * This message is sent by the vehicle when it has crossed a piece.
@@ -19,8 +20,8 @@ class TransitionUpdateMessage extends VehicleMessage {
     private _leftWheelDistance: number;
     private _rightWheelDistance: number;
 
-    constructor(data: Buffer, vehicleId: string) {
-        super(data, vehicleId);
+    constructor(data: Buffer, vehicle: Vehicle) {
+        super(data, vehicle);
         // this._piece = data.readInt8(2);
         // this._previousPiece = data.readInt8(3);
         // this._offset = data.readFloatLE(4);

@@ -43,6 +43,7 @@
     "websocket": "^1.0.24"
   },
   "scripts": {
+    "bootstrap" : "gulp && node ./dist/bootstrap.js",
     "scenario-runner": "gulp && node ./dist/controller/scenario/scenario-runner.js",
     "test-controller": "tsc -p . && mocha test/controller",
     "test-core": "tsc -p . && mocha ./test/core",

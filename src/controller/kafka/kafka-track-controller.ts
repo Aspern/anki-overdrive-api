@@ -22,9 +22,9 @@ import * as log4js from "log4js";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
 
 let settings: Settings = new JsonSettings(),
-    scanner = new VehicleScanner(),
     setup: Setup = settings.getAsSetup("setup"),
-    track = settings.getAsTrack("track"),
+    scanner = new VehicleScanner(setup),
+    track = settings.getAsTrack("setup.track.pieces"),
     vehicleConfig: Array<{ offset: number, vehicle: Vehicle }> = [],
     usedVehicles: Array<Vehicle> = [],
     vehicleControllers: Array<KafkaVehicleController> = [],

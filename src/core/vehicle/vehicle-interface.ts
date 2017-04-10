@@ -7,6 +7,7 @@ import {LightConfig} from "./light-config";
 interface Vehicle {
 
     id: string;
+    setupId: string;
     address: string;
 
     /**

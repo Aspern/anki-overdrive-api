@@ -1,5 +1,6 @@
 import {VehicleMessage} from "../vehicle-message";
 import {Distance} from "../../filter/distance";
+import {Vehicle} from "../../vehicle/vehicle-interface";
 
 /**
  * This message is sent by the vehicle when it has crossed a location.
@@ -19,8 +20,8 @@ class PositionUpdateMessage extends VehicleMessage {
     private _position: number;
     private _lane: number;
 
-    constructor(data: Buffer, vehicleId: string) {
-        super(data, vehicleId);
+    constructor(data: Buffer, vehicle: Vehicle) {
+        super(data, vehicle);
         this._location = data.readUInt8(2);
         this._piece = data.readInt8(3);
         this._offset = data.readFloatLE(4);

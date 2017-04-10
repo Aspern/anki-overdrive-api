@@ -21,6 +21,7 @@ import {BatteryLevelResponse} from "../message/v2c/battery-level-response";
 import {VersionRequest} from "../message/c2v/version-request";
 import {BatteryLevelRequest} from "../message/c2v/battery-level-request";
 import {SetLights} from "../message/c2v/set-lights";
+import {Setup} from "../setup";
 
 /**
  * Default implementation of `Vehicle`. The connection with the vehicle will enable the SDK mode
@@ -31,6 +32,7 @@ class AnkiOverdriveVehicle implements Vehicle {
     private static _DEFAULT_OFFSET = 0;
 
     private _id: string;
+    private _setupId: string;
     private _address: string;
     private _name: string;
     private _peripheral: Peripheral;
@@ -42,10 +44,11 @@ class AnkiOverdriveVehicle implements Vehicle {
         this._speed = message.speed;
     };
 
-    constructor(peripheral: Peripheral, name?: string) {
+    constructor(peripheral: Peripheral, setup: Setup, name?: string) {
         this._id = peripheral.id;
         this._address = peripheral.address;
         this._name = name;
+        this._setupId = setup.ean;
         this._peripheral = peripheral;
     }
 
@@ -88,7 +91,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     setSpeed(speed: number, acceleration = 250, limit = false): void {
         this.sendMessage(new SetSpeed(
-            this._id,
+            this,
             speed,
             acceleration,
             limit
@@ -97,14 +100,14 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     setOffset(offset: number): void {
         this.sendMessage(new SetOffset(
-            this._id,
+            this,
             offset
         ));
     }
 
     changeLane(offset: number, speed = 300, acceleration = 250, hopIntent = 0x0, tag = 0x0): void {
         this.sendMessage(new ChangeLane(
-            this._id,
+            this,
             offset,
             speed,
             acceleration,
@@ -115,7 +118,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     cancelLaneChange(): void {
         this.sendMessage(new CancelLaneChange(
-            this._id
+            this
         ));
     }
 
@@ -137,7 +140,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     setSdkMode(on: boolean): void {
         this.sendMessage(new SdkMode(
-            this._id,
+            this,
             on
         ));
     }
@@ -147,7 +150,7 @@ class AnkiOverdriveVehicle implements Vehicle {
             start = new Date().getTime();
 
         return new Promise<number>((resolve, reject) => {
-            let request = new PingRequest(me._id);
+            let request = new PingRequest(me);
 
             me.readOnce(request, 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
                 .then(() => {
@@ -160,7 +163,7 @@ class AnkiOverdriveVehicle implements Vehicle {
         let me = this;
 
         return new Promise<number>((resolve, reject) => {
-            let request = new VersionRequest(me._id);
+            let request = new VersionRequest(me);
 
             me.readOnce(request, 0x19) // ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
                 .then((response: VersionResponse) => {
@@ -174,7 +177,7 @@ class AnkiOverdriveVehicle implements Vehicle {
         let me = this;
 
         return new Promise<number>((resolve, reject) => {
-            let request = new BatteryLevelRequest(me._id);
+            let request = new BatteryLevelRequest(me);
 
             me.readOnce(request, 0x1b)
                 .then((response: BatteryLevelResponse) => {
@@ -198,7 +201,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     setLights(config: LightConfig | Array<LightConfig>): void {
         this.sendMessage(new SetLights(
-            this._id,
+            this,
             config
         ));
     }
@@ -353,19 +356,19 @@ class AnkiOverdriveVehicle implements Vehicle {
             message: VehicleMessage;
 
         if (id === 0x27) // ANKI_VEHICLE_MSG_V2C_LOCALIZATION_POSITION_UPDATE
-            message = new PositionUpdateMessage(data, me._id);
+            message = new PositionUpdateMessage(data, me);
         else if (id === 0x29) // ANKI_VEHICLE_MSG_V2C_LOCALIZATION_TRANSITION_UPDATE
-            message = new TransitionUpdateMessage(data, me._id);
+            message = new TransitionUpdateMessage(data, me);
         else if (id === 0x2a) //ANKI_VEHICLE_MSG_V2C_LOCALIZATION_INTERSECTION_UPDATE
-            message = new IntersectionUpdateMessage(data, me._id);
+            message = new IntersectionUpdateMessage(data, me);
         else if (id === 0x2b) // ANKI_VEHICLE_MSG_V2C_VEHICLE_DELOCALIZED
-            message = new VehicleDelocalizedMessage(data, me._id);
+            message = new VehicleDelocalizedMessage(data, me);
         else if (id === 0x17) // ANKI_VEHICLE_MSG_V2C_PING_RESPONSE
-            message = new PingResponse(data, me._id)
+            message = new PingResponse(data, me)
         else if (id === 0x19) // ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
-            message = new VersionResponse(data, me._id);
+            message = new VersionResponse(data, me);
         else if (id === 0x1b) // ANKI_VEHICLE_MSG_V2C_BATTERY_LEVEL_RESPONSE
-            message = new BatteryLevelResponse(data, me._id);
+            message = new BatteryLevelResponse(data, me);
 
         if (message)
             me._listeners.forEach((listener) => {
@@ -419,7 +422,7 @@ class AnkiOverdriveVehicle implements Vehicle {
      */
     private turn(type: TurnType): void {
         this.sendMessage(new Turn(
-            this._id,
+            this,
             type
         ));
     }
@@ -427,6 +430,10 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     get id(): string {
         return this._id;
+    }
+
+    get setupId(): string {
+        return this._setupId;
     }
 
     get address(): string {

@@ -1,9 +1,12 @@
 {
   "files": [
+    "src/bootstrap.ts",
+
     "src/core/vehicle/vehicle-interface.ts",
     "src/core/vehicle/light-config.ts",
     "src/core/vehicle/anki-overdrive-vehicle.ts",
     "src/core/vehicle/vehicle-scanner.ts",
+    "src/core/message/anki-message.ts",
     "src/core/message/vehicle-message.ts",
     "src/core/message/driving-direction.ts",
     "src/core/message/intersection-code.ts",

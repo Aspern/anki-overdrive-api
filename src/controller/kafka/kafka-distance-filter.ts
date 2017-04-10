@@ -15,11 +15,13 @@ class KafkaDistanceFilter {
     private _running = false;
     private _store: {[key: string]: PositionUpdateMessage} = {};
     private _updateHandler: {scope: any, handler: (message: VehicleMessage) => any};
+    private _topic: string;
 
-    constructor(vehicles: Array<Vehicle>, track: Track) {
+    constructor(vehicles: Array<Vehicle>, track: Track, topic = "carata-filtered") {
         this._filter = new SimpleDistanceFilter();
         this._filter.init([track, vehicles]);
         this._kafka = new KafkaController();
+        this._topic = topic;
     }
 
     registerUpdateHandler(handler: (message: VehicleMessage) => any, scope?: any) {
@@ -38,14 +40,16 @@ class KafkaDistanceFilter {
 
         return new Promise<void>((resolve, reject) => {
             me._kafka.initializeProducer().then(online => {
+
                     if (me._running) {
                         reject(new Error("KafkaDistanceFilter is already running."));
                     } else if (!online) {
                         reject(new Error("Kafka Server is offline."));
                     } else {
+
                         me._filter.onUpdate(output => {
                             me._kafka.sendPayload([{
-                                topic: "cardata-filtered",
+                                topic: me._topic,
                                 key: output.messageId.toString(),
                                 partitions: 1,
                                 messages: JSON.stringify(output, (key, value) => {
@@ -68,11 +72,13 @@ class KafkaDistanceFilter {
                                 let data = {
                                     timestamp: new Date(),
                                     messageId: 4711,
+                                    messageName: "mergedDistances",
+                                    setupId : output.setupId,
                                     mergedDistances: distances
                                 };
 
                                 me._kafka.sendPayload([{
-                                    topic: "cardata-filtered",
+                                    topic: me._topic,
                                     partitions: 1,
                                     messages: JSON.stringify(data).replace(/_/g, "")
                                 }]);

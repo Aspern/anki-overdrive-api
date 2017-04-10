@@ -1,18 +1,19 @@
 {
   "setup": {
-    "uuid": "ao-adrian",
+    "ean": "0810559020400",
+    "name" : "Setup Adrian",
     "vehicles": [
       {
         "uuid": "eb401ef0f82b",
         "address": "eb:40:1e:f0:f8:2b",
         "name": "Ground Shock",
-        "offset" : -68.0
+        "offset": -68.0
       },
       {
         "uuid": "ed0c94216553",
         "address": "ed:0c:94:21:65:53",
         "name": "Skull",
-        "offset" : 68.0
+        "offset": 68.0
       }
     ],
     "track": {
@@ -48,42 +49,7 @@
       ]
     }
   },
-  "vehicles": {
-    "red": {
-      "uuid": "ed0c94216553"
-    },
-    "blue": {
-      "uuid": "eb401ef0f82b"
-    }
-  },
-  "track": [
-    {
-      "type": "curve",
-      "id": 18
-    },
-    {
-      "type": "curve",
-      "id": 23
-    },
-    {
-      "type": "straight",
-      "id": 39
-    },
-    {
-      "type": "curve",
-      "id": 17
-    },
-    {
-      "type": "curve",
-      "id": 20
-    }
-  ],
-  "utils": {
-    "quality": {
-      "rounds": 1,
-      "vehicle": "eb401ef0f82b",
-      "offset": 68.0
-    },
+  "scripts": {
     "measureTrack": {
       "resultHandler": "console"
     },

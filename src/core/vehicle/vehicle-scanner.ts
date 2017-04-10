@@ -4,6 +4,7 @@ import {Peripheral} from "noble";
 import {Vehicle} from "./vehicle-interface";
 import {AnkiOverdriveVehicle} from "./anki-overdrive-vehicle";
 import {isNullOrUndefined} from "util";
+import {Setup} from "../setup";
 
 /**
  * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
@@ -11,18 +12,20 @@ import {isNullOrUndefined} from "util";
  */
 class VehicleScanner {
 
-    private timeout: number;
-    private retries: number;
+    private _timeout: number;
+    private _retries: number;
+    private _setup: Setup;
 
     /**
      * Creates a instance of VehicleScanner.
      *
      * @param timeout (optional) number of milliseconds before timeout is reached.
-     * @param retries (optional) number of retries before searching fails.
+     * @param _retries (optional) number of _retries before searching fails.
      */
-    constructor(timeout?: number, retries?: number) {
-        this.timeout = timeout || 1000;
-        this.retries = retries || 3;
+    constructor(setup: Setup, timeout?: number, retries?: number) {
+        this._setup = setup;
+        this._timeout = timeout || 1000;
+        this._retries = retries || 3;
     }
 
     /**
@@ -50,33 +53,34 @@ class VehicleScanner {
                     noble.stopScanning();
                     noble.removeListener('discover', callback);
                     peripherals.forEach(peripheral => {
-                        peripheral.connect((e: Error) => {
-                            if (!isNullOrUndefined(e)) {
-                                peripheral.disconnect(() => {
-                                    reject(e);
-                                });
-                            } else {
-                                peripheral.discoverAllServicesAndCharacteristics((e, services) => {
-                                    if (isNullOrUndefined(e) && !isNullOrUndefined(services))
-                                        for (let i = 0; i < services.length; i++) {
-                                            if (services[i].uuid === "be15beef6186407e83810bd89c4d8df4") {
-                                                vehiclePeripherals.push(peripheral);
-                                                break;
+                        if (me.isVehicleInSetup(peripheral))
+                            peripheral.connect((e: Error) => {
+                                if (!isNullOrUndefined(e)) {
+                                    peripheral.disconnect(() => {
+                                        reject(e);
+                                    });
+                                } else {
+                                    peripheral.discoverAllServicesAndCharacteristics((e, services) => {
+                                        if (isNullOrUndefined(e) && !isNullOrUndefined(services))
+                                            for (let i = 0; i < services.length; i++) {
+                                                if (services[i].uuid === "be15beef6186407e83810bd89c4d8df4") {
+                                                    vehiclePeripherals.push(peripheral);
+                                                    break;
+                                                }
                                             }
-                                        }
 
-                                    peripheral.disconnect();
-                                });
-                            }
-                        });
+                                        peripheral.disconnect();
+                                    });
+                                }
+                            });
                     });
                     setTimeout(() => {
                         vehiclePeripherals.forEach((vehcPer) => {
-                            vehicles.push(new AnkiOverdriveVehicle(vehcPer));
+                            vehicles.push(new AnkiOverdriveVehicle(vehcPer, me._setup));
                         });
                         resolve(vehicles);
-                    }, me.timeout);
-                }, this.timeout);
+                    }, me._timeout);
+                }, this._timeout);
             }).catch(reject);
         });
     }
@@ -139,6 +143,18 @@ class VehicleScanner {
         });
     }
 
+    private isVehicleInSetup(peripheral: Peripheral): boolean {
+        let me = this,
+            vehiclesInSetup = me._setup.vehicles,
+            i = 0;
+        for (; i < vehiclesInSetup.length; i++) {
+            if (vehiclesInSetup[i].uuid === peripheral.uuid)
+                return true;
+        }
+
+        return false;
+    }
+
     private onAdapterOnline(): Promise<void> {
         let counter: number = 0,
             me = this;
@@ -146,17 +162,17 @@ class VehicleScanner {
         return new Promise<void>((resolve, reject) => {
             let i = setInterval(() => {
                 if (noble.state === "poweredOn") {
-                    resolve();
                     clearInterval(i);
+                    resolve();
                 }
 
-                if (counter === me.retries) {
-                    reject(new Error("BLE Adapter offline"));
+                if (counter === me._retries) {
                     clearInterval(i);
+                    return reject("BLE Adapter offline");
                 }
 
                 ++counter;
-            }, this.timeout);
+            }, this._timeout);
         });
 
 

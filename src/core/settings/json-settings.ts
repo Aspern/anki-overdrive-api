@@ -15,7 +15,8 @@ import {Setup} from "../setup";
  */
 class JsonSettings implements Settings {
 
-    private _map: {[key: string]: any} = {};
+    private static PATH_SEPARATOR = ".";
+    private _map: { [key: string]: any } = {};
 
     constructor(file = "resources/settings.json") {
         this._map = jsonfile.readFileSync(file);
@@ -23,7 +24,12 @@ class JsonSettings implements Settings {
 
 
     get(key: string): string {
-        let value: any = this._map[key];
+        let path = key.split(JsonSettings.PATH_SEPARATOR),
+            value = this._map[path[0]],
+            i = 1;
+
+        for (; i < path.length; i++)
+            value = value[path[i]];
 
         if (typeof value === "string" || value instanceof String)
             return "" + value;
@@ -80,20 +86,19 @@ class JsonSettings implements Settings {
         return new Date(value);
     }
 
-
     getAsObject(key: string): any {
         return JSON.parse(this.get(key));
     }
 
     getAsTrack(key: string): Track {
-        let configs: Array<{type: string, id: number}> = this.getAsObject(key),
+        let configs: Array<{ type: string, pieceId: number }> = this.getAsObject(key),
             pieces: Array<Piece> = [];
 
         configs.forEach(config => {
             if (config.type === "curve")
-                pieces.push(new Curve(config.id));
+                pieces.push(new Curve(config.pieceId));
             else if (config.type === "straight")
-                pieces.push(new Straight(config.id));
+                pieces.push(new Straight(config.pieceId));
         });
 
         return AnkiOverdriveTrack.build(pieces);
@@ -101,14 +106,16 @@ class JsonSettings implements Settings {
 
 
     getAsSetup(key: string): Setup {
-        let object : {
-            uuid : string,
-            vehicles: Array<{uuid:string, address:string, name:string, offset:number}>,
-            track : {pieces:Array<{pieceId: number, type: string}>}
-        } = this.getAsObject("setup"),
+        let object: {
+                ean: string,
+                name: string,
+                vehicles: Array<{ uuid: string, address: string, name: string, offset: number }>,
+                track: { pieces: Array<{ pieceId: number, type: string }> }
+            } = this.getAsObject("setup"),
             setup = new Setup();
 
-        setup.uuid = object.uuid;
+        setup.ean = object.ean;
+        setup.name = object.name;
         setup.vehicles = object.vehicles;
         setup.track = object.track;
 

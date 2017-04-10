@@ -1,11 +1,12 @@
 import {VehicleMessage} from "../vehicle-message";
+import {Vehicle} from "../../vehicle/vehicle-interface";
 
 class SetOffset extends VehicleMessage {
 
     private _offset: number;
 
-    constructor(vehicleId: string, offset: number) {
-        super(new Buffer(6), vehicleId, 0x2c, 5);
+    constructor(vehicle: Vehicle, offset: number) {
+        super(new Buffer(6), vehicle, 0x2c, 5);
         this.data.writeFloatLE(offset, 2);
         this._offset = offset;
     }
