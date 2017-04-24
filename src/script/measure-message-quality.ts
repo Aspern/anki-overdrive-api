@@ -14,8 +14,9 @@ import {PositionUpdateMessage} from "../core/message/v2c/position-update-message
  *                                                                                  *
  ************************************************************************************/
 
-let scanner = new VehicleScanner(),
-    settings = new JsonSettings(),
+let settings = new JsonSettings(),
+    setup = settings.getAsSetup("setup"),
+    scanner = new VehicleScanner(setup),
     track = settings.getAsTrack("track"),
     config: {
         minSpeed: number,

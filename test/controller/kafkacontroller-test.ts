@@ -1,10 +1,5 @@
 import {suite, test, timeout} from "mocha-typescript";
-import {expect} from "chai";
-import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
-import {Track} from "../../src/core/track/track-interface";
-import {AnkiOverdriveTrack} from "../../src/core/track/anki-overdrive-track";
-import {StraightPiece} from "../../src/core/track/straight-piece";
-import {KafkaController} from "../../src/controller/kafka/kafkacontroller";
+import {KafkaController} from "../../src/controller/kafka/kafka-controller";
 import {ConsumerMessage} from "../../src/controller/kafka/ConsumerMessage";
 
 @suite

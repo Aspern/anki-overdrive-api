@@ -24,7 +24,8 @@ import {PositionUpdateMessage} from "../core/message/v2c/position-update-message
 
 let settings = new JsonSettings(),
     track = settings.getAsTrack("track"),
-    scanner = new VehicleScanner(),
+    setup = settings.getAsSetup("setup"),
+    scanner = new VehicleScanner(setup),
     vehicleId: string,
     uniqueId: string = uuid.v4(),
     resultHandler: ResultHandler,

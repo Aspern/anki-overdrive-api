@@ -1,9 +1,12 @@
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
-import  {connection, IMessage, server} from "websocket";
-import http = require('http');
+import {connection, IMessage, server} from "websocket";
 import {Command, WebSocketRequest} from "./websocket-request";
 import {isNullOrUndefined} from "util";
 import {VehicleMessage} from "../../core/message/vehicle-message";
+import {WebSocketResponse} from "./websocket-response";
+import * as log4js from "log4js";
+import http = require('http');
+import logger = Handlebars.logger;
 
 /**
  * This class uses a WebSocket to control vehicles. Therefore a HTTP-Server is started for each
@@ -19,15 +22,17 @@ class WebSocketController {
     } = {};
     private _port: number;
     private _server: server;
+    private _logger: log4js.Logger;
 
     constructor(vehicles: Array<Vehicle>, port: number) {
         let me = this;
+        me._logger = log4js.getLogger("websocket");
         vehicles.forEach(vehicle => {
             me._store[vehicle.id] = {vehicle: vehicle, listener: null};
         });
         this._port = port;
         let httpServer = http.createServer(function (request, response) {
-            //TODO (Logging): Inform about illegal incoming messages.
+            me._logger.warn("Invalid message from: " + request);
             response.writeHead(404);
             response.end();
         });
@@ -38,34 +43,39 @@ class WebSocketController {
         this._server.on('request', request => {
             //TODO (Security): Add origin validation.
             let connection = request.accept('echo-protocol', request.origin);
-            connection.on('message', this.handleRequest);
+            connection.on('message', (message: IMessage) => this.handleRequest(message, connection));
         });
+        this._logger.info("Started WebSocket on: " + port);
     }
 
-    private handleRequest(message: IMessage) {
+    private handleRequest(message: IMessage, connection: connection) {
+        let me = this,
+            logger = me._logger;
         if (message.type === 'utf-8') {
-            //TODO: (Logging): Inform about incoming messages.
+            logger.info("Incoming UTF-8 message: " + message);
             try {
                 let request = JSON.parse(message.utf8Data);
                 this.handleMessage(request, connection);
             } catch (e) {
-                //TODO (Logging): Inform about errors while parsing.
+                logger.error("Unable ot parse request", e);
             }
         } else if (message.type === 'binary') {
-            //TODO: (Logging): Inform about incoming messages.
+            logger.info("Incoming binary message: " + message);
         } else {
-            //TODO (Logging): Inform about unknown type.
+            logger.warn("Unknown message type: " + (message.type || message));
         }
     }
 
     private handleMessage(request: WebSocketRequest, connection: connection) {
         let me = this,
+            logger = me._logger,
             vehicle = me._store[request.vehicleId].vehicle,
             params: Array<number> = request.params;
 
-
         if (isNullOrUndefined(vehicle)) {
-            //TODO (Error): Handle if vehicle doesn't exist.
+            logger.warn("vehicle with id [" + request.vehicleId + "] does not exist in setup");
+            // TODO (Error): Maybe inform client about state?
+            return;
         }
 
         try {
@@ -73,12 +83,12 @@ class WebSocketController {
                 case "connect":
                     if (!vehicle.connected)
                         vehicle.connect()
-                            .catch(/*TODO (Error): Handle*/);
+                            .catch(logger.error);
                     break;
                 case "disconnect":
                     if (vehicle.connected)
                         vehicle.disconnect()
-                            .catch(/*TODO (Error): Handle*/);
+                            .catch(logger.error);
                     break;
                 case "accelerate":
                     vehicle.accelerate(params[0], params.length > 1 ? params[1] : 0.1);
@@ -102,7 +112,7 @@ class WebSocketController {
                             me.sendResponse("query-battery-level", vehicle.id, connection, {
                                 batteryLevel: batteryLevel
                             });
-                        }).catch(/*TODO (Error): Handle*/);
+                        }).catch(logger.error);
                     break;
                 case "query-ping":
                     vehicle.queryPing()
@@ -110,7 +120,7 @@ class WebSocketController {
                             me.sendResponse("query-ping", vehicle.id, connection, {
                                 ping: ping
                             });
-                        }).catch(/*TODO (Error): Handle*/);
+                        }).catch(logger.error);
                     break;
                 case "query-version":
                     vehicle.queryVersion()
@@ -118,7 +128,7 @@ class WebSocketController {
                             me.sendResponse("query-version", vehicle.id, connection, {
                                 version: version
                             });
-                        }).catch(/*TODO (Error): Handle*/);
+                        }).catch(logger.error);
                     break;
                 case "u-turn":
                     vehicle.uTurn();
@@ -141,15 +151,22 @@ class WebSocketController {
                     }
                     break;
                 default:
-                //TODO (Error,Logging): Invalid command was sent.
+                    logger.warn("Invalid command: " + request.command);
             }
         } catch (e) {
-            //TODO (Logging, Error): Inform about errors while executing command.
+            logger.error("Errors while executing/reading command" + e);
         }
     }
 
     private sendResponse(command: Command, vehicleId: string, connection: connection, payload?: any) {
-        //TODO (Implement)
+        let response: WebSocketResponse = {
+            command: command,
+            vehicleId: vehicleId,
+            payload: payload
+        };
+        connection.sendUTF(
+            JSON.stringify(response)
+        );
     }
 }
 

@@ -11,12 +11,13 @@ import {VehicleMessage} from "../core/message/vehicle-message";
 import {PositionUpdateMessage} from "../core/message/v2c/position-update-message";
 
 
-let scanner = new VehicleScanner(),
-    settings = new JsonSettings(),
+let   settings = new JsonSettings(),
+    setup = settings.getAsSetup("setup"),
+    scanner = new VehicleScanner(setup),
     ankiConsole = new AnkiConsole(),
     track = settings.getAsTrack("track"),
     filter = new SimpleDistanceFilter(),
-    store: {[key: string]: {speed: number, vehicle: Vehicle}} = {},
+    store: { [key: string]: { speed: number, vehicle: Vehicle } } = {},
     kafkaController = new KafkaController(),
     antiCollisionOn = true;
 
@@ -151,7 +152,7 @@ kafkaController.initializeProducer().then(online => {
         ankiConsole.onCommand((cmd, params, vehicle) => {
             if (cmd === 's')
                 store[vehicle].speed = parseInt(params[0]);
-            else if(cmd === 'anti-collision')
+            else if (cmd === 'anti-collision')
                 antiCollisionOn = params[0] === 'on';
         }).initializePrompt(vehicles);
 

@@ -151,7 +151,7 @@ abstract class AbstractDistanceFilter implements ActiveFilter<[Track, Array<Vehi
 
     private distanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMessage): Distance {
         let me = this,
-            distance = new Disttance();
+            distance = new Distance();
 
         // Distance from (m1) to (m2).
         distance.vehicle = m2.vehicleId;

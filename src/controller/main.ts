@@ -13,7 +13,7 @@ let peice_17 = 0,peice_18 = 0,peice_20 = 0,peice_23 = 0, peice_34 = 0,peice_33 =
 
 console.log("scanning vehicles...");
 
-let scanner = new VehicleScanner();
+let scanner = new VehicleScanner(null);
 let ankiConsole = new AnkiConsole();
 
 let x;

@@ -4,8 +4,10 @@ import {JsonSettings} from "../core/settings/json-settings";
 import {isNullOrUndefined} from "util";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
 
-let scanner = new VehicleScanner(),
+let
     settings = new JsonSettings(),
+    setup = settings.getAsSetup("setup"),
+    scanner = new VehicleScanner(setup),
     track = settings.getAsTrack("track"),
     filter = new SimpleDistanceFilter(),
     timeout = 10000,

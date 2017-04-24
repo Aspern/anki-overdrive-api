@@ -4,10 +4,11 @@ import {CollisionScenario} from "./collision-scenario";
 import {Scenario} from "./scenario-interface";
 import {SimpleDistanceFilter} from "../../core/filter/simple-distance-filter";
 import {JsonSettings} from "../../core/settings/json-settings";
-let scanner = new VehicleScanner(),
-    scenario: Scenario,
+let scenario: Scenario,
     settings = new JsonSettings(),
-    track = settings.getAsTrack("track");
+    track = settings.getAsTrack("track"),
+    setup = settings.getAsSetup("setup"),
+    scanner = new VehicleScanner(setup);
 
 function handleError(e: Error) {
     if (!isNullOrUndefined(e)) {

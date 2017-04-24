@@ -1,6 +1,9 @@
 import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
+import {JsonSettings} from "../core/settings/json-settings";
 
-let scanner = new VehicleScanner(),
+let settings = new JsonSettings(),
+    setup = settings.getAsSetup("setup"),
+    scanner = new VehicleScanner(setup),
     maxTries = 100,
     tries: Array<number> = [],
     pings: Array<number> = [];
