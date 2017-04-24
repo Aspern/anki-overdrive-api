@@ -63,7 +63,11 @@
     "src/controller/scenario/collision-scenario.ts",
     "src/controller/scenario/scenario-runner.ts",
     "src/controller/scenario/anti-collision-scenario.ts",
+    "src/controller/scenario/anti-collision-scenario-collecting.ts",
     "src/controller/scenario/max-speed-scenario.ts",
+    "src/controller/websocket/websocket-controller.ts",
+    "src/controller/websocket/websocket-request.ts",
+    "src/controller/websocket/websocket-response.ts",
 
     "src/script/measure-message-quality.ts",
     "src/script/scan-vehicles.ts",

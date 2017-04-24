@@ -7,13 +7,13 @@
         "uuid": "eb401ef0f82b",
         "address": "eb:40:1e:f0:f8:2b",
         "name": "Ground Shock",
-        "offset": -68.0
+        "offset": 0
       },
       {
         "uuid": "ed0c94216553",
         "address": "ed:0c:94:21:65:53",
         "name": "Skull",
-        "offset": 68.0
+        "offset": 68
       }
     ],
     "track": {

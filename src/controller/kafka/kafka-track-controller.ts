@@ -20,6 +20,7 @@ import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 import * as log4js from "log4js";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
+import {AntiCollisionScenarioCollecting} from "../scenario/anti-collision-scenario-collecting";
 
 let settings: Settings = new JsonSettings(),
     setup: Setup = settings.getAsSetup("setup"),
@@ -62,6 +63,11 @@ process.on('exit', () => {
         partitions: 1,
         messages: message
     }]);
+
+    logger.info("Interrupting running scenario.");
+    if (!isNullOrUndefined(scenario) && scenario.isRunning())
+        scenario.interrupt().catch(e => logger.error("Error while interrupting scenario", e));
+
     logger.info("Disconnecting vehicles...");
     vehicleConfig.forEach(config => {
         config.vehicle.disconnect();
@@ -69,8 +75,8 @@ process.on('exit', () => {
     logger.info("Setup disconnected.");
 });
 
-// Because many listeners are used in process.ü
-process.setMaxListeners(500);
+// Because many listeners are used in process.
+process.setMaxListeners(1000);
 
 function getPieceDescription(piece: Piece) {
     if (piece instanceof Start)
@@ -227,7 +233,7 @@ kafkaController.initializeProducer().then(online => {
         });
 
         logger.info("Starting distance filter...");
-        filter = new KafkaDistanceFilter(usedVehicles, track);
+        filter = new KafkaDistanceFilter(usedVehicles, track, "vehicle-data");
         filter.start().catch(handleError);
 
         logger.info("Connecting vehicles...");
@@ -289,6 +295,13 @@ kafkaController.initializeProducer().then(online => {
 
             logger.info("Waiting for messages.");
             ankiConsole.initializePrompt(usedVehicles);
+
+            // setTimeout(() => {
+            //     scenario = new AntiCollisionScenarioCollecting(usedVehicles[0], usedVehicles[1]);
+            //     filter.registerUpdateHandler(scenario.onUpdate, scenario);
+            //     scenario.start().catch(handleError);
+            // }, 2000);
+
         }, 3000);
 
     }).catch(handleError);

@@ -40,6 +40,7 @@ class AnkiOverdriveVehicle implements Vehicle {
     private _write: Characteristic;
     private _listeners: Array<{ l: (message: VehicleMessage) => any, f: any }> = [];
     private _speed: number;
+    private _connected = false;
     private _dataListener = (message: PositionUpdateMessage) => {
         this._speed = message.speed;
     };
@@ -68,6 +69,7 @@ class AnkiOverdriveVehicle implements Vehicle {
                             me.setSdkMode(true);
                             me.setOffset(AnkiOverdriveVehicle._DEFAULT_OFFSET);
                             me.addListener(me._dataListener, PositionUpdateMessage);
+                            me._connected = true;
                             resolve(me);
                         })
                         .catch(reject);
@@ -84,6 +86,7 @@ class AnkiOverdriveVehicle implements Vehicle {
                     reject(e);
 
                 me.removeListener(me._dataListener);
+                me._connected = false;
                 resolve(me);
             });
         });
@@ -442,6 +445,10 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     get name(): string {
         return this._name;
+    }
+
+    get connected(): boolean {
+        return this._connected;
     }
 }
 

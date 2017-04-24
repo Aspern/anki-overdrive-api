@@ -17,7 +17,7 @@ class KafkaDistanceFilter {
     private _updateHandler: {scope: any, handler: (message: VehicleMessage) => any};
     private _topic: string;
 
-    constructor(vehicles: Array<Vehicle>, track: Track, topic = "carata-filtered") {
+    constructor(vehicles: Array<Vehicle>, track: Track, topic = "cardata-filtered") {
         this._filter = new SimpleDistanceFilter();
         this._filter.init([track, vehicles]);
         this._kafka = new KafkaController();

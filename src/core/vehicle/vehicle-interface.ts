@@ -9,6 +9,7 @@ interface Vehicle {
     id: string;
     setupId: string;
     address: string;
+    connected: boolean;
 
     /**
      * Connects the vehicle via BLE.
