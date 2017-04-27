@@ -36,6 +36,9 @@ class WebSocketController {
             response.writeHead(404);
             response.end();
         });
+        httpServer.listen(port, () => {
+            me._logger.info("HTTP Server listening on port: " + port);
+        });
         this._server = new server({
             httpServer: httpServer,
             autoAcceptConnections: false
@@ -51,7 +54,13 @@ class WebSocketController {
     private handleRequest(message: IMessage, connection: connection) {
         let me = this,
             logger = me._logger;
-        if (message.type === 'utf-8') {
+        if (message.type === 'utf8') {
+            for (let key in message)
+                if (message.hasOwnProperty(key)) {
+                    let data: any = message;
+                    let value: any = data[key];
+                    logger.info(key + ": " + value);
+                }
             logger.info("Incoming UTF-8 message: " + message);
             try {
                 let request = JSON.parse(message.utf8Data);
@@ -165,7 +174,11 @@ class WebSocketController {
             payload: payload
         };
         connection.sendUTF(
-            JSON.stringify(response)
+            JSON.stringify(response, (key, value) => {
+                if (key === '_data')
+                    return undefined;
+                return value;
+            }).replace(/_/g, "")
         );
     }
 }

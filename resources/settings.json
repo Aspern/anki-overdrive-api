@@ -1,19 +1,22 @@
 {
   "setup": {
     "ean": "0810559020400",
-    "name" : "Setup Adrian",
+    "uuid" : "setup-adrian",
+    "websocket": "ws://localhost:4711/",
     "vehicles": [
       {
         "uuid": "eb401ef0f82b",
         "address": "eb:40:1e:f0:f8:2b",
         "name": "Ground Shock",
-        "offset": 0
+        "offset": -68,
+        "connected" : true
       },
       {
         "uuid": "ed0c94216553",
         "address": "ed:0c:94:21:65:53",
         "name": "Skull",
-        "offset": 68
+        "offset": 68,
+        "connected" : true
       }
     ],
     "track": {

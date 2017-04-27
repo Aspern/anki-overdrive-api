@@ -21,6 +21,7 @@ import {PositionUpdateMessage} from "../../core/message/v2c/position-update-mess
 import * as log4js from "log4js";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
 import {AntiCollisionScenarioCollecting} from "../scenario/anti-collision-scenario-collecting";
+import {WebSocketController} from "../websocket/websocket-controller";
 
 let settings: Settings = new JsonSettings(),
     setup: Setup = settings.getAsSetup("setup"),
@@ -32,6 +33,7 @@ let settings: Settings = new JsonSettings(),
     filter: KafkaDistanceFilter,
     kafkaController = new KafkaController(),
     ankiConsole = new AnkiConsole(),
+    websocket: WebSocketController,
     scenario: Scenario,
     resetTimeouts: { [key: string]: number } = {
         "eb401ef0f82b": 0,
@@ -72,6 +74,7 @@ process.on('exit', () => {
     vehicleConfig.forEach(config => {
         config.vehicle.disconnect();
     });
+
     logger.info("Setup disconnected.");
 });
 
@@ -249,8 +252,11 @@ kafkaController.initializeProducer().then(online => {
                 vehicle.setOffset(offset);
             });
 
+            websocket = new WebSocketController(usedVehicles, 4711);
+
             setup.online = true;
             let message = JSON.stringify(setup).replace(/_/g, "");
+
             logger.info("Sending setup to 'setup': " + message);
             kafkaController.sendPayload([{
                 topic: "setup",

@@ -1,9 +1,9 @@
-import {suite, timeout, test} from "mocha-typescript";
+import {suite, test, timeout} from "mocha-typescript";
 import {WebSocketController} from "../../src/controller/websocket/websocket-controller";
 import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
 import {JsonSettings} from "../../src/core/settings/json-settings";
-import {WebSocketRequest} from "../../src/controller/websocket/websocket-request";
 import * as log4js from "log4js";
+import {WebSocketRequest} from "../../src/controller/websocket/websocket-request";
 
 @suite
 class WebSocketTest {
@@ -37,26 +37,27 @@ class WebSocketTest {
     }
 
     @test @timeout(10000) "connect and disconnect"(done) {
-        let WebSocket = require("websocket").w3cwebsocket;
+        let WebSocketClient = require("websocket").client;
 
-        let client = new WebSocket('ws://localhost:' + WebSocketTest._PORT + "/", 'echo-protocol');
+        let client = new WebSocketClient();
 
-        client.onerror = function() {
-            console.error('Connection Error');
-        };
-
-        client.onopen = function() {
-            console.log('WebSocket Client Connected');
-
-            function sendNumber() {
-                if (client.readyState === client.OPEN) {
-                    var number = Math.round(Math.random() * 0xFFFFFF);
-                    client.send(number.toString());
-                    setTimeout(sendNumber, 1000);
+        client.on('connect', connection => {
+            connection.on('error', error => {
+               done(error);
+            });
+            if(connection.connected) {
+                let request : WebSocketRequest = {
+                    command: "connect",
+                    params : [],
+                    vehicleId : "ed0c94216553"
                 }
+                connection.sendUTF(JSON.stringify(request));
+                done();
             }
-            sendNumber();
-        };
+
+        });
+
+        client.connect('ws://localhost:' + WebSocketTest._PORT + "/", 'echo-protocol');
     }
 
 
