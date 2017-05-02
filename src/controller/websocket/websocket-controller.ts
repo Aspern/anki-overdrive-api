@@ -78,17 +78,18 @@ class WebSocketController {
     private handleMessage(request: WebSocketRequest, connection: connection) {
         let me = this,
             logger = me._logger,
-            vehicle = me._store[request.vehicleId].vehicle,
-            params: Array<number> = request.params;
+            data = request.data,
+            vehicle = me._store[data.vehicleId].vehicle,
+            payload = data.payload;
 
         if (isNullOrUndefined(vehicle)) {
-            logger.warn("vehicle with id [" + request.vehicleId + "] does not exist in setup");
+            logger.warn("vehicle with id [" + data.vehicleId + "] does not exist in setup");
             // TODO (Error): Maybe inform client about state?
             return;
         }
 
         try {
-            switch (request.command) {
+            switch (data.command) {
                 case "connect":
                     if (!vehicle.connected)
                         vehicle.connect()
@@ -100,19 +101,23 @@ class WebSocketController {
                             .catch(logger.error);
                     break;
                 case "accelerate":
-                    vehicle.accelerate(params[0], params.length > 1 ? params[1] : 0.1);
+                    vehicle.accelerate(payload.speed);
                     break;
                 case "brake":
-                    vehicle.brake(params.length > 0 ? params[0] : 0.1);
+                    vehicle.brake();
+                    break;
+                case "set-speed":
+                    vehicle.setSpeed(
+                        payload.speed,
+                        payload.acceleration || 300
+                    );
                     break;
                 case "cancel-lane-change":
                     vehicle.cancelLaneChange();
                     break;
                 case "change-lane":
                     vehicle.changeLane(
-                        params[0],
-                        params.length > 1 ? params[1] : params[0],
-                        params.length > 2 ? params[2] : params[0]
+                        payload.offset
                     );
                     break;
                 case "query-battery-level":
@@ -143,7 +148,7 @@ class WebSocketController {
                     vehicle.uTurn();
                     break;
                 case "set-offset":
-                    vehicle.setOffset(params[0]);
+                    vehicle.setOffset(payload.offset);
                     break;
                 case "enable-listener":
                     if (isNullOrUndefined(me._store[vehicle.id].listener)) {
@@ -160,7 +165,7 @@ class WebSocketController {
                     }
                     break;
                 default:
-                    logger.warn("Invalid command: " + request.command);
+                    logger.warn("Invalid command: " + data.command);
             }
         } catch (e) {
             logger.error("Errors while executing/reading command" + e);

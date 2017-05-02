@@ -1,7 +1,6 @@
 import {isNullOrUndefined} from "util";
 import {Vehicle} from "../vehicle/vehicle-interface";
 import {AnkiMessage} from "./anki-message";
-import {stringify} from "querystring";
 /**
  * Contains general information about vehicles. Each message additionally contains the ID of its
  * vehicle and a creation timestamp.
