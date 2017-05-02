@@ -82,6 +82,7 @@ class WebSocketController {
             vehicle = me._store[data.vehicleId].vehicle,
             payload = data.payload;
 
+
         if (isNullOrUndefined(vehicle)) {
             logger.warn("vehicle with id [" + data.vehicleId + "] does not exist in setup");
             // TODO (Error): Maybe inform client about state?
