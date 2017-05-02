@@ -1,6 +1,6 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {WebSocketController} from "../../src/controller/websocket/websocket-controller";
-import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../../src/core/vehicle/vehicle-scanner-impl";
 import {JsonSettings} from "../../src/core/settings/json-settings";
 import * as log4js from "log4js";
 import {WebSocketRequest} from "../../src/controller/websocket/websocket-request";
@@ -22,7 +22,7 @@ class WebSocketTest {
 
         let settings = new JsonSettings(),
             setup = settings.getAsSetup("setup"),
-            scanner = new VehicleScanner(setup);
+            scanner = new VehicleScannerImpl(setup);
 
         scanner.findAll().then(vehicles => {
             WebSocketTest._CONTROLLER = new WebSocketController(

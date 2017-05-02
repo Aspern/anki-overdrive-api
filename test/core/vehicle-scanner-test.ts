@@ -1,6 +1,6 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
-import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../../src/core/vehicle/vehicle-scanner-impl";
 
 
 @suite
@@ -11,7 +11,7 @@ class VehicleScannerTest {
 
     @timeout(5000)
     static before(done) {
-        let scanner = new VehicleScanner();
+        let scanner = new VehicleScannerImpl();
 
         scanner.findAll().then((vehicles) => {
             if (vehicles.length > 0) {
@@ -26,7 +26,7 @@ class VehicleScannerTest {
     }
 
     @test @timeout(5000)"find all vehicles"(done) {
-        let scanner = new VehicleScanner();
+        let scanner = new VehicleScannerImpl();
 
         scanner.findAll().then((vehicles) => {
             expect(vehicles.length).not.to.be.empty;
@@ -35,7 +35,7 @@ class VehicleScannerTest {
     }
 
     @test @timeout(5000)"find vehicle by id"(done) {
-        let scanner = new VehicleScanner(),
+        let scanner = new VehicleScannerImpl(),
             id = VehicleScannerTest._ID;
 
         scanner.findById(id).then(vehicle => {
@@ -45,7 +45,7 @@ class VehicleScannerTest {
     }
 
     @test @timeout(5000)"find vehicle by address"(done) {
-        let scanner = new VehicleScanner(),
+        let scanner = new VehicleScannerImpl(),
             address = VehicleScannerTest._ADDRESS;
 
         scanner.findByAddress(address).then(vehicle => {
@@ -55,7 +55,7 @@ class VehicleScannerTest {
     }
 
     @test @timeout(5000)"find any vehicle"(done) {
-        let scanner = new VehicleScanner();
+        let scanner = new VehicleScannerImpl();
 
         scanner.findAny().then(vehicle => {
             expect(vehicle).not.to.be.null;

@@ -1,4 +1,4 @@
-import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 import * as uuid from "node-uuid";
 import {JsonSettings} from "../core/settings/json-settings";
 import {ResultHandler} from "../core/util/result-handler-interface";
@@ -25,7 +25,7 @@ import {PositionUpdateMessage} from "../core/message/v2c/position-update-message
 let settings = new JsonSettings(),
     track = settings.getAsTrack("track"),
     setup = settings.getAsSetup("setup"),
-    scanner = new VehicleScanner(setup),
+    scanner = new VehicleScannerImpl(setup),
     vehicleId: string,
     uniqueId: string = uuid.v4(),
     resultHandler: ResultHandler,

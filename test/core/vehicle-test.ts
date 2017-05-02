@@ -1,6 +1,6 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
-import {VehicleScanner} from "../../src/core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../../src/core/vehicle/vehicle-scanner-impl";
 import {Vehicle} from "../../src/core/vehicle/vehicle-interface";
 import {PositionUpdateMessage} from "../../src/core/message/v2c/position-update-message";
 import {VehicleMessage} from "../../src/core/message/vehicle-message";
@@ -16,7 +16,7 @@ class VehicleTest {
 
     @timeout(5000)
     static before(done) {
-        let scanner = new VehicleScanner();
+        let scanner = new VehicleScannerImpl();
 
         scanner.findAll().then(vehicles => {
             if (vehicles.length > 0) {

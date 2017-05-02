@@ -1,4 +1,4 @@
-import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 import {SimpleDistanceFilter} from "../core/filter/simple-distance-filter";
 import {JsonSettings} from "../core/settings/json-settings";
 import {isNullOrUndefined} from "util";
@@ -7,7 +7,7 @@ import {Vehicle} from "../core/vehicle/vehicle-interface";
 let
     settings = new JsonSettings(),
     setup = settings.getAsSetup("setup"),
-    scanner = new VehicleScanner(setup),
+    scanner = new VehicleScannerImpl(setup),
     track = settings.getAsTrack("track"),
     filter = new SimpleDistanceFilter(),
     timeout = 10000,

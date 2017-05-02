@@ -1,6 +1,6 @@
 import {Settings} from "../../core/settings/settings-interface";
 import {JsonSettings} from "../../core/settings/json-settings";
-import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../../core/vehicle/vehicle-scanner-impl";
 import {isNullOrUndefined} from "util";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {KafkaDistanceFilter} from "./kafka-distance-filter";
@@ -25,7 +25,7 @@ import {WebSocketController} from "../websocket/websocket-controller";
 
 let settings: Settings = new JsonSettings(),
     setup: Setup = settings.getAsSetup("setup"),
-    scanner = new VehicleScanner(setup),
+    scanner = new VehicleScannerImpl(setup),
     track = settings.getAsTrack("setup.track.pieces"),
     vehicleConfig: Array<{ offset: number, vehicle: Vehicle }> = [],
     usedVehicles: Array<Vehicle> = [],

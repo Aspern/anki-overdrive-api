@@ -1,0 +1,5 @@
+interface ServerConsole {
+
+}
+
+export {ServerConsole}

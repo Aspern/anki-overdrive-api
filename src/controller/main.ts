@@ -1,5 +1,5 @@
 ///<reference path="../../node_modules/@types/highlight.js/index.d.ts"/>
-import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
 import {KafkaController} from "./kafka/kafka-controller";
 import {ConsumerMessage} from "./kafka/ConsumerMessage";
@@ -13,7 +13,7 @@ let peice_17 = 0,peice_18 = 0,peice_20 = 0,peice_23 = 0, peice_34 = 0,peice_33 =
 
 console.log("scanning vehicles...");
 
-let scanner = new VehicleScanner(null);
+let scanner = new VehicleScannerImpl(null);
 let ankiConsole = new AnkiConsole();
 
 let x;

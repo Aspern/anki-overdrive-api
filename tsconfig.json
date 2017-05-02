@@ -4,8 +4,8 @@
 
     "src/core/vehicle/vehicle-interface.ts",
     "src/core/vehicle/light-config.ts",
-    "src/core/vehicle/anki-overdrive-vehicle.ts",
-    "src/core/vehicle/vehicle-scanner.ts",
+    "src/core/vehicle/vehicle-impl.ts",
+    "src/core/vehicle/vehicle-scanner-impl.ts",
     "src/core/message/anki-message.ts",
     "src/core/message/vehicle-message.ts",
     "src/core/message/driving-direction.ts",
@@ -74,7 +74,11 @@
     "src/script/measure-track.ts",
     "src/script/anti-collision.ts",
     "src/script/validate-distance.ts",
-    "src/script/latency-analyse.ts"
+    "src/script/latency-analyse.ts",
+
+    "src/server/server-console-interface.ts",
+    "src/server/vehicle-server.ts",
+    "src/server/lifecycle-component.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

@@ -1,4 +1,4 @@
-import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../../core/vehicle/vehicle-scanner-impl";
 import {isNullOrUndefined} from "util";
 import {CollisionScenario} from "./collision-scenario";
 import {Scenario} from "./scenario-interface";
@@ -8,7 +8,7 @@ let scenario: Scenario,
     settings = new JsonSettings(),
     track = settings.getAsTrack("track"),
     setup = settings.getAsSetup("setup"),
-    scanner = new VehicleScanner(setup);
+    scanner = new VehicleScannerImpl(setup);
 
 function handleError(e: Error) {
     if (!isNullOrUndefined(e)) {

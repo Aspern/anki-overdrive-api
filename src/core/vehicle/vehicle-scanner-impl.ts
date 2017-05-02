@@ -2,37 +2,32 @@
 import * as noble from "noble";
 import {Peripheral} from "noble";
 import {Vehicle} from "./vehicle-interface";
-import {AnkiOverdriveVehicle} from "./anki-overdrive-vehicle";
+import {AnkiOverdriveVehicle} from "./vehicle-impl";
 import {isNullOrUndefined} from "util";
 import {Setup} from "../setup";
+import {VehicleScanner} from "./vehicle-scanner-interface";
 
-/**
- * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
- * their messageId or address.
- */
-class VehicleScanner {
+
+class VehicleScannerImpl implements VehicleScanner {
 
     private _timeout: number;
     private _retries: number;
     private _setup: Setup;
 
     /**
-     * Creates a instance of VehicleScanner.
+     * Creates an instance of VehicleScannerImpl.
      *
-     * @param timeout (optional) number of milliseconds before timeout is reached.
-     * @param _retries (optional) number of _retries before searching fails.
+     * @param setup Setup that belongs to the track and vehicles.
+     * @param timeout (optional) number of milliseconds before timeout is reached, default is
+     * 1 second.
+     * @param retries (optional) number of retries before searching fails, default is 3.
      */
-    constructor(setup: Setup, timeout?: number, retries?: number) {
+    constructor(setup: Setup, timeout = 1000, retries = 3) {
         this._setup = setup;
-        this._timeout = timeout || 1000;
-        this._retries = retries || 3;
+        this._timeout = timeout;
+        this._retries = retries;
     }
 
-    /**
-     * Searches and returns all available vehicles.
-     *
-     * @return {Promise<Array<Vehicle>>|Promise} all available vehicles
-     */
     findAll(): Promise<Array<Vehicle>> {
         let vehicles: Array<Vehicle> = [],
             peripherals: Array<Peripheral> = [],
@@ -85,13 +80,7 @@ class VehicleScanner {
         });
     }
 
-    /**
-     * Searches a vehicle by its unique identifier.
-     *
-     * @param id Unique identifier of the vehicle
-     * @return {Promise<Vehicle>|Promise} vehicle
-     */
-    findById(id: string): Promise<Vehicle> {
+    findById(id: string): Promise<Vehicle|null> {
         let me = this;
 
         return new Promise<Vehicle>((resolve, reject) => {
@@ -105,13 +94,7 @@ class VehicleScanner {
         });
     }
 
-    /**
-     * Searches a vehicle by its unique address.
-     *
-     * @param address unique address
-     * @return {Promise<Vehicle>|Promise} vehicle
-     */
-    findByAddress(address: string): Promise<Vehicle> {
+    findByAddress(address: string): Promise<Vehicle|null> {
         let me = this;
 
         return new Promise<Vehicle>((resolve, reject) => {
@@ -125,12 +108,7 @@ class VehicleScanner {
         });
     }
 
-    /**
-     * Searches for any vehicle.
-     *
-     * @return {Promise<Vehicle>|Promise} vehicle
-     */
-    findAny(): Promise<Vehicle> {
+    findAny(): Promise<Vehicle|null> {
         let me = this;
 
         return new Promise<Vehicle>((resolve, reject) => {
@@ -143,6 +121,13 @@ class VehicleScanner {
         });
     }
 
+
+    /**
+     * Proofs if the peripheral is part of the current setup.
+     *
+     * @param peripheral Bluetooth Low Energy peripheral
+     * @return 'true' if vehicle is in setup or 'false' if not
+     */
     private isVehicleInSetup(peripheral: Peripheral): boolean {
         let me = this,
             vehiclesInSetup = me._setup.vehicles,
@@ -155,6 +140,9 @@ class VehicleScanner {
         return false;
     }
 
+    /**
+     * Resolves, if the Bluetooth Low Energy adapter is online.
+     */
     private onAdapterOnline(): Promise<void> {
         let counter: number = 0,
             me = this;
@@ -174,9 +162,7 @@ class VehicleScanner {
                 ++counter;
             }, this._timeout);
         });
-
-
     }
 }
 
-export {VehicleScanner};
+export {VehicleScannerImpl};

@@ -43,17 +43,7 @@
     "websocket": "^1.0.24"
   },
   "scripts": {
-    "bootstrap": "gulp && node ./dist/bootstrap.js",
-    "scenario-runner": "gulp && node ./dist/controller/scenario/scenario-runner.js",
-    "test-controller": "tsc -p . && mocha test/controller",
-    "test-core": "tsc -p . && mocha ./test/core",
-    "start-track-controller": "gulp && node ./dist/controller/kafka/kafka-track-controller.js",
-    "scan-vehicles": "node ./dist/script/scan-vehicles.js",
-    "measure-track": "gulp && node ./dist/script/measure-track.js",
-    "measure-quality": "gulp && node ./dist/script/measure-message-quality.js",
-    "anti-collision": "gulp && node ./dist/script/anti-collision.js",
-    "validate-distance": "gulp && node ./dist/script/validate-distance.js",
-    "latency-analyse": "gulp && node ./dist/script/latency-analyse.js"
+    "start-server": "gulp && node ./dist/server/vehicle-server.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [

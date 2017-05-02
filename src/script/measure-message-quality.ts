@@ -1,4 +1,4 @@
-import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
 import {JsonSettings} from "../core/settings/json-settings";
 import {TrackRunner} from "../core/util/track-runner";
@@ -16,7 +16,7 @@ import {PositionUpdateMessage} from "../core/message/v2c/position-update-message
 
 let settings = new JsonSettings(),
     setup = settings.getAsSetup("setup"),
-    scanner = new VehicleScanner(setup),
+    scanner = new VehicleScannerImpl(setup),
     track = settings.getAsTrack("track"),
     config: {
         minSpeed: number,

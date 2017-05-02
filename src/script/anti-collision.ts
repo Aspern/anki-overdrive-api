@@ -1,4 +1,4 @@
-import {VehicleScanner} from "../core/vehicle/vehicle-scanner";
+import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 import {JsonSettings} from "../core/settings/json-settings";
 import {SimpleDistanceFilter} from "../core/filter/simple-distance-filter";
 import {Vehicle} from "../core/vehicle/vehicle-interface";
@@ -13,7 +13,7 @@ import {PositionUpdateMessage} from "../core/message/v2c/position-update-message
 
 let   settings = new JsonSettings(),
     setup = settings.getAsSetup("setup"),
-    scanner = new VehicleScanner(setup),
+    scanner = new VehicleScannerImpl(setup),
     ankiConsole = new AnkiConsole(),
     track = settings.getAsTrack("track"),
     filter = new SimpleDistanceFilter(),
