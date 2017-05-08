@@ -148,7 +148,7 @@ class VehicleScanner {
             vehiclesInSetup = me._setup.vehicles,
             i = 0;
         for (; i < vehiclesInSetup.length; i++) {
-            if (vehiclesInSetup[i].uuid === peripheral.uuid)
+            if (vehiclesInSetup[i].address === peripheral.address)
                 return true;
         }
 
