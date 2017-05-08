@@ -1,22 +1,36 @@
 {
   "setup": {
     "ean": "0810559020400",
-    "uuid" : "setup-adrian",
+    "uuid": "setup-adrian",
     "websocket": "ws://localhost:4711/",
     "vehicles": [
       {
-        "uuid": "eb401ef0f82b",
-        "address": "eb:40:1e:f0:f8:2b",
-        "name": "Ground Shock",
-        "offset": -68,
-        "connected" : true
+        "uuid": "efb112b5ade2",
+        "address": "ef:b1:12:b5:ad:e2",
+        "name": "Freewheel",
+        "offset": 23,
+        "connected": true
+      },
+      {
+        "uuid": "e42c342d466c",
+        "address": "e4:2c:34:2d:46:6c",
+        "name": "Thermo",
+        "offset": -23,
+        "connect": true
       },
       {
         "uuid": "ed0c94216553",
         "address": "ed:0c:94:21:65:53",
         "name": "Skull",
         "offset": 68,
-        "connected" : true
+        "connected": true
+      },
+      {
+        "uuid": "eb401ef0f82b",
+        "address": "eb:40:1e:f0:f8:2b",
+        "name": "Ground Shock",
+        "offset": -68,
+        "connected": true
       }
     ],
     "track": {

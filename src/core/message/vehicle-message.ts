@@ -24,6 +24,9 @@ class VehicleMessage extends AnkiMessage {
         0x2a: "intersectionUpdate",
         0x2b: "delocalized",
         0x2c: "setOffset",
+        // Custom messages
+        0x89: "roundUpdate",
+        // EO: Custom messages
         0x90: "setSdkMode"
     };
 

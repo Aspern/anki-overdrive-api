@@ -35,6 +35,8 @@ class KafkaDistanceFilter {
         this._updateHandler = null;
     }
 
+
+
     start(): Promise<void> {
         let me = this;
 

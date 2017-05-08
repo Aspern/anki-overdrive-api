@@ -20,8 +20,9 @@ import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 import * as log4js from "log4js";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
-import {AntiCollisionScenarioCollecting} from "../scenario/anti-collision-scenario-collecting";
 import {WebSocketController} from "../websocket/websocket-controller";
+/// <reference path="../../../decl/jsonfile.d.ts"/>
+import {KafkaRoundFilter} from "./kafka-round-filter";
 
 let settings: Settings = new JsonSettings(),
     setup: Setup = settings.getAsSetup("setup"),
@@ -307,6 +308,26 @@ kafkaController.initializeProducer().then(online => {
             //     filter.registerUpdateHandler(scenario.onUpdate, scenario);
             //     scenario.start().catch(handleError);
             // }, 2000);
+
+            let skull: Vehicle = null;
+
+            usedVehicles.forEach(vehicle => {
+                if (vehicle.id === "ed0c94216553")
+                    skull = vehicle;
+            });
+
+            if (!isNullOrUndefined(skull)) {
+
+
+
+                let roundFilter = new KafkaRoundFilter(skull, track, "vehicle-data");
+                roundFilter.start().then(() => {
+                    logger.info("Sending messages for completed rounds.");
+                }).catch(error => {
+                    logger.error("Cannot start round filter.", error);
+                });
+            }
+
 
         }, 3000);
 
