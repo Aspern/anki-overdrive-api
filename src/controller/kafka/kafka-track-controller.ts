@@ -49,6 +49,8 @@ log4js.configure({
     ]
 });
 
+process.setMaxListeners(100);
+
 let logger = log4js.getLogger("setup");
 
 function handleError(e: Error): void {
@@ -95,8 +97,8 @@ function getPieceDescription(piece: Piece) {
 }
 
 function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number) => any) {
-    vehicleConfig.forEach(config => {
-        config.vehicle.setLights([
+    usedVehicles.forEach(vehicle => {
+        vehicle.setLights([
             new LightConfig()
                 .blue()
                 .steady(),
@@ -107,7 +109,7 @@ function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number)
                 .red()
                 .steady(0)
         ]);
-        config.vehicle.setLights([
+        vehicle.setLights([
             new LightConfig()
                 .tail()
                 .steady(0),
@@ -119,22 +121,24 @@ function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number)
                 .steady(0)
         ]);
 
-        if (!isNullOrUndefined(handler))
-            handler(config.vehicle, config.offset);
+        setup.vehicles.forEach(config => {
+            if (config.uuid === vehicle.id)
+                handler(vehicle, config.offset);
+        });
+
     });
 }
 
 function findStartLane() {
     let counters: { [key: string]: number } = {};
-    vehicleConfig.forEach(config => {
-        let vehicle = config.vehicle;
+    usedVehicles.forEach(vehicle => {
         counters[vehicle.id] = 0;
         let listener = (message: PositionUpdateMessage) => {
             if (message.piece === 34 && message.position === 0 && counters[message.vehicleId] === 1) {
                 vehicle.removeListener(listener);
                 counters[message.vehicleId] = 0;
                 vehicle.setSpeed(0, 1000);
-                config.vehicle.setLights([
+                vehicle.setLights([
                     new LightConfig()
                         .blue()
                         .steady(),
@@ -149,8 +153,8 @@ function findStartLane() {
                 counters[message.vehicleId] = 1;
         };
 
-        config.vehicle.addListener(listener);
-        config.vehicle.setLights([
+        vehicle.addListener(listener);
+        vehicle.setLights([
             new LightConfig()
                 .blue()
                 .steady(0),
@@ -162,10 +166,16 @@ function findStartLane() {
                 .flash(0, 10, 10)
         ]);
         setTimeout(() => {
-            config.vehicle.setSpeed(500, 250);
-            setTimeout(() => {
-                config.vehicle.changeLane(config.offset);
-            }, 2000);
+
+            setup.vehicles.forEach(config => {
+                if (config.uuid === vehicle.id) {
+                    vehicle.setSpeed(500, 250);
+                    setTimeout(() => {
+                        vehicle.changeLane(config.offset);
+                    }, 2000);
+                }
+
+            });
         }, resetTimeouts[vehicle.id] || 0);
     });
 }
@@ -200,8 +210,8 @@ kafkaController.initializeProducer().then(online => {
                     offset: config.offset,
                     vehicle: vehicle
                 });
-                usedVehicles.push(vehicle);
             });
+            usedVehicles.push(vehicle);
         });
 
         if (vehicleConfig.length === 0) {
@@ -215,12 +225,11 @@ kafkaController.initializeProducer().then(online => {
         }
 
 
-        logger.info("Found " + vehicleConfig.length + " vehicles:");
+        logger.info("Found " + vehicles.length + " vehicles:");
         let i = 1;
-        vehicleConfig.forEach(config => {
-            let v = config.vehicle;
-            let controller = new KafkaVehicleController(v);
-            logger.info("\t" + i++ + "\t" + v.id + "\t" + v.address);
+        usedVehicles.forEach(vehicle => {
+            let controller = new KafkaVehicleController(vehicle);
+            logger.info("\t" + i++ + "\t" + vehicle.id + "\t" + vehicle.address);
 
             controller.start().then(() => {
                 vehicleControllers.push(controller);

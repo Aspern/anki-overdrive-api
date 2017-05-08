@@ -76,13 +76,21 @@ class VehicleScanner {
                     });
                     setTimeout(() => {
                         vehiclePeripherals.forEach((vehcPer) => {
-                            vehicles.push(new AnkiOverdriveVehicle(vehcPer, me._setup));
+                            if (!me.vehicleAlreadyExits(vehcPer, vehicles))
+                                vehicles.push(new AnkiOverdriveVehicle(vehcPer, me._setup));
                         });
                         resolve(vehicles);
                     }, me._timeout);
                 }, this._timeout);
             }).catch(reject);
         });
+    }
+
+    private vehicleAlreadyExits(peripheral: Peripheral, vehicles: Array<Vehicle>) {
+        for (let i = 0; i < vehicles.length; i++)
+            if (vehicles[i].address === peripheral.address)
+                return true;
+        return false;
     }
 
     /**
