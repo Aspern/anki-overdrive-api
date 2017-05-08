@@ -196,13 +196,11 @@ kafkaController.initializeProducer().then(online => {
     scanner.findAll().then(vehicles => {
         vehicles.forEach(vehicle => {
             setup.vehicles.forEach(config => {
-                if (config.uuid === vehicle.id) {
-                    vehicleConfig.push({
-                        offset: config.offset,
-                        vehicle: vehicle
-                    });
-                    usedVehicles.push(vehicle);
-                }
+                vehicleConfig.push({
+                    offset: config.offset,
+                    vehicle: vehicle
+                });
+                usedVehicles.push(vehicle);
             });
         });
 
@@ -317,7 +315,6 @@ kafkaController.initializeProducer().then(online => {
             });
 
             if (!isNullOrUndefined(skull)) {
-
 
 
                 let roundFilter = new KafkaRoundFilter(skull, track, "vehicle-data");
