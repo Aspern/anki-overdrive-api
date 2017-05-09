@@ -121,10 +121,11 @@ function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number)
                 .steady(0)
         ]);
 
-        setup.vehicles.forEach(config => {
-            if (config.uuid === vehicle.id)
-                handler(vehicle, config.offset);
-        });
+        if (!isNullOrUndefined(handler))
+            setup.vehicles.forEach(config => {
+                if (config.uuid === vehicle.id)
+                    handler(vehicle, config.offset);
+            });
 
     });
 }
