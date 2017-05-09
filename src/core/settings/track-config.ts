@@ -1,6 +1,6 @@
 
 class TrackConfig {
-  
+
 }
 
 export {TrackConfig};
