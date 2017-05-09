@@ -110,7 +110,7 @@ class JsonSettings implements Settings {
                 ean: string,
                 uuid: string,
                 websocket: string
-                vehicles: Array<{ uuid: string, address: string, name: string, offset: number }>,
+                vehicles: Array<{ uuid: string, address: string, name: string, offset: number,connected:boolean }>,
                 track: { pieces: Array<{ pieceId: number, type: string }> }
             } = this.getAsObject("setup"),
             setup = new Setup();
