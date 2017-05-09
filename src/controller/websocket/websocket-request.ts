@@ -14,9 +14,12 @@ type Command = "connect"
     | "disable-listener"
 
 interface WebSocketRequest {
-    command: Command;
-    vehicleId: string;
-    params: Array<number>
+    event: string,
+    data: {
+        command: Command;
+        vehicleId: string;
+        payload: any
+    }
 }
 
 export {WebSocketRequest, Command};

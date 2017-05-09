@@ -1,7 +1,6 @@
 import {isNullOrUndefined} from "util";
 import {Vehicle} from "../vehicle/vehicle-interface";
 import {AnkiMessage} from "./anki-message";
-import {stringify} from "querystring";
 /**
  * Contains general information about vehicles. Each message additionally contains the ID of its
  * vehicle and a creation timestamp.
@@ -25,6 +24,9 @@ class VehicleMessage extends AnkiMessage {
         0x2a: "intersectionUpdate",
         0x2b: "delocalized",
         0x2c: "setOffset",
+        // Custom messages
+        0x89: "roundUpdate",
+        // EO: Custom messages
         0x90: "setSdkMode"
     };
 

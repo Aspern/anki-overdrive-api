@@ -66,6 +66,7 @@ class TrackRunner {
     private _timeout = 60000 // one minute.
 
 
+
     /**
      * Creates a new TrackRunner instance with following parameters.
      *
@@ -201,29 +202,35 @@ class TrackRunner {
      * Starts the vehicle and runs all specified lines.
      */
     run(): void {
-        let me = this;
+        let me = this,
+            execution = () => {
+                me._running = true;
+                me._vehicle.setSpeed(me._speed, me._acceleration);
+                me._trackStartedHandler();
+                me._laneData.reduce((promise, data) => {
+                    let lane = data[0],
+                        offset = data[1];
 
-        me._vehicle.connect().then(() => {
-            me._running = true;
-            me._vehicle.setSpeed(me._speed, me._acceleration);
-            me._trackStartedHandler();
-            me._laneData.reduce((promise, data) => {
-                let lane = data[0],
-                    offset = data[1];
-
-                return promise.then((result: Array<Array<PositionUpdateMessage>>) => {
-                    return me.driveOnLane(lane, offset).then((messages: Array<PositionUpdateMessage>) => {
-                        result.push(messages);
-                        return result;
+                    return promise.then((result: Array<Array<PositionUpdateMessage>>) => {
+                        return me.driveOnLane(lane, offset).then((messages: Array<PositionUpdateMessage>) => {
+                            result.push(messages);
+                            return result;
+                        });
                     });
+                }, Promise.resolve(me._result)).then(() => {
+                    me.stop();
+                    me._trackFinishedHandler(me._result);
                 });
-            }, Promise.resolve(me._result)).then(() => {
-                me.stop();
-                me._trackFinishedHandler(me._result);
+            };
+
+        if (me._vehicle.connected)
+            execution();
+        else
+            me._vehicle.connect().then(() => {
+                execution();
+            }).catch((e) => {
+                me.stop(e);
             });
-        }).catch((e) => {
-            me.stop(e);
-        });
     }
 
     /**
@@ -248,6 +255,8 @@ class TrackRunner {
         }
     }
 
+
+
     private driveOnLane(lane: number, offset: number): Promise<Array<PositionUpdateMessage>> {
         let me = this;
 
@@ -267,35 +276,50 @@ class TrackRunner {
             vehicle = me._vehicle,
             startLocation = me._track.start.getLocation(lane, 0),
             attempts = 0,
+            correctOffset = 0,
             timeout = setTimeout(() => me._timeoutHandler(), me._timeout);
 
 
         return new Promise<PositionUpdateMessage>((resolve) => {
-            let listener = (message: PositionUpdateMessage) => {
-                let piece = message.piece,
-                    location = message.location;
+                let listener = (message: PositionUpdateMessage) => {
+                    let piece = message.piece,
+                        location = message.location;
 
-                if (attempts >= 3) {
-                    clearTimeout(timeout);
-                    vehicle.removeListener(listener);
-                    me.stop(new Error("Unable to find lane [" + lane + "]."));
-                }
-
-                if (piece === Start._ID) {
-                    if (location === startLocation) {
+                    if (attempts >= 5) {
                         clearTimeout(timeout);
                         vehicle.removeListener(listener);
-                        resolve(message);
-                    } else if (location < startLocation || location > startLocation) {
-                        ++attempts;
+                        me.stop(new Error("Unable to find lane [" + lane + "]."));
                     }
-                }
-            };
 
-            vehicle.changeLane(offset);
-            setTimeout(() => vehicle.addListener(listener, PositionUpdateMessage), 1500);
-        });
+                    if (piece === Start._ID) {
+                        if (location === startLocation) {
+                            clearTimeout(timeout);
+                            vehicle.removeListener(listener);
+                            resolve(message);
+                        } else if (location < startLocation) {
+                            ++attempts;
+                            correctOffset -= 8.5;
+                            vehicle.setOffset(offset + correctOffset);
+                            setTimeout(() => {
+                                vehicle.changeLane(offset);
+                            }, 1000);
+                        } else if (location > startLocation) {
+                            ++attempts;
+                            correctOffset += 8.5;
+                            vehicle.setOffset(offset + correctOffset);
+                            setTimeout(() => {
+                                vehicle.changeLane(offset);
+                            }, 1000);
+                        }
+                    }
+                };
+
+                vehicle.changeLane(offset);
+                setTimeout(() => vehicle.addListener(listener, PositionUpdateMessage), 1500);
+            }
+        );
     }
+
 
     private collectMessagesForLane(startMessage: PositionUpdateMessage, lane: number): Promise<Array<PositionUpdateMessage>> {
         let me = this,

@@ -22,6 +22,7 @@ import {VersionRequest} from "../message/c2v/version-request";
 import {BatteryLevelRequest} from "../message/c2v/battery-level-request";
 import {SetLights} from "../message/c2v/set-lights";
 import {Setup} from "../setup";
+import {isNull, isNullOrUndefined} from "util";
 
 /**
  * Default implementation of `Vehicle`. The connection with the vehicle will enable the SDK mode
@@ -330,8 +331,10 @@ class AnkiOverdriveVehicle implements Vehicle {
                         me._write = characteristic;
                 });
 
-                if (!me._write || !me._write)
-                    reject(new Error(("Could not initialise read/write characteristics.")));
+                if (isNullOrUndefined(me._read))
+                    reject(new Error(("Could not initialise read characteristics.")));
+                if(isNullOrUndefined(me._write))
+                    reject(new Error(("Could not initialise write characteristics.")));
 
                 me._read.subscribe();
                 me.enableDataEvents();
