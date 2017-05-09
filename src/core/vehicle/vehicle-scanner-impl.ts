@@ -2,19 +2,20 @@
 import * as noble from "noble";
 import {Peripheral} from "noble";
 import {Vehicle} from "./vehicle-interface";
-import {AnkiOverdriveVehicle} from "./anki-overdrive-vehicle";
 import {isNullOrUndefined} from "util";
-import {Setup} from "../setup";
+import {SetupConfig} from "../settings/setup-config";
+import {AnkiOverdriveVehicle} from "./vehicle-impl";
+import {VehicleScanner} from "./vehicle-scanner-interface";
 
 /**
  * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
  * their messageId or address.
  */
-class VehicleScanner {
+class VehicleScannerImpl implements VehicleScanner{
 
     private _timeout: number;
     private _retries: number;
-    private _setup: Setup;
+    private _setup: SetupConfig;
 
     /**
      * Creates a instance of VehicleScanner.
@@ -22,7 +23,7 @@ class VehicleScanner {
      * @param timeout (optional) number of milliseconds before timeout is reached.
      * @param _retries (optional) number of _retries before searching fails.
      */
-    constructor(setup: Setup, timeout?: number, retries?: number) {
+    constructor(setup: SetupConfig, timeout?: number, retries?: number) {
         this._setup = setup;
         this._timeout = timeout || 1000;
         this._retries = retries || 3;
@@ -169,6 +170,7 @@ class VehicleScanner {
 
         return new Promise<void>((resolve, reject) => {
             let i = setInterval(() => {
+
                 if (noble.state === "poweredOn") {
                     clearInterval(i);
                     resolve();
@@ -182,9 +184,7 @@ class VehicleScanner {
                 ++counter;
             }, this._timeout);
         });
-
-
     }
 }
 
-export {VehicleScanner};
+export {VehicleScannerImpl};

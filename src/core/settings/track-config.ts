@@ -1,3 +1,6 @@
-/**
- * Created by aweber on 09.05.17.
- */
+
+class TrackConfig {
+  
+}
+
+export {TrackConfig};

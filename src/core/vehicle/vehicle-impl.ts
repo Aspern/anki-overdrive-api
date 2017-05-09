@@ -21,7 +21,7 @@ import {BatteryLevelResponse} from "../message/v2c/battery-level-response";
 import {VersionRequest} from "../message/c2v/version-request";
 import {BatteryLevelRequest} from "../message/c2v/battery-level-request";
 import {SetLights} from "../message/c2v/set-lights";
-import {Setup} from "../setup";
+import {SetupConfig} from "../settings/setup-config";
 import {isNull, isNullOrUndefined} from "util";
 
 /**
@@ -46,7 +46,7 @@ class AnkiOverdriveVehicle implements Vehicle {
         this._speed = message.speed;
     };
 
-    constructor(peripheral: Peripheral, setup: Setup, name?: string) {
+    constructor(peripheral: Peripheral, setup: SetupConfig, name: string) {
         this._id = peripheral.id;
         this._address = peripheral.address;
         this._name = name;

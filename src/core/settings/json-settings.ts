@@ -7,7 +7,7 @@ import {Piece} from "../track/piece-interface";
 import {Curve} from "../track/curve";
 import {Straight} from "../track/straight";
 import {AnkiOverdriveTrack} from "../track/anki-overdrive-track";
-import {Setup} from "../setup";
+import {SetupConfig} from "./setup-config";
 
 /**
  * This implementation of settings uses a simple json file to find settings. The class uses the
@@ -105,23 +105,8 @@ class JsonSettings implements Settings {
     }
 
 
-    getAsSetup(key: string): Setup {
-        let object: {
-                ean: string,
-                uuid: string,
-                websocket: string
-                vehicles: Array<{ uuid: string, address: string, name: string, offset: number }>,
-                track: { pieces: Array<{ pieceId: number, type: string }> }
-            } = this.getAsObject("setup"),
-            setup = new Setup();
-
-        setup.ean = object.ean;
-        setup.uuid = object.uuid;
-        setup.vehicles = object.vehicles;
-        setup.track = object.track;
-        setup.websocket = object.websocket;
-
-        return setup;
+    getAsSetup(key: string): SetupConfig {
+        return this.getAsObject("setup");
     }
 }
 

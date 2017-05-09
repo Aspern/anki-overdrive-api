@@ -1,5 +1,5 @@
 import {Track} from "../track/track-interface";
-import {Setup} from "../setup";
+import {SetupConfig} from "./setup-config";
 
 /**
  * Class to access user defined settings for the application.
@@ -72,7 +72,7 @@ interface Settings {
      *
      * @param key Name of the setting
      */
-    getAsSetup(key: string) : Setup;
+    getAsSetup(key: string) : SetupConfig;
 
 }
 

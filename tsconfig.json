@@ -53,7 +53,9 @@
     "src/core/util/anki-console.ts",
     "src/core/settings/settings-interface.ts",
     "src/core/settings/json-settings.ts",
-    "src/core/setup.ts",
+    "src/core/settings/setup-config.ts",
+    "src/core/settings/vehicle-config.ts",
+    "src/core/settings/track-config.ts",
 
     "src/controller/main.ts",
     "src/controller/kafka/kafka-controller.ts",
@@ -82,7 +84,7 @@
 
     "src/server/server-console-interface.ts",
     "src/server/vehicle-server.ts",
-    "src/server/lifecycle-component.ts"
+    "src/server/lifecycle-component.ts",
     "src/script/latency-analyse.ts",
     "src/script/mongo-output.ts"
   ],

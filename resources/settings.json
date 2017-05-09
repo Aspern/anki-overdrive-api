@@ -8,29 +8,25 @@
         "uuid": "efb112b5ade2",
         "address": "ef:b1:12:b5:ad:e2",
         "name": "Freewheel",
-        "offset": 23,
-        "connected": true
+        "lane": 2
       },
       {
         "uuid": "e42c342d466c",
         "address": "e4:2c:34:2d:46:6c",
         "name": "Thermo",
-        "offset": -23,
-        "connect": true
+        "lane": 3
       },
       {
         "uuid": "ed0c94216553",
         "address": "ed:0c:94:21:65:53",
         "name": "Skull",
-        "offset": 68,
-        "connected": true
+        "lane": 4
       },
       {
         "uuid": "eb401ef0f82b",
         "address": "eb:40:1e:f0:f8:2b",
         "name": "Ground Shock",
-        "offset": -68,
-        "connected": true
+        "lane": 1
       }
     ],
     "track": {
@@ -64,17 +60,6 @@
           "pieceId": 34
         }
       ]
-    }
-  },
-  "scripts": {
-    "measureTrack": {
-      "resultHandler": "console"
-    },
-    "measureQuality": {
-      "minSpeed": 1000,
-      "maxSpeed": 1200,
-      "increment": 100,
-      "rounds": 20
     }
   }
 }

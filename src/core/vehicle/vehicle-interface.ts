@@ -9,6 +9,7 @@ interface Vehicle {
     id: string;
     setupId: string;
     address: string;
+    name : string;
     connected: boolean;
 
     /**

@@ -10,7 +10,7 @@ import {Finish} from "../../core/track/finish";
 import {Straight} from "../../core/track/straight";
 import {Curve} from "../../core/track/curve";
 import {KafkaController} from "./kafka-controller";
-import {Setup} from "../../core/setup";
+import {SetupConfig} from "../../core/settings/setup-config";
 import {AnkiConsole} from "../../core/util/anki-console";
 import {Scenario} from "../scenario/scenario-interface";
 import {CollisionScenario} from "../scenario/collision-scenario";
@@ -25,7 +25,7 @@ import {WebSocketController} from "../websocket/websocket-controller";
 import {KafkaRoundFilter} from "./kafka-round-filter";
 
 let settings: Settings = new JsonSettings(),
-    setup: Setup = settings.getAsSetup("setup"),
+    setup: SetupConfig = settings.getAsSetup("setup"),
     scanner = new VehicleScannerImpl(setup),
     track = settings.getAsTrack("setup.track.pieces"),
     vehicleConfig: Array<{ offset: number, vehicle: Vehicle }> = [],
@@ -78,7 +78,7 @@ process.on('exit', () => {
         config.vehicle.disconnect();
     });
 
-    logger.info("Setup disconnected.");
+    logger.info("SetupConfig disconnected.");
 });
 
 // Because many listeners are used in process.

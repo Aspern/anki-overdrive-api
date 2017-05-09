@@ -5,11 +5,12 @@ import {Vehicle} from "../core/vehicle/vehicle-interface";
 import {Track} from "../core/track/track-interface";
 import {JsonSettings} from "../core/settings/json-settings";
 import {VehicleScanner} from "../core/vehicle/vehicle-scanner-interface";
-import {Setup} from "../core/setup";
-import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
+import {SetupConfig} from "../core/settings/setup-config";
 import {Logger} from "log4js";
 import reject = Promise.reject;
 import {isNullOrUndefined} from "util";
+import Timer = NodeJS.Timer;
+import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 
 /**
  * Server to control a setup with one track and an amount of vehicles, that belongs to the track
@@ -22,12 +23,13 @@ class VehicleServer implements LifecycleComponent {
     private _scanner: VehicleScanner;
     private _vehicles: Array<Vehicle>;
     private _track: Track;
-    private _setup: Setup;
+    private _setup: SetupConfig;
     private _logger: Logger;
+    private _autoScanTask: Timer;
 
     constructor() {
         this.initLogging();
-        this.addShuwdownHook();
+        this.addShutdownHook();
         this._settings = new JsonSettings();
         this._track = this._settings.getAsTrack("setup.track.pieces");
         this._setup = this._settings.getAsSetup("setup");
@@ -58,7 +60,11 @@ class VehicleServer implements LifecycleComponent {
 
         this._logger.info("Stopping vehicle-server...");
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>(resolve => {
+
+            if (!isNullOrUndefined(me._autoScanTask))
+                clearInterval(me._autoScanTask);
+
             resolve();
         });
     }
@@ -89,6 +95,7 @@ class VehicleServer implements LifecycleComponent {
         this._vehicles.forEach(vehicle => me.printVehicle(vehicle));
     }
 
+
     /**
      * Prints vehicle information to the log.
      *
@@ -118,7 +125,7 @@ class VehicleServer implements LifecycleComponent {
     /**
      * Stops the server properly when the 'exit' event was emitted by NodeJS.
      */
-    private addShuwdownHook(): void {
+    private addShutdownHook(): void {
         let me = this;
         process.on('exit', () => {
             let closed = false;

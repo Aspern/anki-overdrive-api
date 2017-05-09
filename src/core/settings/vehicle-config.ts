@@ -1,3 +1,8 @@
-/**
- * Created by aweber on 09.05.17.
- */
+class VehicleConfig {
+    uuid: string;
+    address : string;
+    name: string;
+    lane: number;
+}
+
+export {VehicleConfig}
