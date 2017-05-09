@@ -24,7 +24,7 @@ class VehicleScanner {
      */
     constructor(setup: Setup, timeout?: number, retries?: number) {
         this._setup = setup;
-        this._timeout = timeout || 1000;
+        this._timeout = timeout || 3000;
         this._retries = retries || 3;
     }
 
