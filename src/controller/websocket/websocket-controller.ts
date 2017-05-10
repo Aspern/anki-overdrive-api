@@ -7,6 +7,7 @@ import {WebSocketResponse} from "./websocket-response";
 import * as log4js from "log4js";
 import http = require('http');
 import logger = Handlebars.logger;
+import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 
 /**
  * This class uses a WebSocket to control vehicles. Therefore a HTTP-Server is started for each
@@ -122,10 +123,13 @@ class WebSocketController {
                     );
                     break;
                 case "query-battery-level":
+                    let maxLevel = 4200,
+                        minLevel = 3200,
+                        maxRange = maxLevel - minLevel;
                     vehicle.queryBatteryLevel()
                         .then(batteryLevel => {
                             me.sendResponse("query-battery-level", vehicle.id, connection, {
-                                batteryLevel: batteryLevel
+                                batteryLevel: ((batteryLevel-minLevel)/maxRange)
                             });
                         }).catch(logger.error);
                     break;
@@ -156,7 +160,7 @@ class WebSocketController {
                         me._store[vehicle.id].listener = (message: VehicleMessage) => {
                             me.sendResponse("enable-listener", vehicle.id, connection, message);
                         }
-                        vehicle.addListener(me._store[vehicle.id].listener);
+                        vehicle.addListener(me._store[vehicle.id].listener, PositionUpdateMessage);
                     }
                     break;
                 case "disable-listener":
