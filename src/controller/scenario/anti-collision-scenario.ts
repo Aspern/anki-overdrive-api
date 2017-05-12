@@ -13,17 +13,19 @@ class AntiCollisionScenario implements Scenario {
     private _vehicle2: Vehicle;
     private _store: { [key: string]: { vehicle: Vehicle, speed: number } } = {};
     private _running = false;
-    private _logger = log4js.getLogger("anti-collision");
-    private _timeouts : Array<any> = [];
+    //private _logger = log4js.getLogger("anti-collision");
+    private _timeouts: Array<any> = [];
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
-        if(vehicle1.id === "eb401ef0f82b") {
-            this._vehicle1 = vehicle1;
-            this._vehicle2 = vehicle2;
-        } else {
-            this._vehicle1 = vehicle2;
-            this._vehicle2 = vehicle1;
-        }
+        // if(vehicle1.id === "eb401ef0f82b") {
+        //     this._vehicle1 = vehicle1;
+        //     this._vehicle2 = vehicle2;
+        // } else {
+        //     this._vehicle1 = vehicle2;
+        //     this._vehicle2 = vehicle1;
+        // }
+        this._vehicle1 = vehicle1;
+        this._vehicle2 = vehicle2;
 
         this._store[this._vehicle1.id] = {vehicle: this._vehicle1, speed: 0};
         this._store[this._vehicle2.id] = {vehicle: this._vehicle2, speed: 0};
@@ -39,57 +41,78 @@ class AntiCollisionScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
-               me._logger.info("(0): Starting");
-                v1.setSpeed(400, 100);
+
+                v1.accelerate(400, 400);
+                v2.setSpeed(600, 600);
+
+                v1.accelerate(400);
                 me._store[v1.id].speed = 400;
-                v2.setSpeed(600, 100);
+                v2.accelerate(600, 100);
                 me._store[v2.id].speed = 600;
 
                 me._timeouts.push(setTimeout(() => {
-                   me._logger.info("(0:06): Changing lane different");
                     v1.changeLane(-68.0);
                     v2.changeLane(68.0);
                 }, 6000));
 
-                me._timeouts.push(setTimeout(() => {
-                   me._logger.info("(0:18): Changing lane same");
-                    v1.changeLane(68.0);
-                }, 18000));
+                resolve();
 
-                me._timeouts.push(setTimeout(() => {
-                   me._logger.info("(1:00): Speeding up slow vehicle");
-                    v1.setSpeed(700, 100);
-                    me._store[v1.id].speed = 700;
-                }, 60000));
-
-                me._timeouts.push(setTimeout(() => {
-                   me._logger.info("(1:30): Slowing down slow vehicle");
-                    v2.setSpeed(350, 50);
-                    me._store[v2.id].speed = 350;
-                }, 90000));
-
-                me._timeouts.push(setTimeout(() => {
-                   me._logger.info("(2:00): Change slow vehicle inner lane");
-                    v2.changeLane(-68)
-                }, 120000));
-
-                me._timeouts.push(setTimeout(() => {
-                   me._logger.info("(2:30): Slowing down both vehicles");
-                    v1.setSpeed(0, 300);
-                    me._store[v1.id].speed = 0;
-                    v2.setSpeed(0, 300);
-                    me._store[v2.id].speed = 0;
-                    me._timeouts.push(setTimeout(() => {
-                       me._logger.info("(2:35): Finishing scenario");
-                        me._running = false;
-                        resolve();
-                    }, 5000));
-                }, 150000));
 
             } catch (e) {
                 me._running = false;
                 reject(e);
             }
+            //    me._logger.info("(0): Starting");
+            //     v1.setSpeed(400, 100);
+            //     me._store[v1.id].speed = 400;
+            //     v2.setSpeed(600, 100);
+            //     me._store[v2.id].speed = 600;
+            //
+            //     me._timeouts.push(setTimeout(() => {
+            //        me._logger.info("(0:06): Changing lane different");
+            //         v1.changeLane(-68.0);
+            //         v2.changeLane(68.0);
+            //     }, 6000));
+            //
+            //     me._timeouts.push(setTimeout(() => {
+            //        me._logger.info("(0:18): Changing lane same");
+            //         v1.changeLane(68.0);
+            //     }, 18000));
+            //
+            //     me._timeouts.push(setTimeout(() => {
+            //        me._logger.info("(1:00): Speeding up slow vehicle");
+            //         v1.setSpeed(700, 100);
+            //         me._store[v1.id].speed = 700;
+            //     }, 60000));
+            //
+            //     me._timeouts.push(setTimeout(() => {
+            //        me._logger.info("(1:30): Slowing down slow vehicle");
+            //         v2.setSpeed(350, 50);
+            //         me._store[v2.id].speed = 350;
+            //     }, 90000));
+            //
+            //     me._timeouts.push(setTimeout(() => {
+            //        me._logger.info("(2:00): Change slow vehicle inner lane");
+            //         v2.changeLane(-68)
+            //     }, 120000));
+            //
+            //     me._timeouts.push(setTimeout(() => {
+            //        me._logger.info("(2:30): Slowing down both vehicles");
+            //         v1.setSpeed(0, 300);
+            //         me._store[v1.id].speed = 0;
+            //         v2.setSpeed(0, 300);
+            //         me._store[v2.id].speed = 0;
+            //         me._timeouts.push(setTimeout(() => {
+            //            me._logger.info("(2:35): Finishing scenario");
+            //             me._running = false;
+            //             resolve();
+            //         }, 5000));
+            //     }, 150000));
+            //
+            // } catch (e) {
+            //     me._running = false;
+            //     reject(e);
+            // }
         });
     }
 

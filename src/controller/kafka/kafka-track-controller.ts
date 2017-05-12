@@ -302,10 +302,11 @@ kafkaController.initializeProducer().then(online => {
                         } else {
                             filter.registerUpdateHandler(scenario.onUpdate, scenario);
                             scenario.start().then(() => {
-                                initializeVehicles();
-                                scenario = null;
-                                filter.unregisterUpdateHandler();
-                                findStartLane();
+                                logger.info("Starting scenario: " + scenario)
+                                // initializeVehicles();
+                                // scenario = null;
+                                // filter.unregisterUpdateHandler();
+                                // findStartLane();
                             }).catch(handleError);
                         }
                     }
@@ -327,6 +328,8 @@ kafkaController.initializeProducer().then(online => {
                 if (vehicle.id === "ed0c94216553")
                     skull = vehicle;
             });
+
+
 
             // if (!isNullOrUndefined(skull)) {
             //
