@@ -296,7 +296,12 @@ kafkaController.initializeProducer().then(online => {
                     if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
                         logger.warn("Another scenario is still running!");
                     } else {
-                        scenario = createScenario(info.name);
+                        try{
+                            scenario = createScenario(info.name);
+                        }catch (e){
+                            logger.error("Unable to create scenario.", e);
+                        }
+
                         if (isNullOrUndefined(scenario)) {
                             logger.error("Unknown Scenario for config: " + info);
                         } else {
@@ -307,7 +312,7 @@ kafkaController.initializeProducer().then(online => {
                                 // scenario = null;
                                 // filter.unregisterUpdateHandler();
                                 // findStartLane();
-                            }).catch(handleError);
+                            }).catch(e => logger.error("Cannot start scenario.", e));
                         }
                     }
                 }

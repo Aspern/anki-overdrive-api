@@ -27,6 +27,8 @@ class AntiCollisionScenario implements Scenario {
         this._vehicle1 = vehicle1;
         this._vehicle2 = vehicle2;
 
+        console.log(this._vehicle2);
+
         this._store[this._vehicle1.id] = {vehicle: this._vehicle1, speed: 0};
         this._store[this._vehicle2.id] = {vehicle: this._vehicle2, speed: 0};
     }
@@ -43,7 +45,7 @@ class AntiCollisionScenario implements Scenario {
             try {
 
                 v1.accelerate(400, 400);
-                v2.setSpeed(600, 600);
+                v2.accelerate(600, 600);
 
                 v1.accelerate(400);
                 me._store[v1.id].speed = 400;
