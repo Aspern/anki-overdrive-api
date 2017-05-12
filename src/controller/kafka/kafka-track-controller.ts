@@ -254,17 +254,21 @@ kafkaController.initializeProducer().then(online => {
         // Wait 3 seconds before interacting with the resources.
         setTimeout(() => {
             initializeVehicles((vehicle, offset) => {
-                setInterval(() => {
-                    vehicle.queryBatteryLevel();
-                }, 1000);
+                // setInterval(() => {
+                //     vehicle.queryBatteryLevel();
+                // }, 1000);
                 logger.info("Initialize [" + vehicle.id + "] with offset [" + offset + "mm].")
                 vehicle.setOffset(offset);
+                vehicle.disconnect();
             });
 
             websocket = new WebSocketController(usedVehicles, 4711);
 
             setup.online = true;
+
+
             let message = JSON.stringify(setup).replace(/_/g, "");
+
 
             logger.info("Sending setup to 'setup': " + message);
             kafkaController.sendPayload([{
@@ -298,10 +302,11 @@ kafkaController.initializeProducer().then(online => {
                         } else {
                             filter.registerUpdateHandler(scenario.onUpdate, scenario);
                             scenario.start().then(() => {
-                                initializeVehicles();
-                                scenario = null;
-                                filter.unregisterUpdateHandler();
-                                findStartLane();
+                                logger.info("Starting scenario: " + scenario)
+                                // initializeVehicles();
+                                // scenario = null;
+                                // filter.unregisterUpdateHandler();
+                                // findStartLane();
                             }).catch(handleError);
                         }
                     }
@@ -320,25 +325,30 @@ kafkaController.initializeProducer().then(online => {
             let skull: Vehicle = null;
 
             usedVehicles.forEach(vehicle => {
-                if (vehicle.id === "1499513df74f438987bfe007a3051155")
+                if (vehicle.id === "ed0c94216553")
                     skull = vehicle;
             });
 
-            if (!isNullOrUndefined(skull)) {
 
 
-                skull.addListener(message=>{
-
-                    skull.queryBatteryLevel()
-                        .then(level => {
-
-                            //send message here
-                        });
-
-                },PositionUpdateMessage);
-
-
-            }
+            // if (!isNullOrUndefined(skull)) {
+            //
+            //
+            //     let roundFilter = new KafkaRoundFilter(skull, track, "vehicle-data");
+            //     roundFilter.start().then(() => {
+            //         logger.info("Sending messages for completed rounds.");
+            //     }).catch(error => {
+            //         logger.error("Cannot start round filter.", error);
+            //     });
+            //
+            //     setInterval(() => {
+            //         skull.queryBatteryLevel()
+            //             .then(level => {
+            //                 logger.info("battery level for skull: " + level);
+            //             });
+            //     });
+            //
+            // }
 
 
         }, 3000);

@@ -18,13 +18,16 @@ class CollisionScenario implements Scenario {
     private _intervals : Array<any> = [];
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
-        if (vehicle1.id === "eb401ef0f82b") {
-            this._vehicle1 = vehicle1;
-            this._vehicle2 = vehicle2;
-        } else {
-            this._vehicle1 = vehicle2;
-            this._vehicle2 = vehicle1;
-        }
+        // if (vehicle1.id === "eb401ef0f82b") {
+        //     this._vehicle1 = vehicle1;
+        //     this._vehicle2 = vehicle2;
+        // } else {
+        //     this._vehicle1 = vehicle2;
+        //     this._vehicle2 = vehicle1;
+        // }
+
+        this._vehicle1 = vehicle1;
+        this._vehicle2 = vehicle2;
 
         this._store[this._vehicle1.id] = this._vehicle1;
         this._store[this._vehicle2.id] = this._vehicle2;
@@ -39,31 +42,42 @@ class CollisionScenario implements Scenario {
         me._running = true;
         return new Promise<void>((resolve, reject) => {
             try {
-                me._logger.info("(0): Starting");
-                v1.setSpeed(350, 100);
-                v2.setSpeed(800, 100);
+
+                v1.accelerate(350);
+                v2.accelerate(800, 100);
 
                 me._timeouts.push(setTimeout(() => {
-                    me._logger.info("(0:09): Changing on different lanes");
                     v1.changeLane(-68);
                     v2.changeLane(50.5);
                 }, 9000));
 
-                me._timeouts.push(setTimeout(() => {
-                    me._logger.info("(0:30): Slow vehicle changes to outer lane.");
-                    v1.changeLane(68);
-                }, 30000));
+                resolve();
 
-                let interval = setInterval(() => {
-                    if (me._collided) {
-                        me._logger.info("(?): Scenario Finished.");
-                        clearInterval(interval);
-                        me._running = false;
-                        resolve();
-                    }
-
-                }, 200);
-                me._intervals.push(interval);
+                // me._logger.info("(0): Starting");
+                // v1.setSpeed(350, 100);
+                // v2.setSpeed(800, 100);
+                //
+                // me._timeouts.push(setTimeout(() => {
+                //     me._logger.info("(0:09): Changing on different lanes");
+                //     v1.changeLane(-68);
+                //     v2.changeLane(50.5);
+                // }, 9000));
+                //
+                // me._timeouts.push(setTimeout(() => {
+                //     me._logger.info("(0:30): Slow vehicle changes to outer lane.");
+                //     v1.changeLane(68);
+                // }, 30000));
+                //
+                // let interval = setInterval(() => {
+                //     if (me._collided) {
+                //         me._logger.info("(?): Scenario Finished.");
+                //         clearInterval(interval);
+                //         me._running = false;
+                //         resolve();
+                //     }
+                //
+                // }, 200);
+                // me._intervals.push(interval);
             } catch (e) {
                 me._running = false;
                 reject(e);
