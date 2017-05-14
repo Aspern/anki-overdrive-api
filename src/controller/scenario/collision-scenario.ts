@@ -4,7 +4,6 @@ import {VehicleDelocalizedMessage} from "../../core/message/v2c/vehicle-delocali
 import {LightConfig} from "../../core/vehicle/light-config";
 import {VehicleMessage} from "../../core/message/vehicle-message";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
-import * as log4js from "log4js";
 
 class CollisionScenario implements Scenario {
 
@@ -13,19 +12,10 @@ class CollisionScenario implements Scenario {
     private _store: { [key: string]: Vehicle } = {};
     private _collided = false;
     private _running = false;
-    private _logger = log4js.getLogger("collision");
     private _timeouts : Array<any> = [];
     private _intervals : Array<any> = [];
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
-        // if (vehicle1.id === "eb401ef0f82b") {
-        //     this._vehicle1 = vehicle1;
-        //     this._vehicle2 = vehicle2;
-        // } else {
-        //     this._vehicle1 = vehicle2;
-        //     this._vehicle2 = vehicle1;
-        // }
-
         this._vehicle1 = vehicle1;
         this._vehicle2 = vehicle2;
 
@@ -43,41 +33,16 @@ class CollisionScenario implements Scenario {
         return new Promise<void>((resolve, reject) => {
             try {
 
-                v1.accelerate(350);
-                v2.accelerate(800, 100);
+                v1.setSpeed(400);
+                v2.setSpeed(700);
 
                 me._timeouts.push(setTimeout(() => {
-                    v1.changeLane(-68);
-                    v2.changeLane(50.5);
+                    v1.changeLane(68.0);
+                    v2.changeLane(68.0);
                 }, 9000));
 
                 resolve();
 
-                // me._logger.info("(0): Starting");
-                // v1.setSpeed(350, 100);
-                // v2.setSpeed(800, 100);
-                //
-                // me._timeouts.push(setTimeout(() => {
-                //     me._logger.info("(0:09): Changing on different lanes");
-                //     v1.changeLane(-68);
-                //     v2.changeLane(50.5);
-                // }, 9000));
-                //
-                // me._timeouts.push(setTimeout(() => {
-                //     me._logger.info("(0:30): Slow vehicle changes to outer lane.");
-                //     v1.changeLane(68);
-                // }, 30000));
-                //
-                // let interval = setInterval(() => {
-                //     if (me._collided) {
-                //         me._logger.info("(?): Scenario Finished.");
-                //         clearInterval(interval);
-                //         me._running = false;
-                //         resolve();
-                //     }
-                //
-                // }, 200);
-                // me._intervals.push(interval);
             } catch (e) {
                 me._running = false;
                 reject(e);
@@ -107,7 +72,6 @@ class CollisionScenario implements Scenario {
 
     showCollision() {
         let me = this;
-        me._logger.info("(?): Collision.");
 
         for (let key in me._store) {
             if (me._store.hasOwnProperty(key)) {

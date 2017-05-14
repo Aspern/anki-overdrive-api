@@ -83,12 +83,14 @@ class KafkaVehicleController {
                     this._vehicle.setOffset(command.params[0]);
                     break;
                 case "connect":
-                    this._vehicle.connect()
-                        .catch(console.error);
+                    if (!this._vehicle.connected)
+                        this._vehicle.connect()
+                            .catch(console.error);
                     break;
                 case "disconnect" :
-                    this._vehicle.disconnect()
-                        .catch(console.error);
+                    if (this._vehicle.connected)
+                        this._vehicle.disconnect()
+                            .catch(console.error);
                     break;
                 case "change-lane":
                     this._vehicle.changeLane(command.params[0]);

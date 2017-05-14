@@ -22,7 +22,6 @@ import * as log4js from "log4js";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
 import {WebSocketController} from "../websocket/websocket-controller";
 /// <reference path="../../../decl/jsonfile.d.ts"/>
-import {KafkaRoundFilter} from "./kafka-round-filter";
 
 let settings: Settings = new JsonSettings(),
     setup: Setup = settings.getAsSetup("setup"),
@@ -39,7 +38,9 @@ let settings: Settings = new JsonSettings(),
     resetTimeouts: { [key: string]: number } = {
         "eb401ef0f82b": 0,
         "ed0c94216553": 1000
-    };
+    },
+    simpleBarrier = require("simple-barrier"),
+    barrier = new simpleBarrier();
 
 
 log4js.configure({
@@ -96,38 +97,49 @@ function getPieceDescription(piece: Piece) {
     return "Undefined";
 }
 
-function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number) => any) {
-    usedVehicles.forEach(vehicle => {
-        vehicle.setLights([
-            new LightConfig()
-                .blue()
-                .steady(),
-            new LightConfig()
-                .green()
-                .steady(0),
-            new LightConfig()
-                .red()
-                .steady(0)
-        ]);
-        vehicle.setLights([
-            new LightConfig()
-                .tail()
-                .steady(0),
-            new LightConfig()
-                .front()
-                .steady(0),
-            new LightConfig()
-                .weapon()
-                .steady(0)
-        ]);
+function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number) => Promise<void>): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        try {
+            usedVehicles.forEach(vehicle => {
+                vehicle.setLights([
+                    new LightConfig()
+                        .blue()
+                        .steady(),
+                    new LightConfig()
+                        .green()
+                        .steady(0),
+                    new LightConfig()
+                        .red()
+                        .steady(0)
+                ]);
+                vehicle.setLights([
+                    new LightConfig()
+                        .tail()
+                        .steady(0),
+                    new LightConfig()
+                        .front()
+                        .steady(0),
+                    new LightConfig()
+                        .weapon()
+                        .steady(0)
+                ]);
 
-        if (!isNullOrUndefined(handler))
-            setup.vehicles.forEach(config => {
-                if (config.uuid === vehicle.id)
-                    handler(vehicle, config.offset);
+                if (!isNullOrUndefined(handler))
+                    setup.vehicles.forEach(config => {
+                        if (config.uuid === vehicle.id)
+                            handler(vehicle, config.offset)
+                                .then(resolve)
+                                .catch(reject)
+                    });
+                else
+                    resolve();
+
             });
-
+        } catch (e) {
+            reject(e);
+        }
     });
+
 }
 
 function findStartLane() {
@@ -249,117 +261,114 @@ kafkaController.initializeProducer().then(online => {
         filter.start().catch(handleError);
 
         logger.info("Connecting vehicles...");
-        usedVehicles.forEach(vehicle => vehicle.connect());
 
-        // Wait 3 seconds before interacting with the resources.
-        setTimeout(() => {
+        usedVehicles.forEach(vehicle => vehicle.connect().then(barrier.waitOn()));
+
+
+        barrier.endWith(() => {
             initializeVehicles((vehicle, offset) => {
-                // setInterval(() => {
-                //     vehicle.queryBatteryLevel();
-                // }, 1000);
-                logger.info("Initialize [" + vehicle.id + "] with offset [" + offset + "mm].")
-                vehicle.setOffset(offset);
-                vehicle.disconnect();
-            });
+                return new Promise<void>((resolve, reject) => {
+                    logger.info("Initialize [" + vehicle.id + "] with offset [" + offset + "mm].")
+                    vehicle.setOffset(offset);
+                    vehicle.disconnect()
+                        .then(() => resolve())
+                        .catch(reject);
+                });
+            }).then(() => {
+                websocket = new WebSocketController(usedVehicles, 4711);
 
-            websocket = new WebSocketController(usedVehicles, 4711);
-
-            setup.online = true;
-
-
-            let message = JSON.stringify(setup).replace(/_/g, "");
+                setup.online = true;
 
 
-            logger.info("Sending setup to 'setup': " + message);
-            kafkaController.sendPayload([{
-                topic: "setup",
-                partitions: 1,
-                messages: message
-            }]);
-
-            logger.info("Initializing Kafka Consumer for topic 'scenario'...");
+                let message = JSON.stringify(setup).replace(/_/g, "");
 
 
-            kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
-            kafkaController.addListener(message => {
-                let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
-                logger.info("Received message from server: " + JSON.stringify(message));
-                if (info.interrupt && !isNullOrUndefined(scenario)) {
-                    scenario.interrupt().then(() => {
-                        initializeVehicles();
-                        scenario = null;
-                        filter.unregisterUpdateHandler();
-                        findStartLane();
-                        logger.info("Interrupted scenario '" + info.name + "'.");
-                    }).catch(handleError);
-                } else {
-                    if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
-                        logger.warn("Another scenario is still running!");
+                logger.info("Sending setup to 'setup': " + message);
+                kafkaController.sendPayload([{
+                    topic: "setup",
+                    partitions: 1,
+                    messages: message
+                }]);
+
+                logger.info("Initializing Kafka Consumer for topic 'scenario'...");
+
+
+                kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
+                kafkaController.addListener(message => {
+                    let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
+                    logger.info("Received message from server: " + JSON.stringify(message));
+                    if (info.interrupt && !isNullOrUndefined(scenario)) {
+                        scenario.interrupt().then(() => {
+                            initializeVehicles();
+                            scenario = null;
+                            filter.unregisterUpdateHandler();
+                            findStartLane();
+                            logger.info("Interrupted scenario '" + info.name + "'.");
+                        }).catch(handleError);
                     } else {
-                        try{
-                            scenario = createScenario(info.name);
-                        }catch (e){
-                            logger.error("Unable to create scenario.", e);
-                        }
-
-                        if (isNullOrUndefined(scenario)) {
-                            logger.error("Unknown Scenario for config: " + info);
+                        if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
+                            logger.warn("Another scenario is still running!");
                         } else {
-                            filter.registerUpdateHandler(scenario.onUpdate, scenario);
-                            scenario.start().then(() => {
-                                logger.info("Starting scenario: " + scenario)
-                                // initializeVehicles();
-                                // scenario = null;
-                                // filter.unregisterUpdateHandler();
-                                // findStartLane();
-                            }).catch(e => logger.error("Cannot start scenario.", e));
+                            try {
+                                scenario = createScenario(info.name);
+                            } catch (e) {
+                                logger.error("Unable to create scenario.", e);
+                            }
+
+                            if (isNullOrUndefined(scenario)) {
+                                logger.error("Unknown Scenario for config: " + info);
+                            } else {
+                                filter.registerUpdateHandler(scenario.onUpdate, scenario);
+                                scenario.start().then(() => {
+                                    logger.info("Starting scenario: " + scenario)
+                                    // initializeVehicles();
+                                    // scenario = null;
+                                    // filter.unregisterUpdateHandler();
+                                    // findStartLane();
+                                }).catch(e => logger.error("Cannot start scenario.", e));
+                            }
                         }
                     }
-                }
-            });
+                });
 
-            logger.info("Waiting for messages.");
-            ankiConsole.initializePrompt(usedVehicles);
+                logger.info("Waiting for messages.");
+                ankiConsole.initializePrompt(usedVehicles);
 
-            // setTimeout(() => {
-            //     scenario = new AntiCollisionScenarioCollecting(usedVehicles[0], usedVehicles[1]);
-            //     filter.registerUpdateHandler(scenario.onUpdate, scenario);
-            //     scenario.start().catch(handleError);
-            // }, 2000);
+                // setTimeout(() => {
+                //     scenario = new AntiCollisionScenarioCollecting(usedVehicles[0], usedVehicles[1]);
+                //     filter.registerUpdateHandler(scenario.onUpdate, scenario);
+                //     scenario.start().catch(handleError);
+                // }, 2000);
 
-            let skull: Vehicle = null;
+                let skull: Vehicle = null;
 
-            usedVehicles.forEach(vehicle => {
-                if (vehicle.id === "ed0c94216553")
-                    skull = vehicle;
-            });
-
+                usedVehicles.forEach(vehicle => {
+                    if (vehicle.id === "ed0c94216553")
+                        skull = vehicle;
+                });
 
 
-            // if (!isNullOrUndefined(skull)) {
-            //
-            //
-            //     let roundFilter = new KafkaRoundFilter(skull, track, "vehicle-data");
-            //     roundFilter.start().then(() => {
-            //         logger.info("Sending messages for completed rounds.");
-            //     }).catch(error => {
-            //         logger.error("Cannot start round filter.", error);
-            //     });
-            //
-            //     setInterval(() => {
-            //         skull.queryBatteryLevel()
-            //             .then(level => {
-            //                 logger.info("battery level for skull: " + level);
-            //             });
-            //     });
-            //
-            // }
-
-
-        }, 3000);
-
+                // if (!isNullOrUndefined(skull)) {
+                //
+                //
+                //     let roundFilter = new KafkaRoundFilter(skull, track, "vehicle-data");
+                //     roundFilter.start().then(() => {
+                //         logger.info("Sending messages for completed rounds.");
+                //     }).catch(error => {
+                //         logger.error("Cannot start round filter.", error);
+                //     });
+                //
+                //     setInterval(() => {
+                //         skull.queryBatteryLevel()
+                //             .then(level => {
+                //                 logger.info("battery level for skull: " + level);
+                //             });
+                //     });
+                //
+                // }
+            }).catch(handleError);
+        });
     }).catch(handleError);
-
 }).catch(handleError);
 
 
