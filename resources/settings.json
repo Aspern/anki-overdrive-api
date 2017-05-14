@@ -5,18 +5,18 @@
     "websocket": "ws://localhost:4711/",
     "vehicles": [
       {
-        "uuid": "ef4ace474907",
-        "address": "ef:4a:ce:47:49:07",
+        "uuid": "eb401ef0f82b",
+        "address": "eb:40:1e:f0:f8:2b",
         "name": "Ground Shock",
         "offset": -68,
-        "connected" : true
+        "connected" : false
       },
       {
-        "uuid": "d5255cd93a2b",
-        "address": "d5:25:5c:d9:3a:2b",
+        "uuid": "ed0c94216553",
+        "address": "ed:0c:94:21:65:53",
         "name": "Skull",
         "offset": 68,
-        "connected" : true
+        "connected" : false
       }
     ],
     "track": {
