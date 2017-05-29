@@ -21,16 +21,18 @@ import {PositionUpdateMessage} from "../../core/message/v2c/position-update-mess
 import * as log4js from "log4js";
 import {KafkaVehicleController} from "./kafka-vehicle-controller";
 import {WebSocketController} from "../websocket/websocket-controller";
+import {KafkaRoundFilter} from "./kafka-round-filter";
+import {ProfitScenario} from "../scenario/profit-scenario";
 /// <reference path="../../../decl/jsonfile.d.ts"/>
 
 let settings: Settings = new JsonSettings(),
     setup: Setup = settings.getAsSetup("setup"),
     scanner = new VehicleScanner(setup),
     track = settings.getAsTrack("setup.track.pieces"),
-    vehicleConfig: Array<{ offset: number, vehicle: Vehicle }> = [],
     usedVehicles: Array<Vehicle> = [],
     vehicleControllers: Array<KafkaVehicleController> = [],
-    filter: KafkaDistanceFilter,
+    distanceFilter: KafkaDistanceFilter,
+    roundFilters: Array<KafkaRoundFilter> = [],
     kafkaController = new KafkaController(),
     ankiConsole = new AnkiConsole(),
     websocket: WebSocketController,
@@ -40,7 +42,15 @@ let settings: Settings = new JsonSettings(),
         "ed0c94216553": 1000
     },
     simpleBarrier = require("simple-barrier"),
-    barrier = new simpleBarrier();
+    barrier = new simpleBarrier(),
+    readline = require('readline');
+
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: 'ANKI >'
+});
 
 
 log4js.configure({
@@ -75,8 +85,8 @@ process.on('exit', () => {
         scenario.interrupt().catch(e => logger.error("Error while interrupting scenario", e));
 
     logger.info("Disconnecting vehicles...");
-    vehicleConfig.forEach(config => {
-        config.vehicle.disconnect();
+    usedVehicles.forEach(vehicle => {
+        vehicle.disconnect();
     });
 
     logger.info("Setup disconnected.");
@@ -97,50 +107,6 @@ function getPieceDescription(piece: Piece) {
     return "Undefined";
 }
 
-function initializeVehicles(handler?: (vehicle: Vehicle, initialOffset?: number) => Promise<void>): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        try {
-            usedVehicles.forEach(vehicle => {
-                vehicle.setLights([
-                    new LightConfig()
-                        .blue()
-                        .steady(),
-                    new LightConfig()
-                        .green()
-                        .steady(0),
-                    new LightConfig()
-                        .red()
-                        .steady(0)
-                ]);
-                vehicle.setLights([
-                    new LightConfig()
-                        .tail()
-                        .steady(0),
-                    new LightConfig()
-                        .front()
-                        .steady(0),
-                    new LightConfig()
-                        .weapon()
-                        .steady(0)
-                ]);
-
-                if (!isNullOrUndefined(handler))
-                    setup.vehicles.forEach(config => {
-                        if (config.uuid === vehicle.id)
-                            handler(vehicle, config.offset)
-                                .then(resolve)
-                                .catch(reject)
-                    });
-                else
-                    resolve();
-
-            });
-        } catch (e) {
-            reject(e);
-        }
-    });
-
-}
 
 function findStartLane() {
     let counters: { [key: string]: number } = {};
@@ -197,7 +163,8 @@ function findStartLane() {
 function createScenario(name: string) {
     switch (name) {
         case  'collision':
-            return new CollisionScenario(usedVehicles[0], usedVehicles[1])
+            //return new CollisionScenario(usedVehicles[0], usedVehicles[1]);
+            return new ProfitScenario(usedVehicles[0], track);
         case 'anti-collision':
             return new AntiCollisionScenario(usedVehicles[0], usedVehicles[1]);
         case 'max-speed' :
@@ -219,15 +186,15 @@ kafkaController.initializeProducer().then(online => {
     scanner.findAll().then(vehicles => {
         vehicles.forEach(vehicle => {
             setup.vehicles.forEach(config => {
-                vehicleConfig.push({
-                    offset: config.offset,
-                    vehicle: vehicle
-                });
+                if (config.uuid === vehicle.id) {
+                    vehicle.initialOffset = config.offset;
+                    vehicle.name = config.name;
+                }
             });
             usedVehicles.push(vehicle);
         });
 
-        if (vehicleConfig.length === 0) {
+        if (usedVehicles.length === 0) {
             logger.info("No vehicles found for this setup.");
             process.exit();
         }
@@ -238,11 +205,11 @@ kafkaController.initializeProducer().then(online => {
         }
 
 
-        logger.info("Found " + vehicles.length + " vehicles:");
+        logger.info("Found " + usedVehicles.length + " vehicles:");
         let i = 1;
         usedVehicles.forEach(vehicle => {
             let controller = new KafkaVehicleController(vehicle);
-            logger.info("\t" + i++ + "\t" + vehicle.id + "\t" + vehicle.address);
+            logger.info("\t" + i++ + "\t" + vehicle.name + "\t" + vehicle.id + "\t" + vehicle.address + "\t(" + vehicle.initialOffset + "mm)");
 
             controller.start().then(() => {
                 vehicleControllers.push(controller);
@@ -256,118 +223,92 @@ kafkaController.initializeProducer().then(online => {
             logger.info("\t" + i++ + "\t" + piece.id + "\t(" + getPieceDescription(piece) + ")");
         });
 
-        logger.info("Starting distance filter...");
-        filter = new KafkaDistanceFilter(usedVehicles, track, "vehicle-data");
-        filter.start().catch(handleError);
+        logger.info("Starting distance-filter...");
+        distanceFilter = new KafkaDistanceFilter(usedVehicles, track, "vehicle-data");
+        distanceFilter.start().catch(handleError);
 
-        logger.info("Connecting vehicles...");
-
-        usedVehicles.forEach(vehicle => vehicle.connect().then(barrier.waitOn()));
-
-
-        barrier.endWith(() => {
-            initializeVehicles((vehicle, offset) => {
-                return new Promise<void>((resolve, reject) => {
-                    logger.info("Initialize [" + vehicle.id + "] with offset [" + offset + "mm].")
-                    vehicle.setOffset(offset);
-                    vehicle.disconnect()
-                        .then(() => resolve())
-                        .catch(reject);
-                });
-            }).then(() => {
-                websocket = new WebSocketController(usedVehicles, 4711);
-
-                setup.online = true;
+        // logger.info("Starting message-quality-filters...");
+        // usedVehicles.forEach(vehicle => {
+        //     let filter = new KafkaRoundFilter(vehicle, track, "vehicle-data");
+        //     filter.start().catch(e => logger.error(e));
+        //     roundFilters.push(filter);
+        // });
 
 
-                let message = JSON.stringify(setup).replace(/_/g, "");
+        websocket = new WebSocketController(usedVehicles, 4711);
+        setup.online = true;
 
+        let message = JSON.stringify(setup).replace(/_/g, "");
 
-                logger.info("Sending setup to 'setup': " + message);
-                kafkaController.sendPayload([{
-                    topic: "setup",
-                    partitions: 1,
-                    messages: message
-                }]);
+        logger.info("Sending setup to 'setup': " + message);
+        kafkaController.sendPayload([{
+            topic: "setup",
+            partitions: 1,
+            messages: message
+        }]);
 
-                logger.info("Initializing Kafka Consumer for topic 'scenario'...");
+        logger.info("Initializing Kafka Consumer for topic 'scenario'...");
 
-
-                kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
-                kafkaController.addListener(message => {
-                    let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
-                    logger.info("Received message from server: " + JSON.stringify(message));
-                    if (info.interrupt && !isNullOrUndefined(scenario)) {
-                        scenario.interrupt().then(() => {
-                            initializeVehicles();
-                            scenario = null;
-                            filter.unregisterUpdateHandler();
-                            findStartLane();
-                            logger.info("Interrupted scenario '" + info.name + "'.");
-                        }).catch(handleError);
-                    } else {
-                        if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
-                            logger.warn("Another scenario is still running!");
-                        } else {
-                            try {
-                                scenario = createScenario(info.name);
-                            } catch (e) {
-                                logger.error("Unable to create scenario.", e);
-                            }
-
-                            if (isNullOrUndefined(scenario)) {
-                                logger.error("Unknown Scenario for config: " + info);
-                            } else {
-                                filter.registerUpdateHandler(scenario.onUpdate, scenario);
-                                scenario.start().then(() => {
-                                    logger.info("Starting scenario: " + scenario)
-                                    // initializeVehicles();
-                                    // scenario = null;
-                                    // filter.unregisterUpdateHandler();
-                                    // findStartLane();
-                                }).catch(e => logger.error("Cannot start scenario.", e));
-                            }
-                        }
+        kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
+        kafkaController.addListener(message => {
+            let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
+            logger.info("Received message from server: " + JSON.stringify(message));
+            if (info.interrupt && !isNullOrUndefined(scenario)) {
+                scenario.interrupt().then(() => {
+                    scenario = null;
+                    distanceFilter.unregisterUpdateHandler();
+                    findStartLane();
+                    logger.info("Interrupted scenario '" + info.name + "'.");
+                }).catch(handleError);
+            } else {
+                if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
+                    logger.warn("Another scenario is still running!");
+                } else {
+                    try {
+                        scenario = createScenario(info.name);
+                    } catch (e) {
+                        logger.error("Unable to create scenario.", e);
                     }
-                });
 
-                logger.info("Waiting for messages.");
-                ankiConsole.initializePrompt(usedVehicles);
-
-                // setTimeout(() => {
-                //     scenario = new AntiCollisionScenarioCollecting(usedVehicles[0], usedVehicles[1]);
-                //     filter.registerUpdateHandler(scenario.onUpdate, scenario);
-                //     scenario.start().catch(handleError);
-                // }, 2000);
-
-                let skull: Vehicle = null;
-
-                usedVehicles.forEach(vehicle => {
-                    if (vehicle.id === "ed0c94216553")
-                        skull = vehicle;
-                });
-
-
-                // if (!isNullOrUndefined(skull)) {
-                //
-                //
-                //     let roundFilter = new KafkaRoundFilter(skull, track, "vehicle-data");
-                //     roundFilter.start().then(() => {
-                //         logger.info("Sending messages for completed rounds.");
-                //     }).catch(error => {
-                //         logger.error("Cannot start round filter.", error);
-                //     });
-                //
-                //     setInterval(() => {
-                //         skull.queryBatteryLevel()
-                //             .then(level => {
-                //                 logger.info("battery level for skull: " + level);
-                //             });
-                //     });
-                //
-                // }
-            }).catch(handleError);
+                    if (isNullOrUndefined(scenario)) {
+                        logger.error("Unknown Scenario for config: " + info);
+                    } else {
+                        distanceFilter.registerUpdateHandler(scenario.onUpdate, scenario);
+                        scenario.start().then(() => {
+                            logger.info("Starting scenario: " + scenario)
+                        }).catch(e => logger.error("Cannot start scenario.", e));
+                    }
+                }
+            }
         });
+
+        logger.info("Waiting for messages.");
+        //ankiConsole.initializePrompt(usedVehicles);
+
+        rl.prompt();
+        rl.on('line', (line: string) => {
+            if (line === 'pl') {
+                vehicleControllers.forEach(controller => {
+                    controller.printLatencies();
+                });
+            } else if (line === 'al') {
+                vehicleControllers.forEach(controller => {
+                    controller.avgLatencies();
+                });
+            } else if (line === 'cl') {
+                vehicleControllers.forEach(controller => {
+                    controller.clearLatencies();
+                });
+            } else if (line === 'ml') {
+                vehicleControllers.forEach(controller => {
+                    controller.medianLatencies();
+                });
+            } else {
+                console.error("'" + line + "' is not a known command.")
+            }
+        });
+
+
     }).catch(handleError);
 }).catch(handleError);
 

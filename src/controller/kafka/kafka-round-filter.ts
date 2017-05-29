@@ -63,7 +63,7 @@ class KafkaRoundFilter {
 
         return new Promise<void>((resolve, reject) => {
             if (!me._running) {
-                reject(new Error("KafkaDistanceFilter is not running."));
+                resolve();
             } else {
                 me._filter.stop().then(() => {
                     me._running = false;

@@ -16,10 +16,8 @@ class AntiCollisionScenario implements Scenario {
     private _timeouts: Array<any> = [];
 
     constructor(vehicle1: Vehicle, vehicle2: Vehicle) {
-
         this._vehicle1 = vehicle1;
         this._vehicle2 = vehicle2;
-
 
         this._store[this._vehicle1.id] = {vehicle: this._vehicle1, speed: 0};
         this._store[this._vehicle2.id] = {vehicle: this._vehicle2, speed: 0};
@@ -74,13 +72,16 @@ class AntiCollisionScenario implements Scenario {
 
     }
 
+    private _acceleration = 50;
+    private _negativeAcceleration = 300;
+
 
     brake(message: PositionUpdateMessage, speed: number) {
         let me = this,
             record = me._store[message.vehicleId],
             newSpeed = message.speed - speed;
 
-        record.vehicle.setSpeed(newSpeed, newSpeed);
+        record.vehicle.setSpeed(newSpeed,me._negativeAcceleration);
         record.vehicle.setLights([
             new LightConfig()
                 .green()
@@ -115,7 +116,7 @@ class AntiCollisionScenario implements Scenario {
         let me = this,
             record = me._store[message.vehicleId];
 
-        record.vehicle.setSpeed(record.speed, 50);
+        record.vehicle.setSpeed(record.speed, me._acceleration);
         record.vehicle.setLights([
             new LightConfig()
                 .green()

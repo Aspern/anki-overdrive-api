@@ -10,6 +10,8 @@ interface Vehicle {
     setupId: string;
     address: string;
     connected: boolean;
+    name: string;
+    initialOffset: number;
 
     /**
      * Connects the vehicle via BLE.
@@ -134,9 +136,9 @@ interface Vehicle {
     /**
      * Brakes the vehicle with different strengths.
      *
-     * @param strength Strength for the brake in percent.
+     * @param deltaSpeed Strength for the brake in percent.
      */
-    brake(strength?: number): void
+    brake(deltaSpeed?: number, acceleration?: number): void
 
     /**
      *
@@ -144,9 +146,9 @@ interface Vehicle {
      * place in several strengths.
      *
      * @param maxSpeed Speed to accelerate.
-     * @param strength Strength for acceleration
+     * @param acceleration Strength for acceleration
      */
-    accelerate(maxSpeed: number, strength?: number): void
+    accelerate(maxSpeed: number, acceleration?: number): void
 
 
 }
