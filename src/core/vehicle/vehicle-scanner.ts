@@ -22,10 +22,10 @@ class VehicleScanner {
      * @param timeout (optional) number of milliseconds before timeout is reached.
      * @param _retries (optional) number of _retries before searching fails.
      */
-    constructor(setup: Setup, timeout?: number, retries?: number) {
+    constructor(setup: Setup, timeout = 1000, retries = 3) {
         this._setup = setup;
-        this._timeout = timeout || 3000;
-        this._retries = retries || 3;
+        this._timeout = timeout;
+        this._retries = retries;
     }
 
     /**

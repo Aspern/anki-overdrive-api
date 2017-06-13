@@ -64,8 +64,11 @@ class AnkiOverdriveTrack implements Track {
         let start: [number, number] = [this.start.id, this.start.getLane(lane)[0]],
             end: [number, number] = [this.finish.id, this.finish.getLane(lane)[1]];
 
-        if (from && to) {
+        if (from) {
             start = from;
+        }
+
+        if (to) {
             end = to;
         }
 
@@ -92,7 +95,7 @@ class AnkiOverdriveTrack implements Track {
             nextLocation = start[1];
         }
 
-        if(current !== endPiece) {
+        if (current !== endPiece) {
             current = current.next;
             handler([currentPieceId, nextLocation], [current.id, current.getLane(lane)[0]]);
         }

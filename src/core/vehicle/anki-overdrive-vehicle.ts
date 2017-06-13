@@ -30,8 +30,6 @@ import {isNull, isNullOrUndefined} from "util";
  */
 class AnkiOverdriveVehicle implements Vehicle {
 
-    private static _DEFAULT_OFFSET = 0;
-
     private _id: string;
     private _setupId: string;
     private _address: string;
@@ -42,16 +40,18 @@ class AnkiOverdriveVehicle implements Vehicle {
     private _listeners: Array<{ l: (message: VehicleMessage) => any, f: any }> = [];
     private _speed: number;
     private _connected = false;
+    private _initialOffset: number;
     private _dataListener = (message: PositionUpdateMessage) => {
         this._speed = message.speed;
     };
 
-    constructor(peripheral: Peripheral, setup: Setup, name?: string) {
+    constructor(peripheral: Peripheral, setup: Setup, name?: string, initialOffset = 0.0) {
         this._id = peripheral.id;
         this._address = peripheral.address;
         this._name = name;
         this._setupId = setup.ean;
         this._peripheral = peripheral;
+        this._initialOffset = initialOffset;
     }
 
     connect(): Promise<Vehicle> {
@@ -68,7 +68,8 @@ class AnkiOverdriveVehicle implements Vehicle {
                     me.initCharacteristics()
                         .then(() => {
                             me.setSdkMode(true);
-                            me.setOffset(AnkiOverdriveVehicle._DEFAULT_OFFSET);
+                            me.setOffset(me._initialOffset);
+                            me.resetLights();
                             me.addListener(me._dataListener, PositionUpdateMessage);
                             me._connected = true;
                             resolve(me);
@@ -210,26 +211,15 @@ class AnkiOverdriveVehicle implements Vehicle {
         ));
     }
 
-    brake(strength = 0.10): void {
+    brake(deltaSpeed = 50, acceleration = 300): void {
         let speed = this._speed,
-            acceleration = 0,
             lightConfig = new LightConfig()
                 .red()
                 .steady(),
             timeout: number;
 
-        speed -= speed * strength;
+        speed -= deltaSpeed;
         timeout = Math.round(1000 / (speed / 180));
-
-        if (strength > 0.6) {
-            acceleration = speed;
-        } else {
-            acceleration = Math.round(0.5 * speed);
-            timeout += 500;
-            lightConfig = new LightConfig()
-                .red()
-                .fade(0, 15, 15);
-        }
 
         this.setSpeed(speed, acceleration);
         this.setLights([
@@ -257,7 +247,7 @@ class AnkiOverdriveVehicle implements Vehicle {
         }, timeout);
     }
 
-    accelerate(maxSpeed: number, strength = 0.25): void {
+    accelerate(maxSpeed: number, acceleration = 300): void {
         // Only accelerate if necessary
         if ((Math.abs(maxSpeed - this._speed)) < 25)
             return;
@@ -281,7 +271,7 @@ class AnkiOverdriveVehicle implements Vehicle {
             };
 
         me.addListener(listener);
-        me.setSpeed(maxSpeed, maxSpeed * strength);
+        me.setSpeed(maxSpeed, acceleration);
         me.setLights([
             new LightConfig()
                 .green()
@@ -333,7 +323,7 @@ class AnkiOverdriveVehicle implements Vehicle {
 
                 if (isNullOrUndefined(me._read))
                     reject(new Error(("Could not initialise read characteristics.")));
-                if(isNullOrUndefined(me._write))
+                if (isNullOrUndefined(me._write))
                     reject(new Error(("Could not initialise write characteristics.")));
 
                 me._read.subscribe();
@@ -433,6 +423,31 @@ class AnkiOverdriveVehicle implements Vehicle {
         ));
     }
 
+    private resetLights() : void {
+        this.setLights([
+            new LightConfig()
+                .blue()
+                .steady(),
+            new LightConfig()
+                .green()
+                .steady(0),
+            new LightConfig()
+                .red()
+                .steady(0)
+        ]);
+        this.setLights([
+            new LightConfig()
+                .tail()
+                .steady(0),
+            new LightConfig()
+                .front()
+                .steady(0),
+            new LightConfig()
+                .weapon()
+                .steady(0)
+        ]);
+    }
+
 
     get id(): string {
         return this._id;
@@ -452,6 +467,18 @@ class AnkiOverdriveVehicle implements Vehicle {
 
     get connected(): boolean {
         return this._connected;
+    }
+
+    get initialOffset(): number {
+        return this._initialOffset;
+    }
+
+    set initialOffset(offset: number) {
+        this._initialOffset = offset;
+    }
+
+    set name(name: string) {
+        this._name = name;
     }
 }
 

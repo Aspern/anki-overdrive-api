@@ -1,7 +1,7 @@
 {
   "setup": {
     "ean": "0810559020400",
-    "uuid" : "setup-adrian",
+    "uuid": "setup-adrian",
     "websocket": "ws://localhost:4711/",
     "vehicles": [
       {
@@ -9,14 +9,14 @@
         "address": "eb:40:1e:f0:f8:2b",
         "name": "Ground Shock",
         "offset": -68,
-        "connected" : false
+        "connected": false
       },
       {
         "uuid": "ed0c94216553",
         "address": "ed:0c:94:21:65:53",
         "name": "Skull",
         "offset": 68,
-        "connected" : false
+        "connected": false
       }
     ],
     "track": {
@@ -26,12 +26,20 @@
           "pieceId": 33
         },
         {
+          "type": "straight",
+          "pieceId": 40
+        },
+        {
           "type": "curve",
           "pieceId": 18
         },
         {
           "type": "curve",
           "pieceId": 23
+        },
+        {
+          "type": "straight",
+          "pieceId": 36
         },
         {
           "type": "straight",

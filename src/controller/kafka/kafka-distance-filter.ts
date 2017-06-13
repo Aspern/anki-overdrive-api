@@ -2,7 +2,6 @@ import {SimpleDistanceFilter} from "../../core/filter/simple-distance-filter";
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {Track} from "../../core/track/track-interface";
 import {KafkaController} from "./kafka-controller";
-import {unescape} from "querystring";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 import {Distance} from "../../core/filter/distance";
 import {VehicleMessage} from "../../core/message/vehicle-message";
