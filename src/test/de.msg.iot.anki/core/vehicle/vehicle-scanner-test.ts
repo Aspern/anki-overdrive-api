@@ -1,6 +1,6 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
-import {VehicleScannerImpl} from "../../src/core/vehicle/vehicle-scanner-impl";
+import {VehicleScannerImpl} from "../../src/main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
 
 
 @suite

@@ -2,11 +2,10 @@ import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 import * as uuid from "node-uuid";
 import {JsonSettings} from "../core/settings/json-settings";
 import {ResultHandler} from "../core/util/result-handler-interface";
-import {FileResultHandler} from "../core/util/file-result-handler";
-import {ConsoleResultHandler} from "../core/util/console-result-handler";
 import {Result} from "../core/util/result";
 import {TrackRunner} from "../core/util/track-runner";
 import {PositionUpdateMessage} from "../core/message/v2c/position-update-message";
+import {MongoResultHandler} from "../core/util/mongo-result-handler";
 
 /************************************************************************************
  *                                  MEASURE TRACK                                   *
@@ -23,22 +22,12 @@ import {PositionUpdateMessage} from "../core/message/v2c/position-update-message
 
 
 let settings = new JsonSettings(),
-    track = settings.getAsTrack("track"),
+    track = settings.getAsTrack("setup.track.pieces"),
     setup = settings.getAsSetup("setup"),
     scanner = new VehicleScannerImpl(setup),
     vehicleId: string,
     uniqueId: string = uuid.v4(),
-    resultHandler: ResultHandler,
-    config: {resultHandler: string} = settings.getAsObject("utils").measureTrack;
-
-switch (config.resultHandler) {
-    case "file" :
-        resultHandler = new FileResultHandler();
-        break;
-    case "console" :
-    default:
-        resultHandler = new ConsoleResultHandler();
-}
+    resultHandler: ResultHandler = new MongoResultHandler();
 
 /**
  * Uses the messages between two consecutive locations to calculate the distance between them.
@@ -127,7 +116,7 @@ function measureTrack(messages: Array<Array<PositionUpdateMessage>>): void {
 }
 
 // Program starts here.
-scanner.findAny().then((vehicle) => {
+scanner.findAny().then(vehicle => {
 
     let runner = new TrackRunner(vehicle, track);
     vehicleId = vehicle.id;
@@ -137,7 +126,6 @@ scanner.findAny().then((vehicle) => {
         console.log("Measuring lanes and transitions...");
         measureTrack(messages);
         console.log("Finished measuring track.");
-        process.exit(0);
     }).run();
 
 }).catch((e) => {

@@ -5,6 +5,10 @@ import {RoundUpdateMessage} from "../message/v2c/round-update-message";
 import {PositionUpdateMessage} from "../message/v2c/position-update-message";
 import {LabeledPositionUpdateMessage} from "../message/v2c/labeled-position-update-message";
 import {Start} from "../track/start";
+import {LabeledSetSpeed} from "../message/c2v/labeled-set-speed";
+import {VehicleMessage} from "../message/vehicle-message";
+import {SetSpeed} from "../message/c2v/set-speed";
+import {isNullOrUndefined} from "util";
 
 class RoundFilter implements ActiveFilter<[Track, Vehicle], RoundUpdateMessage> {
 
@@ -15,7 +19,9 @@ class RoundFilter implements ActiveFilter<[Track, Vehicle], RoundUpdateMessage> 
     };
     private _vehicleListener: (message: PositionUpdateMessage) => any;
     private _currentPositionMessages: Array<LabeledPositionUpdateMessage> = [];
+    private _currentSetSpeeds: Array<SetSpeed> = [];
     private _roundCounter = 0;
+    private _lastPositionUpdate: PositionUpdateMessage;
 
     init(input: [Track, Vehicle]): void {
         this._track = input[0];
@@ -67,11 +73,17 @@ class RoundFilter implements ActiveFilter<[Track, Vehicle], RoundUpdateMessage> 
     private registerVehicleListener(): void {
         let me = this;
 
-        me._vehicleListener = (message: PositionUpdateMessage) => {
-            me.addMessageToRound(message);
+        me._vehicleListener = (message: VehicleMessage) => {
+            if (message instanceof PositionUpdateMessage) {
+                me.addMessageToRound(message);
+                me._lastPositionUpdate = message;
+            } else if (message instanceof SetSpeed) {
+                me._currentSetSpeeds.push(message);
+            }
+
         };
 
-        me._vehicle.addListener(me._vehicleListener, PositionUpdateMessage);
+        me._vehicle.addListener(me._vehicleListener);
     }
 
     private unregisterVehicleListener(): void {
@@ -103,17 +115,18 @@ class RoundFilter implements ActiveFilter<[Track, Vehicle], RoundUpdateMessage> 
         me._track.eachTransition(t => {
             let message = currentMessage[i];
 
-
-            if (message.piece === t[0] && message.location === t[1]) {
-                i++;
-            } else {
-                currentMessage.splice(i++, 0, me.buildMissingPositionUpdateMessage(
-                    t[1],
-                    t[0],
-                    message.offset,
-                    message.speed,
-                    message.lastDesiredSpeed
-                ));
+            if (!isNullOrUndefined(message)) {
+                if (message.piece === t[0] && message.location === t[1]) {
+                    i++;
+                } else {
+                    currentMessage.splice(i++, 0, me.buildMissingPositionUpdateMessage(
+                        t[1],
+                        t[0],
+                        message.offset || 0,
+                        message.speed || 0,
+                        message.lastDesiredSpeed || 0
+                    ));
+                }
             }
         }, lane);
 
@@ -125,12 +138,15 @@ class RoundFilter implements ActiveFilter<[Track, Vehicle], RoundUpdateMessage> 
 
         let quality = missing > 0 ? 1 - (missing / total) : 1;
 
-        return new RoundUpdateMessage(
+        let roundUpdate = new RoundUpdateMessage(
             me._vehicle,
             me._roundCounter++,
             quality,
-            currentMessage
+            currentMessage,
+            quality >= 0.85 ? 50 : 0
         );
+
+        return roundUpdate;
     }
 
     private buildMissingPositionUpdateMessage(location: number, piece: number, offset: number, speed: number, lastDesiredSpeed: number): LabeledPositionUpdateMessage {

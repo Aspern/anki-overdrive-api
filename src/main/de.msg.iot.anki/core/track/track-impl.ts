@@ -3,7 +3,7 @@ import {Piece} from "./piece-interface";
 import {Start} from "./start";
 import {Finish} from "./finish";
 
-class AnkiOverdriveTrack implements Track {
+class TrackImpl implements Track {
 
     private _start: Start;
     private _finish: Finish;
@@ -64,8 +64,11 @@ class AnkiOverdriveTrack implements Track {
         let start: [number, number] = [this.start.id, this.start.getLane(lane)[0]],
             end: [number, number] = [this.finish.id, this.finish.getLane(lane)[1]];
 
-        if (from && to) {
+        if (from) {
             start = from;
+        }
+
+        if (to) {
             end = to;
         }
 
@@ -92,7 +95,7 @@ class AnkiOverdriveTrack implements Track {
             nextLocation = start[1];
         }
 
-        if(current !== endPiece) {
+        if (current !== endPiece) {
             current = current.next;
             handler([currentPieceId, nextLocation], [current.id, current.getLane(lane)[0]]);
         }
@@ -127,7 +130,7 @@ class AnkiOverdriveTrack implements Track {
     }
 
     public static build(pieces: Array<Piece>): Track {
-        let track = new AnkiOverdriveTrack(),
+        let track = new TrackImpl(),
             current: Piece = track.start,
             last = pieces[pieces.length - 1];
 
@@ -163,4 +166,4 @@ class AnkiOverdriveTrack implements Track {
     }
 }
 
-export {AnkiOverdriveTrack};
+export {TrackImpl};

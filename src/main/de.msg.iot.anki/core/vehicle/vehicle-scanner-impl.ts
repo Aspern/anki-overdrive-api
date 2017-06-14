@@ -1,17 +1,18 @@
 /// <reference path="../../../decl/noble.d.ts"/>
 import * as noble from "noble";
 import {Peripheral} from "noble";
-import {Vehicle} from "./vehicle-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {isNullOrUndefined} from "util";
-import {SetupConfig} from "../settings/setup-config";
+import {Setup} from "../setup";
 import {AnkiOverdriveVehicle} from "./vehicle-impl";
-import {VehicleScanner} from "./vehicle-scanner-interface";
+import {VehicleScanner} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-interface";
+import {SetupConfig} from "../settings/setup-config";
 
 /**
  * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
  * their messageId or address.
  */
-class VehicleScannerImpl implements VehicleScanner{
+class VehicleScannerImpl implements VehicleScanner  {
 
     private _timeout: number;
     private _retries: number;
@@ -23,10 +24,10 @@ class VehicleScannerImpl implements VehicleScanner{
      * @param timeout (optional) number of milliseconds before timeout is reached.
      * @param _retries (optional) number of _retries before searching fails.
      */
-    constructor(setup: SetupConfig, timeout?: number, retries?: number) {
+    constructor(setup: SetupConfig, timeout = 1000, retries = 3) {
         this._setup = setup;
-        this._timeout = timeout || 1000;
-        this._retries = retries || 3;
+        this._timeout = timeout;
+        this._retries = retries;
     }
 
     /**
@@ -170,7 +171,6 @@ class VehicleScannerImpl implements VehicleScanner{
 
         return new Promise<void>((resolve, reject) => {
             let i = setInterval(() => {
-
                 if (noble.state === "poweredOn") {
                     clearInterval(i);
                     resolve();
@@ -184,6 +184,8 @@ class VehicleScannerImpl implements VehicleScanner{
                 ++counter;
             }, this._timeout);
         });
+
+
     }
 }
 

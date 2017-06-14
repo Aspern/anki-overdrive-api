@@ -1,5 +1,6 @@
 import {VehicleConfig} from "./vehicle-config";
 import {TrackConfig} from "./track-config";
+
 interface SetupConfig {
     ean: string;
     uuid: string;

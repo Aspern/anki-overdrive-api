@@ -8,6 +8,7 @@ import {Curve} from "../track/curve";
 import {Straight} from "../track/straight";
 import {AnkiOverdriveTrack} from "../track/anki-overdrive-track";
 import {SetupConfig} from "./setup-config";
+import {Setup} from "../setup";
 
 /**
  * This implementation of settings uses a simple json file to find settings. The class uses the
@@ -106,7 +107,7 @@ class JsonSettings implements Settings {
 
 
     getAsSetup(key: string): SetupConfig {
-        return this.getAsObject("setup");
+        return this.getAsObject(key);
     }
 }
 

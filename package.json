@@ -42,6 +42,7 @@
     "mongodb": "^2.2.26",
     "noble": "~1.7.0",
     "node-mysql-wrapper": "^2.9.3",
+    "simple-barrier": "^1.0.4",
     "websocket": "^1.0.24"
   },
   "scripts": {

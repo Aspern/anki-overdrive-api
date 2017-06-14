@@ -2,7 +2,7 @@ class VehicleConfig {
     uuid: string;
     address : string;
     name: string;
-    lane: number;
+    offset: number;
 }
 
 export {VehicleConfig}

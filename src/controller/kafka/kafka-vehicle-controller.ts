@@ -1,9 +1,11 @@
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {KafkaController} from "./kafka-controller";
 import {VehicleMessage} from "../../core/message/vehicle-message";
+import {layouts} from "log4js";
 
 class Command {
     public name: string;
+    public timestamp: Date;
     public params: Array<number>
 }
 
@@ -14,6 +16,7 @@ class KafkaVehicleController {
     private _running = false;
     private _consumer: (message: any) => any;
     private _producer: (message: VehicleMessage) => any;
+    private _latencies: Array<number> = [];
 
     constructor(vehicle: Vehicle) {
         this._vehicle = vehicle;
@@ -83,12 +86,14 @@ class KafkaVehicleController {
                     this._vehicle.setOffset(command.params[0]);
                     break;
                 case "connect":
-                    this._vehicle.connect()
-                        .catch(console.error);
+                    if (!this._vehicle.connected)
+                        this._vehicle.connect()
+                            .catch(console.error);
                     break;
                 case "disconnect" :
-                    this._vehicle.disconnect()
-                        .catch(console.error);
+                    if (this._vehicle.connected)
+                        this._vehicle.disconnect()
+                            .catch(console.error);
                     break;
                 case "change-lane":
                     this._vehicle.changeLane(command.params[0]);
@@ -97,9 +102,11 @@ class KafkaVehicleController {
                     this._vehicle.uTurn();
                     break;
                 case "brake":
-                    this._vehicle.brake(command.params[0]);
+                    this._latencies.push(new Date().getMilliseconds() - new Date(command.timestamp).getMilliseconds());
+                    this._vehicle.brake(command.params[0], command.params[1]);
                     break;
                 case "accelerate" :
+                    this._latencies.push(new Date().getMilliseconds() - new Date(command.timestamp).getMilliseconds());
                     this._vehicle.accelerate(command.params[0], command.params[1]);
                     break;
                 default:
@@ -111,6 +118,32 @@ class KafkaVehicleController {
         }
     }
 
+    public printLatencies() {
+        console.log("Latencies for " + this._vehicle.id);
+        this._latencies.forEach(latency => {
+            console.log(latency);
+        });
+    }
+
+    public avgLatencies() {
+        console.log("Avg Latencies for " + this._vehicle.id);
+        let sum = 0;
+        this._latencies.forEach(latency => {
+            sum += latency;
+        });
+        console.log(sum / this._latencies.length);
+    }
+
+    public medianLatencies() {
+        console.log("Median Latencies for " + this._vehicle.id);
+        this._latencies.sort((a, b) => a - b);
+        console.log(this._latencies[Math.round(this._latencies.length / 2)]);
+    }
+
+    public clearLatencies() {
+        this._latencies = [];
+        console.log("Cleared latencies for " + this._vehicle.id);
+    }
 
 }
 
