@@ -49,33 +49,34 @@ class ProfitScenario implements Scenario {
             if (!isNullOrUndefined(error))
                 logger.error("Cannot connect [mongodb://localhost:27017/anki]", error);
 
-            track.eachTransition((t1, t2) => {
-                let p1 = t1[0] + ":" + t1[1],
-                    p2 = t2[0] + ":" + t2[1],
-                    ve = optimalSpeeds[p2],
-                    v0 = optimalSpeeds[p1],
-                    key = t1[0] + "" + t1[1] + "" + t2[0] + "" + t2[1],
-                    s: number,
-                    a: number;
+            for (let lane = 14; lane < 16; lane++)
+                track.eachTransition((t1, t2) => {
+                    let p1 = t1[0] + ":" + t1[1],
+                        p2 = t2[0] + ":" + t2[1],
+                        ve = optimalSpeeds[p2],
+                        v0 = optimalSpeeds[p1],
+                        key = t1[0] + "" + t1[1] + "" + t2[0] + "" + t2[1],
+                        s: number,
+                        a: number;
 
-                let collection = db.collection("distances");
+                    let collection = db.collection("distances");
 
-                collection.find({key: key}).toArray((error, docs) => {
-                    if (!isNullOrUndefined(error))
-                        logger.error("Unable to find: " + key + ":", error);
+                    collection.find({key: key}).toArray((error, docs) => {
+                        if (!isNullOrUndefined(error))
+                            logger.error("Unable to find: " + key + ":", error);
 
 
-                    try {
-                        s = docs[0].avg;
-                        a = (Math.pow(ve, 2) - Math.pow(v0, 2)) / (2 * s);
-                        a = Math.abs(Math.round(a));
+                        try {
+                            s = docs[0].avg;
+                            a = (Math.pow(ve, 2) - Math.pow(v0, 2)) / (2 * s);
+                            a = Math.abs(Math.round(a));
 
-                        me._accelerations[p1] = a;
-                    } catch (error) {
-                        logger.error("Cannot calculate acceleration for [" + key + "].", error);
-                    }
-                });
-            }, 15);
+                            me._accelerations[p1] = a;
+                        } catch (error) {
+                            logger.error("Cannot calculate acceleration for [" + key + "].", error);
+                        }
+                    });
+                }, lane);
         });
 
         setTimeout(() => {
@@ -122,13 +123,16 @@ class ProfitScenario implements Scenario {
 
     onUpdate(message: VehicleMessage): void {
         if (this._initialized && message instanceof PositionUpdateMessage) {
-            let offset = message.offset,
-                position = message.piece + ":" + message.location,
+            let position = message.piece + ":" + message.location,
+                vehicle = this._vehicle,
+                optimalSpeed = this._optimalSpeeds[position],
+                acceleration = this._accelerations[position],
+                previousCommand = this._previousCommand,
                 logger = this._logger,
-                vehicle = this._vehicle;
+                offset = message.offset;
 
-            if (offset <= 59.5) {
-                logger.warn("vehicle is not on lane [offset=" + offset + "].");
+            if (offset <= 59.5 || isNullOrUndefined(optimalSpeed) || isNullOrUndefined(acceleration)) {
+                logger.warn("vehicle is not on lane [offset=" + offset + ", position=" + position + "].");
                 vehicle.setOffset(offset);
                 vehicle.changeLane(68.0);
                 return;
@@ -149,14 +153,7 @@ class ProfitScenario implements Scenario {
                     break;
             }
 
-            // let position = message.piece + ":" + message.location,
-            //     vehicle = this._vehicle,
-            //     optimalSpeed = this._optimalSpeeds[position],
-            //     acceleration = this._accelerations[position],
-            //     previousCommand = this._previousCommand,
-            //     logger = this._logger;
-            //
-            //
+
             // if (isNullOrUndefined(optimalSpeed) || isNullOrUndefined(acceleration)) {
             //     vehicle.setOffset(59.5);
             //     vehicle.changeLane(68);
@@ -201,6 +198,8 @@ class ProfitScenario implements Scenario {
             //
             //     this.saveCommand(previousCommand);
             //     this._previousCommand = command;
+            // } else {
+            //     this._previousCommand = command;
             // }
         }
     }
@@ -213,19 +212,30 @@ class ProfitScenario implements Scenario {
     }
 
     private handleMissingPoints(p1: [number, number], p2: [number, number]): boolean {
-        let key: string,
+        let key1: string,
+            key2: string,
             track = this._track,
             me = this,
-            missing = false;
+            missing = false,
+            logger = this._logger;
+
 
         track.eachTransition((t1, t2) => {
             if (t2 !== p2) {
-                key = t1[0] + ":" + t1[1];
+                key1 = t1[0] + ":" + t1[1];
+                key2 = t2[0] + ":" + t2[1];
                 missing = true;
-                if (me._accelerations[key] - 25 >= 0)
-                    me._accelerations[key] -= 25;
+                if (me._accelerations[key1] - 25 >= 0) {
+                    me._accelerations[key1] -= 25;
+                    logger.info("acceleration [" + key1 + "] =" + me._accelerations[key1]);
+                }
+
+                // if (me._optimalSpeeds[key2] - 25 >= 500) {
+                //     me._optimalSpeeds[key2] -= 25;
+                //     logger.info("optimalSpeed [" + key2 + "] =" + me._optimalSpeeds[key2]);
+                // }
             }
-        }, 15, p1, p1);
+        }, 15, p1, p2);
 
         return missing;
     }
