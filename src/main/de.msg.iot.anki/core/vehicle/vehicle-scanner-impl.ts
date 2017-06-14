@@ -57,7 +57,7 @@ class VehicleScannerImpl implements VehicleScanner {
                     if (vehicle.id === id)
                         return resolve(vehicle);
                 });
-                reject(new Error("Found no vehicle with messageId [" + id + "]."));
+                reject(new Error("Found no vehicle with id [" + id + "]."));
             }).catch(reject);
         });
     }

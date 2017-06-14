@@ -46,8 +46,9 @@
     "websocket": "^1.0.24"
   },
   "scripts": {
-    "start-server": "gulp && node ./dist/server/vehicle-server.js",
-    "test-core" : "tsc -p . && mocha ./src/test/de.msg.iot.anki/core/**"
+    "start-server": "gulp && node ./dist/main/de.msg.iot.anki/server/vehicle-server.js",
+    "test-core" : "tsc -p . && mocha ./src/test/de.msg.iot.anki/core/**",
+    "test-core-vehicle" : "tsc -p . && mocha ./src/test/de.msg.iot.anki/core/vehicle/vehicle-test.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [

@@ -20,7 +20,6 @@ class VehicleTest {
             setup = settings.getAsSetup("setup"),
             scanner = new VehicleScannerImpl(setup);
 
-
         scanner.findAny()
             .then(vehicle => {
                 VehicleTest.VEHICLE = vehicle;
@@ -116,7 +115,7 @@ class VehicleTest {
 
                 setTimeout(() => {
                     vehicle.addListener((message: PositionUpdateMessage) => {
-                        expect(message.offset).to.be.approximately(nextOffset, 2);
+                        expect(message.offset).to.be.approximately(nextOffset, 3);
                     }, PositionUpdateMessage);
                 }, 6000);
 

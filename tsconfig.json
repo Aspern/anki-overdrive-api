@@ -86,8 +86,8 @@
     "src/script/latency-analyse.ts",
 
     "src/server/server-console-interface.ts",
-    "src/server/vehicle-server.ts",
-    "src/server/lifecycle-component.ts",
+    "src/main/de.msg.iot.anki/server/vehicle-server.ts",
+    "src/main/de.msg.iot.anki/server/lifecycle-component.ts",
     "src/script/latency-analyse.ts",
     "src/script/mongo-output.ts",
 

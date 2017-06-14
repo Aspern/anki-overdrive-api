@@ -1,15 +1,14 @@
 import * as log4js from "log4js";
-import {LifecycleComponent} from "./lifecycle-component";
-import {Settings} from "../main/de.msg.iot.anki/core/settings/settings-interface";
-import {Vehicle} from "../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
-import {Track} from "../main/de.msg.iot.anki/core/track/track-interface";
-import {JsonSettings} from "../main/de.msg.iot.anki/core/settings/json-settings";
-import {SetupConfig} from "../main/de.msg.iot.anki/core/settings/setup-config";
 import {Logger} from "log4js";
-import {isNullOrUndefined} from "util";
+import {LifecycleComponent} from "./lifecycle-component";
+import {Settings} from "../core/settings/settings-interface";
+import {Vehicle} from "../core/vehicle/vehicle-interface";
+import {Track} from "../core/track/track-interface";
+import {JsonSettings} from "../core/settings/json-settings";
+import {SetupConfig} from "../core/settings/setup-config";
+import {VehicleScanner} from "../core/vehicle/vehicle-scanner-interface";
+import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
 import Timer = NodeJS.Timer;
-import {VehicleScanner} from "../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-interface";
-import {VehicleScannerImpl} from "../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
 
 /**
  * Server to control a setup with one track and an amount of vehicles, that belongs to the track
@@ -24,7 +23,6 @@ class VehicleServer implements LifecycleComponent {
     private _track: Track;
     private _setup: SetupConfig;
     private _logger: Logger;
-    private _autoScanTask: Timer;
 
     constructor() {
         this.initLogging();
@@ -33,72 +31,55 @@ class VehicleServer implements LifecycleComponent {
         this._track = this._settings.getAsTrack("setup.track.pieces");
         this._setup = this._settings.getAsSetup("setup");
         this._scanner = new VehicleScannerImpl(this._setup);
-
-
     }
 
     start(): Promise<void> {
-        let me = this;
+        let me = this,
+            logger = this._logger;
 
-        this._logger.info("Starting vehicle-server...");
+        logger.info("Starting vehicle-server...");
 
         return new Promise<void>((resolve, reject) => {
-            me.searchVehicles().then(() => {
+            me.searchVehicles().then(vehicles => {
+                me._vehicles = vehicles;
                 resolve();
-            }).catch(error => {
-                if (!isNullOrUndefined(me._logger)) {
-                    me._logger.error("Errors while starting vehicle-server.", error);
-                    process.exit();
-                    resolve();
-                } else
-                    reject();
-            });
+            }).catch(reject);
         });
     }
 
     stop(): Promise<void> {
-        let me = this;
+        let me = this,
+            logger = this._logger;
 
-        this._logger.info("Stopping vehicle-server...");
+        logger.info("Stopping vehicle-server...");
 
         return new Promise<void>(resolve => {
-
-            if (!isNullOrUndefined(me._autoScanTask))
-                clearInterval(me._autoScanTask);
-
             resolve();
         });
     }
 
     /**
-     * Searches all vehicles that belongs to this setup and adds them as resource.
+     * Searches all available vehicles in this setup.
+     *
+     * @return {Promise<void>|Promise} Promise holding all vehicles.
      */
-    searchVehicles(): Promise<void> {
+    searchVehicles(): Promise<Array<Vehicle>> {
         let me = this;
 
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<Array<Vehicle>>((resolve, reject) => {
             me._logger.info("Searching vehicles for this setup...");
 
             me._scanner.findAll()
                 .then(vehicles => {
-                    me._vehicles = vehicles;
-                    me.showVehicles();
-                    resolve();
+                    vehicles.forEach(vehicle => me.printVehicle(vehicle));
+                    resolve(vehicles);
                 }).catch(reject);
         });
     }
 
-    /**
-     * Prints all vehicles that are listed as a resource to the console or log.
-     */
-    showVehicles(): void {
-        let me = this;
-        this._vehicles.forEach(vehicle => me.printVehicle(vehicle));
-    }
-
 
     /**
-     * Prints vehicle information to the log.
+     * Prints vehicle information.
      *
      * @param vehicle Vehicle to print
      */
@@ -127,30 +108,24 @@ class VehicleServer implements LifecycleComponent {
      * Stops the server properly when the 'exit' event was emitted by NodeJS.
      */
     private addShutdownHook(): void {
-        let me = this;
+        let me = this,
+            logger = this._logger;
+
+        logger.info("Adding shutdown hook.");
         process.on('exit', () => {
-            let closed = false;
-
             me.stop()
-                .then(() => {
-                    me._logger.info("Closed");
-                    closed = true;
-                })
-                .catch(e => {
-                    if (!isNullOrUndefined(me._logger)) {
-                        me._logger.error("Errors while starting vehicle-server.", e);
-                        process.exit(1);
-                    }
+                .then()
+                .catch(error => {
+                    logger.error("Error while executing shutdown hook.", error);
+                    process.exit(1);
                 });
-
-            //TODO: Solve problem with async resource closing.
         });
     }
 }
 
 let server = new VehicleServer();
 
-server.start().catch(e => {
-    console.error("Cannot start vehicle-server", e);
+server.start().catch(error => {
+    console.error("Cannot start vehicle-server.", error);
     process.exit(1);
 });
