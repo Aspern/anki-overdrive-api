@@ -1,5 +1,5 @@
 import {isNullOrUndefined} from "util";
-import {Vehicle} from "../vehicle/vehicle-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {AnkiMessage} from "./anki-message";
 /**
  * Contains general information about vehicles. Each message additionally contains the ID of its

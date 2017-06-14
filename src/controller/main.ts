@@ -1,6 +1,6 @@
 ///<reference path="../../node_modules/@types/highlight.js/index.d.ts"/>
-import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
-import {Vehicle} from "../core/vehicle/vehicle-interface";
+import {VehicleScannerImpl} from "../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
+import {Vehicle} from "../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {KafkaController} from "./kafka/kafka-controller";
 import {ConsumerMessage} from "./kafka/ConsumerMessage";
 import HLJSStatic = hljs.HLJSStatic;

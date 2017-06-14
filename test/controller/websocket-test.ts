@@ -1,7 +1,7 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {WebSocketController} from "../../src/controller/websocket/websocket-controller";
-import {VehicleScannerImpl} from "../../src/core/vehicle/vehicle-scanner-impl";
-import {JsonSettings} from "../../src/core/settings/json-settings";
+import {VehicleScannerImpl} from "../../src/main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
+import {JsonSettings} from "../../src/main/de.msg.iot.anki/core/settings/json-settings";
 import * as log4js from "log4js";
 import {WebSocketRequest} from "../../src/controller/websocket/websocket-request";
 

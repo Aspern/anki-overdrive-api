@@ -1,6 +1,6 @@
-import {AnkiOverdrivePiece} from "./anki-overdrive-piece";
+import {PieceImpl} from "./piece-impl";
 
-class Finish extends AnkiOverdrivePiece {
+class Finish extends PieceImpl {
 
     public static _ID: number = 34;
 

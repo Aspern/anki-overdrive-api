@@ -1,6 +1,6 @@
 import {VehicleMessage} from "../vehicle-message";
-import {LightConfig} from "../../vehicle/light-config";
-import {Vehicle} from "../../vehicle/vehicle-interface";
+import {LightConfig} from "../../../main/de.msg.iot.anki/core/vehicle/light-config";
+import {Vehicle} from "../../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 
 class SetLights extends VehicleMessage {
 

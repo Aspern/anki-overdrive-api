@@ -1,7 +1,7 @@
 import {ActiveFilter} from "./active-filter";
 import {PositionUpdateMessage} from "../message/v2c/position-update-message";
-import {Vehicle} from "../vehicle/vehicle-interface";
-import {Track} from "../track/track-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
+import {Track} from "../../main/de.msg.iot.anki/core/track/track-interface";
 
 class MessageQualityFilter implements ActiveFilter<[Track, Array<Vehicle>], PositionUpdateMessage> {
 

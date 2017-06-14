@@ -1,6 +1,6 @@
 import {VehicleMessage} from "../vehicle-message";
 import {Distance} from "../../filter/distance";
-import {Vehicle} from "../../vehicle/vehicle-interface";
+import {Vehicle} from "../../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 
 /**
  * This message is sent by the vehicle when it has crossed a location.

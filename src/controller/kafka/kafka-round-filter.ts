@@ -1,5 +1,5 @@
-import {Vehicle} from "../../core/vehicle/vehicle-interface";
-import {Track} from "../../core/track/track-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
+import {Track} from "../../main/de.msg.iot.anki/core/track/track-interface";
 import {KafkaController} from "./kafka-controller";
 import {RoundFilter} from "../../core/filter/round-filter";
 

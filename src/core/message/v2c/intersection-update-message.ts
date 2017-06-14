@@ -1,7 +1,7 @@
 import {VehicleMessage} from "../vehicle-message";
 import {DrivingDirection} from "../driving-direction";
 import {IntersectionCode} from "../intersection-code";
-import {Vehicle} from "../../vehicle/vehicle-interface";
+import {Vehicle} from "../../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 
 /**
  * This message is sent by the vehicle when it has crossed a piece of the type `collision`.

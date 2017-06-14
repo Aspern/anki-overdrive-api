@@ -2,7 +2,7 @@
 import * as files from "jsonfile";
 import {MongoClient} from "mongodb";
 import {isNullOrUndefined} from "util";
-import {JsonSettings} from "../core/settings/json-settings";
+import {JsonSettings} from "../main/de.msg.iot.anki/core/settings/json-settings";
 
 let optimalSpeeds: { [key: string]: number } = files.readFileSync("resources/optimal-speeds.json"),
     settings = new JsonSettings(),

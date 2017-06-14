@@ -1,20 +1,20 @@
-import {Settings} from "../../core/settings/settings-interface";
-import {JsonSettings} from "../../core/settings/json-settings";
-import {VehicleScannerImpl} from "../../core/vehicle/vehicle-scanner-impl";
+import {Settings} from "../../main/de.msg.iot.anki/core/settings/settings-interface";
+import {JsonSettings} from "../../main/de.msg.iot.anki/core/settings/json-settings";
+import {VehicleScannerImpl} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
 import {isNullOrUndefined} from "util";
-import {Vehicle} from "../../core/vehicle/vehicle-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {KafkaDistanceFilter} from "./kafka-distance-filter";
-import {Piece} from "../../core/track/piece-interface";
-import {Start} from "../../core/track/start";
-import {Finish} from "../../core/track/finish";
-import {Straight} from "../../core/track/straight";
-import {Curve} from "../../core/track/curve";
+import {Piece} from "../../main/de.msg.iot.anki/core/track/piece-interface";
+import {Start} from "../../main/de.msg.iot.anki/core/track/start";
+import {Finish} from "../../main/de.msg.iot.anki/core/track/finish";
+import {Straight} from "../../main/de.msg.iot.anki/core/track/straight";
+import {Curve} from "../../main/de.msg.iot.anki/core/track/curve";
 import {KafkaController} from "./kafka-controller";
-import {SetupConfig} from "../../core/settings/setup-config";
+import {SetupConfig} from "../../main/de.msg.iot.anki/core/settings/setup-config";
 import {AnkiConsole} from "../../core/util/anki-console";
 import {Scenario} from "../scenario/scenario-interface";
 import {CollisionScenario} from "../scenario/collision-scenario";
-import {LightConfig} from "../../core/vehicle/light-config";
+import {LightConfig} from "../../main/de.msg.iot.anki/core/vehicle/light-config";
 import {AntiCollisionScenario} from "../scenario/anti-collision-scenario";
 import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
@@ -219,7 +219,7 @@ kafkaController.initializeProducer().then(online => {
         i = 0;
 
         logger.info("Found 1 track for setup:")
-        track.eachPiece(piece => {
+        track.eachPiece((piece:Piece) => {
             logger.info("\t" + i++ + "\t" + piece.id + "\t(" + getPieceDescription(piece) + ")");
         });
 

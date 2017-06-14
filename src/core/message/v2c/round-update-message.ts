@@ -1,5 +1,5 @@
 import {VehicleMessage} from "../vehicle-message";
-import {Vehicle} from "../../vehicle/vehicle-interface";
+import {Vehicle} from "../../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {LabeledPositionUpdateMessage} from "./labeled-position-update-message";
 import {LabeledSetSpeed} from "../c2v/labeled-set-speed";
 

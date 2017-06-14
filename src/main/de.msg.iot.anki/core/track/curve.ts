@@ -1,6 +1,6 @@
-import {AnkiOverdrivePiece} from "./anki-overdrive-piece";
+import {PieceImpl} from "./piece-impl";
 
-class Curve extends AnkiOverdrivePiece {
+class Curve extends PieceImpl {
 
     constructor(id: number) {
         super(id);

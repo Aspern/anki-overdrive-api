@@ -1,5 +1,6 @@
 import {Piece} from "./piece-interface";
-abstract class AnkiOverdrivePiece implements Piece {
+
+abstract class PieceImpl implements Piece {
 
     protected _id: number;
     private _next: Piece;
@@ -66,4 +67,4 @@ abstract class AnkiOverdrivePiece implements Piece {
     }
 }
 
-export {AnkiOverdrivePiece}
+export {PieceImpl}

@@ -1,9 +1,9 @@
 /// <reference path="../../../decl/jsonfile.d.ts"/>
 import {Scenario} from "./scenario-interface";
 import {VehicleMessage} from "../../core/message/vehicle-message";
-import {Vehicle} from "../../core/vehicle/vehicle-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import * as files from "jsonfile";
-import {Track} from "../../core/track/track-interface";
+import {Track} from "../../main/de.msg.iot.anki/core/track/track-interface";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 import {isNullOrUndefined} from "util";
 import {MongoClient} from "mongodb";

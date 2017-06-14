@@ -1,9 +1,9 @@
-import {VehicleScannerImpl} from "../../core/vehicle/vehicle-scanner-impl";
+import {VehicleScannerImpl} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
 import {isNullOrUndefined} from "util";
 import {CollisionScenario} from "./collision-scenario";
 import {Scenario} from "./scenario-interface";
 import {SimpleDistanceFilter} from "../../core/filter/simple-distance-filter";
-import {JsonSettings} from "../../core/settings/json-settings";
+import {JsonSettings} from "../../main/de.msg.iot.anki/core/settings/json-settings";
 let scenario: Scenario,
     settings = new JsonSettings(),
     track = settings.getAsTrack("track"),

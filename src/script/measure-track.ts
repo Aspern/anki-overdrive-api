@@ -1,6 +1,6 @@
-import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
+import {VehicleScannerImpl} from "../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
 import * as uuid from "node-uuid";
-import {JsonSettings} from "../core/settings/json-settings";
+import {JsonSettings} from "../main/de.msg.iot.anki/core/settings/json-settings";
 import {ResultHandler} from "../core/util/result-handler-interface";
 import {Result} from "../core/util/result";
 import {TrackRunner} from "../core/util/track-runner";

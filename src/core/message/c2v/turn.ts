@@ -1,7 +1,7 @@
 import {VehicleMessage} from "../vehicle-message";
 import {TurnType} from "../turn-type";
 import {TurnTrigger} from "../turn-trigger";
-import {Vehicle} from "../../vehicle/vehicle-interface";
+import {Vehicle} from "../../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 
 class Turn extends VehicleMessage {
 

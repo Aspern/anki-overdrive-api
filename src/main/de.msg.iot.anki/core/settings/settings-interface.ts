@@ -1,5 +1,5 @@
-import {Track} from "../track/track-interface";
 import {SetupConfig} from "./setup-config";
+import {Track} from "../track/track-interface";
 
 /**
  * Class to access user defined settings for the application.

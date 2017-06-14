@@ -1,0 +1,88 @@
+{
+  "key": "value",
+  "int": 4711,
+  "float": 47.11,
+  "true": true,
+  "false": false,
+  "date": "12/24/2015 18:30:30",
+  "millis": 1487089387439,
+  "object": {
+    "object": {
+      "key": "value"
+    },
+    "key": "value"
+  },
+  "array": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "setup": {
+    "ean": "0810559020400",
+    "uuid": "setup-adrian",
+    "websocket": "ws://localhost:4711/",
+    "vehicles": [
+      {
+        "uuid": "eb401ef0f82b",
+        "address": "eb:40:1e:f0:f8:2b",
+        "name": "Ground Shock",
+        "offset": -68,
+        "connected": false
+      },
+      {
+        "uuid": "ed0c94216553",
+        "address": "ed:0c:94:21:65:53",
+        "name": "Skull",
+        "offset": 68,
+        "connected": false
+      }
+    ],
+    "track": {
+      "pieces": [
+        {
+          "type": "start",
+          "pieceId": 33
+        },
+        {
+          "type": "straight",
+          "pieceId": 40
+        },
+        {
+          "type": "curve",
+          "pieceId": 18
+        },
+        {
+          "type": "curve",
+          "pieceId": 23
+        },
+        {
+          "type": "straight",
+          "pieceId": 36
+        },
+        {
+          "type": "straight",
+          "pieceId": 39
+        },
+        {
+          "type": "curve",
+          "pieceId": 17
+        },
+        {
+          "type": "curve",
+          "pieceId": 20
+        },
+        {
+          "type": "finish",
+          "pieceId": 34
+        }
+      ]
+    }
+  }
+}

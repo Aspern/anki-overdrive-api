@@ -1,35 +1,34 @@
-/// <reference path="../../../decl/noble.d.ts"/>
+/// <reference path="../../../../../decl/noble.d.ts"/>
 import {Peripheral, Characteristic} from "noble";
-import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
-import {VehicleMessage} from "../message/vehicle-message";
-import {PositionUpdateMessage} from "../message/v2c/position-update-message";
-import {TransitionUpdateMessage} from "../message/v2c/transition-update-message";
-import {IntersectionUpdateMessage} from "../message/v2c/intersection-update-message";
-import {TurnType} from "../message/turn-type";
-import {VehicleDelocalizedMessage} from "../message/v2c/vehicle-delocalized-message";
-import {LightConfig} from "./light-config";
-import {SetSpeed} from "../message/c2v/set-speed";
-import {SetOffset} from "../message/c2v/set-offset";
-import {ChangeLane} from "../message/c2v/change-lane";
-import {CancelLaneChange} from "../message/c2v/cancel-lane-change";
-import {Turn} from "../message/c2v/turn";
-import {SdkMode} from "../message/c2v/sdk-mode";
-import {PingRequest} from "../message/c2v/ping-request";
-import {PingResponse} from "../message/v2c/ping-response";
-import {VersionResponse} from "../message/v2c/version-response";
-import {BatteryLevelResponse} from "../message/v2c/battery-level-response";
-import {VersionRequest} from "../message/c2v/version-request";
-import {BatteryLevelRequest} from "../message/c2v/battery-level-request";
-import {SetLights} from "../message/c2v/set-lights";
-import {Setup} from "../setup";
 import {isNull, isNullOrUndefined} from "util";
-import {SetupConfig} from "../../main/de.msg.iot.anki/core/settings/setup-config";
+import {Vehicle} from "./vehicle-interface";
+import {VehicleMessage} from "../../../../core/message/vehicle-message";
+import {PositionUpdateMessage} from "../../../../core/message/v2c/position-update-message";
+import {SetSpeed} from "../../../../core/message/c2v/set-speed";
+import {SetOffset} from "../../../../core/message/c2v/set-offset";
+import {ChangeLane} from "../../../../core/message/c2v/change-lane";
+import {CancelLaneChange} from "../../../../core/message/c2v/cancel-lane-change";
+import {TurnType} from "../../../../core/message/turn-type";
+import {SdkMode} from "../../../../core/message/c2v/sdk-mode";
+import {PingRequest} from "../../../../core/message/c2v/ping-request";
+import {VersionRequest} from "../../../../core/message/c2v/version-request";
+import {VersionResponse} from "../../../../core/message/v2c/version-response";
+import {BatteryLevelRequest} from "../../../../core/message/c2v/battery-level-request";
+import {BatteryLevelResponse} from "../../../../core/message/v2c/battery-level-response";
+import {LightConfig} from "./light-config";
+import {SetLights} from "../../../../core/message/c2v/set-lights";
+import {TransitionUpdateMessage} from "../../../../core/message/v2c/transition-update-message";
+import {IntersectionUpdateMessage} from "../../../../core/message/v2c/intersection-update-message";
+import {VehicleDelocalizedMessage} from "../../../../core/message/v2c/vehicle-delocalized-message";
+import {PingResponse} from "../../../../core/message/v2c/ping-response";
+import {Turn} from "../../../../core/message/c2v/turn";
+import {SetupConfig} from "../settings/setup-config";
 
 /**
  * Default implementation of `Vehicle`. The connection with the vehicle will enable the SDK mode
  * and initialize the offset by default.
  */
-class AnkiOverdriveVehicle implements Vehicle {
+class VehicleImpl implements Vehicle {
 
     private _id: string;
     private _setupId: string;
@@ -483,4 +482,4 @@ class AnkiOverdriveVehicle implements Vehicle {
     }
 }
 
-export {AnkiOverdriveVehicle}
+export {VehicleImpl}

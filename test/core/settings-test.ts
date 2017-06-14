@@ -1,9 +1,9 @@
 import {suite, test} from "mocha-typescript";
 import {expect} from "chai";
-import {Settings} from "../../src/core/settings/settings-interface";
-import {JsonSettings} from "../../src/core/settings/json-settings";
-import {Track} from "../../src/core/track/track-interface";
-import {SetupConfig} from "../../src/core/settings/setup-config";
+import {Settings} from "../../src/main/de.msg.iot.anki/core/settings/settings-interface";
+import {JsonSettings} from "../../src/main/de.msg.iot.anki/core/settings/json-settings";
+import {Track} from "../../src/main/de.msg.iot.anki/core/track/track-interface";
+import {SetupConfig} from "../../src/main/de.msg.iot.anki/core/settings/setup-config";
 
 @suite
 class JsonSettingsTest {

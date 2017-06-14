@@ -1,28 +1,27 @@
-/// <reference path="../../../decl/noble.d.ts"/>
+/// <reference path="../../../../../decl/noble.d.ts"/>
 import * as noble from "noble";
 import {Peripheral} from "noble";
-import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
+import {Vehicle} from "./vehicle-interface";
 import {isNullOrUndefined} from "util";
-import {Setup} from "../setup";
-import {AnkiOverdriveVehicle} from "./vehicle-impl";
-import {VehicleScanner} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-interface";
+import {VehicleImpl} from "./vehicle-impl";
+import {VehicleScanner} from "./vehicle-scanner-interface";
 import {SetupConfig} from "../settings/setup-config";
 
 /**
- * Finds vehicles in the Bluetooth Low Energy (BLE) network. Vehicles can be also be found by
- * their messageId or address.
+ * VehicleScanner implementation using the noble.js library.
  */
-class VehicleScannerImpl implements VehicleScanner  {
+class VehicleScannerImpl implements VehicleScanner {
 
     private _timeout: number;
     private _retries: number;
     private _setup: SetupConfig;
 
     /**
-     * Creates a instance of VehicleScanner.
+     * Creates instance of VehicleScanner.
      *
-     * @param timeout (optional) number of milliseconds before timeout is reached.
-     * @param _retries (optional) number of _retries before searching fails.
+     * @param setup Config, that provides information about this setup
+     * @param timeout (optional) Timeout for searching for vehicles.
+     * @param retries (optional) Number of retries to search for vehicles.
      */
     constructor(setup: SetupConfig, timeout = 1000, retries = 3) {
         this._setup = setup;
@@ -30,103 +29,45 @@ class VehicleScannerImpl implements VehicleScanner  {
         this._retries = retries;
     }
 
-    /**
-     * Searches and returns all available vehicles.
-     *
-     * @return {Promise<Array<Vehicle>>|Promise} all available vehicles
-     */
     findAll(): Promise<Array<Vehicle>> {
-        let vehicles: Array<Vehicle> = [],
-            peripherals: Array<Peripheral> = [],
-            vehiclePeripherals: Array<Peripheral> = [],
-            me = this;
+        let me = this,
+            setup = this._setup,
+            vehicles: Array<Vehicle> = [];
 
         return new Promise<Array<Vehicle>>((resolve, reject) => {
-            me.onAdapterOnline().then(() => {
-                let callback = (peripheral: Peripheral) => {
-                    peripherals.push(peripheral);
-                };
-
-                noble.startScanning();
-                noble.on('discover', callback);
-
-                // Wait until timeout, then stop scanning.
-                setTimeout(() => {
-                    noble.stopScanning();
-                    noble.removeListener('discover', callback);
-                    peripherals.forEach(peripheral => {
-                        if (me.isVehicleInSetup(peripheral))
-                            peripheral.connect((e: Error) => {
-                                if (!isNullOrUndefined(e)) {
-                                    peripheral.disconnect(() => {
-                                        reject(e);
-                                    });
-                                } else {
-                                    peripheral.discoverAllServicesAndCharacteristics((e, services) => {
-                                        if (isNullOrUndefined(e) && !isNullOrUndefined(services))
-                                            for (let i = 0; i < services.length; i++) {
-                                                if (services[i].uuid === "be15beef6186407e83810bd89c4d8df4") {
-                                                    vehiclePeripherals.push(peripheral);
-                                                    break;
-                                                }
-                                            }
-
-                                        peripheral.disconnect();
-                                    });
-                                }
-                            });
-                    });
-                    setTimeout(() => {
-                        vehiclePeripherals.forEach((vehcPer) => {
-                            if (!me.vehicleAlreadyExits(vehcPer, vehicles))
-                                vehicles.push(new AnkiOverdriveVehicle(vehcPer, me._setup));
-                        });
-                        resolve(vehicles);
-                    }, me._timeout);
-                }, this._timeout);
-            }).catch(reject);
+            me.enableAdapter()
+                .then(me.scanPeripherals)
+                .then(me.filterVehicles)
+                .then(peripherals => {
+                    peripherals.forEach(peripheral => vehicles.push(
+                        new VehicleImpl(peripheral, setup)
+                    ));
+                    resolve(vehicles);
+                })
+                .catch(reject);
         });
     }
 
-    private vehicleAlreadyExits(peripheral: Peripheral, vehicles: Array<Vehicle>) {
-        for (let i = 0; i < vehicles.length; i++)
-            if (vehicles[i].address === peripheral.address)
-                return true;
-        return false;
-    }
 
-    /**
-     * Searches a vehicle by its unique identifier.
-     *
-     * @param id Unique identifier of the vehicle
-     * @return {Promise<Vehicle>|Promise} vehicle
-     */
     findById(id: string): Promise<Vehicle> {
         let me = this;
-
         return new Promise<Vehicle>((resolve, reject) => {
-            me.findAll().then((vehicles) => {
-                vehicles.forEach((vehicle: AnkiOverdriveVehicle) => {
+            me.findAll().then(vehicles => {
+                vehicles.forEach((vehicle: Vehicle) => {
                     if (vehicle.id === id)
-                        resolve(vehicle);
+                        return resolve(vehicle);
                 });
                 reject(new Error("Found no vehicle with messageId [" + id + "]."));
             }).catch(reject);
         });
     }
 
-    /**
-     * Searches a vehicle by its unique address.
-     *
-     * @param address unique address
-     * @return {Promise<Vehicle>|Promise} vehicle
-     */
     findByAddress(address: string): Promise<Vehicle> {
         let me = this;
 
         return new Promise<Vehicle>((resolve, reject) => {
             me.findAll().then((vehicles) => {
-                vehicles.forEach((vehicle: AnkiOverdriveVehicle) => {
+                vehicles.forEach((vehicle: VehicleImpl) => {
                     if (vehicle.address === address)
                         resolve(vehicle);
                 });
@@ -135,11 +76,6 @@ class VehicleScannerImpl implements VehicleScanner  {
         });
     }
 
-    /**
-     * Searches for any vehicle.
-     *
-     * @return {Promise<Vehicle>|Promise} vehicle
-     */
     findAny(): Promise<Vehicle> {
         let me = this;
 
@@ -153,39 +89,70 @@ class VehicleScannerImpl implements VehicleScanner  {
         });
     }
 
-    private isVehicleInSetup(peripheral: Peripheral): boolean {
-        let me = this,
-            vehiclesInSetup = me._setup.vehicles,
-            i = 0;
-        for (; i < vehiclesInSetup.length; i++) {
-            if (vehiclesInSetup[i].address === peripheral.address)
-                return true;
-        }
-
-        return false;
-    }
-
-    private onAdapterOnline(): Promise<void> {
+    private enableAdapter(): Promise<number> {
         let counter: number = 0,
             me = this;
 
-        return new Promise<void>((resolve, reject) => {
-            let i = setInterval(() => {
+        return new Promise<number>((resolve, reject) => {
+            let task = setInterval(() => {
                 if (noble.state === "poweredOn") {
-                    clearInterval(i);
-                    resolve();
+                    clearInterval(task);
+                    resolve(me._timeout);
                 }
 
                 if (counter === me._retries) {
-                    clearInterval(i);
-                    return reject("BLE Adapter offline");
+                    clearInterval(task);
+                    return reject("BLE Adapter is offline.");
                 }
 
                 ++counter;
-            }, this._timeout);
+            }, 1000);
         });
+    }
+
+    private scanPeripherals(timeout: number): Promise<Array<Peripheral>> {
+        let peripherals: Array<Peripheral> = [];
+
+        return new Promise<Array<Peripheral>>((resolve, reject) => {
+            try {
+                noble.startScanning();
+                noble.on('discover', peripheral => peripherals.push(peripheral));
+            } catch (error) {
+                reject(error);
+            }
+            setTimeout(() => resolve(peripherals), timeout);
+        });
+    }
 
 
+    private filterVehicles(peripherals: Array<Peripheral>): Promise<Array<Peripheral>> {
+        let vehicles: Array<Peripheral> = [];
+
+        return new Promise<Array<Peripheral>>((resolve, reject) => {
+            peripherals.forEach(peripheral => {
+                peripheral.connect(error => {
+                    if (!isNullOrUndefined(error))
+                        reject(error);
+
+                    peripheral.discoverAllServicesAndCharacteristics((error, services) => {
+                        if (!isNullOrUndefined(error))
+                            reject(error);
+
+                        for (let i = 0; i < services.length; i++) {
+                            if (services[i].uuid === "be15beef6186407e83810bd89c4d8df4") {
+                                vehicles.push(peripheral);
+                                break;
+                            }
+                        }
+                    });
+                });
+            });
+
+            setTimeout(() => {
+                peripherals.forEach(peripheral => peripheral.disconnect());
+                resolve(vehicles);
+            }, 1000);
+        });
     }
 }
 

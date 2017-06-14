@@ -1,12 +1,12 @@
 import {suite, test, timeout} from "mocha-typescript";
 import {expect} from "chai";
-import {VehicleScannerImpl} from "../../src/core/vehicle/vehicle-scanner-impl";
-import {Vehicle} from "../../src/core/vehicle/vehicle-interface";
+import {VehicleScannerImpl} from "../../src/main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
+import {Vehicle} from "../../src/main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {PositionUpdateMessage} from "../../src/core/message/v2c/position-update-message";
 import {VehicleMessage} from "../../src/core/message/vehicle-message";
 import {TransitionUpdateMessage} from "../../src/core/message/v2c/transition-update-message";
 import {DrivingDirection} from "../../src/core/message/driving-direction";
-import {LightConfig} from "../../src/core/vehicle/light-config";
+import {LightConfig} from "../../src/main/de.msg.iot.anki/core/vehicle/light-config";
 
 
 @suite

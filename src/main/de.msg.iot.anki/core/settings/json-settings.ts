@@ -1,14 +1,14 @@
-/// <reference path="../../../decl/jsonfile.d.ts"/>
+/// <reference path="../../../../../decl/jsonfile.d.ts"/>
 import * as jsonfile from "jsonfile";
 import {Settings} from "./settings-interface";
-import {Track} from "../track/track-interface";
 import {isNullOrUndefined} from "util";
+import {SetupConfig} from "./setup-config";
+import {Track} from "../track/track-interface";
 import {Piece} from "../track/piece-interface";
 import {Curve} from "../track/curve";
 import {Straight} from "../track/straight";
-import {AnkiOverdriveTrack} from "../track/anki-overdrive-track";
-import {SetupConfig} from "./setup-config";
-import {Setup} from "../setup";
+import {TrackImpl} from "../track/track-impl";
+
 
 /**
  * This implementation of settings uses a simple json file to find settings. The class uses the
@@ -19,7 +19,7 @@ class JsonSettings implements Settings {
     private static PATH_SEPARATOR = ".";
     private _map: { [key: string]: any } = {};
 
-    constructor(file = "resources/settings.json") {
+    constructor(file = "src/main/resources/settings.json") {
         this._map = jsonfile.readFileSync(file);
     }
 
@@ -102,7 +102,7 @@ class JsonSettings implements Settings {
                 pieces.push(new Straight(config.pieceId));
         });
 
-        return AnkiOverdriveTrack.build(pieces);
+        return TrackImpl.build(pieces);
     }
 
 

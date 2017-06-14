@@ -1,8 +1,8 @@
-import {VehicleMessage} from "../message/vehicle-message";
+import {VehicleMessage} from "../../../../core/message/vehicle-message";
 import {LightConfig} from "./light-config";
 
 /**
- * Provides methods to interact with a vehicle.
+ * Provides methods to interact with a vehicle of Anki OVERDRIVE.
  */
 interface Vehicle {
 
@@ -149,8 +149,7 @@ interface Vehicle {
      * @param acceleration Strength for acceleration
      */
     accelerate(maxSpeed: number, acceleration?: number): void
-
-
+    
 }
 
 export {Vehicle}

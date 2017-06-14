@@ -1,20 +1,20 @@
 import {suite, test} from "mocha-typescript";
 import {expect} from "chai";
-import {Track} from "../../src/core/track/track-interface";
-import {AnkiOverdriveTrack} from "../../src/core/track/anki-overdrive-track";
-import {Curve} from "../../src/core/track/curve";
-import {Straight} from "../../src/core/track/straight";
-import {Piece} from "../../src/core/track/piece-interface";
-import {Finish} from "../../src/core/track/finish";
-import {Start} from "../../src/core/track/start";
+import {Track} from "../../src/main/de.msg.iot.anki/core/track/track-interface";
+import {TrackImpl} from "../../src/main/de.msg.iot.anki/core/track/track-impl";
+import {Curve} from "../../src/main/de.msg.iot.anki/core/track/curve";
+import {Straight} from "../../src/main/de.msg.iot.anki/core/track/straight";
+import {Piece} from "../../src/main/de.msg.iot.anki/core/track/piece-interface";
+import {Finish} from "../../src/main/de.msg.iot.anki/core/track/finish";
+import {Start} from "../../src/main/de.msg.iot.anki/core/track/start";
 import {fail} from "assert";
-import {JsonSettings} from "../../src/core/settings/json-settings";
+import {JsonSettings} from "../../src/main/de.msg.iot.anki/core/settings/json-settings";
 
 @suite
 class TrackTest {
 
     @test "find pieces"() {
-        let track: Track = AnkiOverdriveTrack.build([
+        let track: Track = TrackImpl.build([
             new Straight(10),
             new Straight(10),
             new Straight(10),
@@ -31,7 +31,7 @@ class TrackTest {
     }
 
     @test "find piece"() {
-        let track: Track = AnkiOverdriveTrack.build([
+        let track: Track = TrackImpl.build([
             new Straight(10),
             new Straight(10),
             new Straight(10),
@@ -49,7 +49,7 @@ class TrackTest {
     }
 
     @test "find lane"() {
-        let track: Track = AnkiOverdriveTrack.build([
+        let track: Track = TrackImpl.build([
             new Curve(0),
             new Curve(1),
             new Straight(2),
@@ -67,10 +67,10 @@ class TrackTest {
             expect(track.findLane(Start._ID, i)).to.be.equals(i);
     }
 
-    s
+
 
     @test "track has at least start and end pieces"() {
-        let track = new AnkiOverdriveTrack();
+        let track = new TrackImpl();
 
         expect(track.finish).instanceof(Finish);
         expect(track.start).instanceof(Start);
@@ -84,7 +84,7 @@ class TrackTest {
                 new Curve(3),
                 new Curve(4)
             ],
-            track: Track = AnkiOverdriveTrack.build(pieces),
+            track: Track = TrackImpl.build(pieces),
             current: Piece = track.start.next,
             i = 0;
 
@@ -102,7 +102,7 @@ class TrackTest {
                 new Curve(3),
                 new Curve(4)
             ],
-            track: Track = AnkiOverdriveTrack.build(pieces),
+            track: Track = TrackImpl.build(pieces),
             i = 0,
             j = 0;
 
@@ -129,7 +129,7 @@ class TrackTest {
 
     @test "each transition"() {
         let settings = new JsonSettings(),
-            track = AnkiOverdriveTrack.build([
+            track = TrackImpl.build([
                 new Straight(1),
                 new Curve(2)
             ]),

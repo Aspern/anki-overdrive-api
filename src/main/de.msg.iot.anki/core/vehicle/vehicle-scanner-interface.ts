@@ -2,7 +2,7 @@ import {Vehicle} from "./vehicle-interface";
 
 /**
  * The scanner finds vehicles from Anki OVERDRIVE belonging to a specific setup, in the
- * Bluetooth Low Energy network.
+ * Bluetooth Low Energy (BLE) network.
  */
 interface VehicleScanner {
 

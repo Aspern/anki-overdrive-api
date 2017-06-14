@@ -1,5 +1,5 @@
 import {SetSpeed} from "./set-speed";
-import {Vehicle} from "../../vehicle/vehicle-interface";
+import {Vehicle} from "../../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 
 class LabeledSetSpeed extends SetSpeed {
 

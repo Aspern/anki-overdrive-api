@@ -1,10 +1,10 @@
 import {suite, test} from "mocha-typescript";
 import {expect} from "chai";
-import {Piece} from "../../src/core/track/piece-interface";
-import {Start} from "../../src/core/track/start";
-import {Finish} from "../../src/core/track/finish";
-import {Straight} from "../../src/core/track/straight";
-import {Curve} from "../../src/core/track/curve";
+import {Piece} from "../../src/main/de.msg.iot.anki/core/track/piece-interface";
+import {Start} from "../../src/main/de.msg.iot.anki/core/track/start";
+import {Finish} from "../../src/main/de.msg.iot.anki/core/track/finish";
+import {Straight} from "../../src/main/de.msg.iot.anki/core/track/straight";
+import {Curve} from "../../src/main/de.msg.iot.anki/core/track/curve";
 
 @suite
 class PieceTest {

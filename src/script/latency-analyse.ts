@@ -1,5 +1,5 @@
-import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
-import {JsonSettings} from "../core/settings/json-settings";
+import {VehicleScannerImpl} from "../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
+import {JsonSettings} from "../main/de.msg.iot.anki/core/settings/json-settings";
 
 let settings = new JsonSettings(),
     setup = settings.getAsSetup("setup"),

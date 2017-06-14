@@ -1,7 +1,7 @@
-import {Vehicle} from "../../core/vehicle/vehicle-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {Scenario} from "./scenario-interface";
 import {VehicleDelocalizedMessage} from "../../core/message/v2c/vehicle-delocalized-message";
-import {LightConfig} from "../../core/vehicle/light-config";
+import {LightConfig} from "../../main/de.msg.iot.anki/core/vehicle/light-config";
 import {VehicleMessage} from "../../core/message/vehicle-message";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 

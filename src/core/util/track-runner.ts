@@ -1,8 +1,8 @@
-import {Vehicle} from "../../core/vehicle/vehicle-interface";
-import {Track} from "../../core/track/track-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
+import {Track} from "../../main/de.msg.iot.anki/core/track/track-interface";
 import {PositionUpdateMessage} from "../message/v2c/position-update-message";
 import {ValidationReport} from "./validation-report";
-import {Start} from "../../core/track/start";
+import {Start} from "../../main/de.msg.iot.anki/core/track/start";
 
 /**
  * TrackRunner is a helper class that automates driving a vehicle on a certain set of lines.

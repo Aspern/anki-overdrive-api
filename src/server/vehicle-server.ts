@@ -1,16 +1,15 @@
 import * as log4js from "log4js";
 import {LifecycleComponent} from "./lifecycle-component";
-import {Settings} from "../core/settings/settings-interface";
-import {Vehicle} from "../core/vehicle/vehicle-interface";
-import {Track} from "../core/track/track-interface";
-import {JsonSettings} from "../core/settings/json-settings";
-import {VehicleScanner} from "../core/vehicle/vehicle-scanner-interface";
-import {SetupConfig} from "../core/settings/setup-config";
+import {Settings} from "../main/de.msg.iot.anki/core/settings/settings-interface";
+import {Vehicle} from "../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
+import {Track} from "../main/de.msg.iot.anki/core/track/track-interface";
+import {JsonSettings} from "../main/de.msg.iot.anki/core/settings/json-settings";
+import {SetupConfig} from "../main/de.msg.iot.anki/core/settings/setup-config";
 import {Logger} from "log4js";
-import reject = Promise.reject;
 import {isNullOrUndefined} from "util";
 import Timer = NodeJS.Timer;
-import {VehicleScannerImpl} from "../core/vehicle/vehicle-scanner-impl";
+import {VehicleScanner} from "../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-interface";
+import {VehicleScannerImpl} from "../main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl";
 
 /**
  * Server to control a setup with one track and an amount of vehicles, that belongs to the track
@@ -34,6 +33,8 @@ class VehicleServer implements LifecycleComponent {
         this._track = this._settings.getAsTrack("setup.track.pieces");
         this._setup = this._settings.getAsSetup("setup");
         this._scanner = new VehicleScannerImpl(this._setup);
+
+
     }
 
     start(): Promise<void> {
@@ -44,9 +45,9 @@ class VehicleServer implements LifecycleComponent {
         return new Promise<void>((resolve, reject) => {
             me.searchVehicles().then(() => {
                 resolve();
-            }).catch(e => {
+            }).catch(error => {
                 if (!isNullOrUndefined(me._logger)) {
-                    me._logger.error("Errors while starting vehicle-server.", e);
+                    me._logger.error("Errors while starting vehicle-server.", error);
                     process.exit();
                     resolve();
                 } else

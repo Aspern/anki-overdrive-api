@@ -1,4 +1,4 @@
-import {Vehicle} from "../../core/vehicle/vehicle-interface";
+import {Vehicle} from "../../main/de.msg.iot.anki/core/vehicle/vehicle-interface";
 import {Scenario} from "./scenario-interface";
 import {VehicleMessage} from "../../core/message/vehicle-message";
 
