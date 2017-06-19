@@ -285,6 +285,18 @@ kafkaController.initializeProducer().then(online => {
         logger.info("Waiting for messages.");
         //ankiConsole.initializePrompt(usedVehicles);
 
+
+        /// PROTOTYPE
+        vehicles[0].connect().then(() => {
+            scenario = new ProfitScenario(usedVehicles[0], track);
+            distanceFilter.registerUpdateHandler(scenario.onUpdate, scenario);
+            scenario.start().then(() => {
+                logger.info("Starting scenario: " + scenario)
+            }).catch(e => logger.error("Cannot start scenario.", e));
+           // vehicles[0].setSpeed(769, 1500)
+        })
+
+
         rl.prompt();
         rl.on('line', (line: string) => {
             if (line === 'pl') {

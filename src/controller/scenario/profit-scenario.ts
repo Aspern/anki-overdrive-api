@@ -17,6 +17,7 @@ interface Command {
     d_t: number;
     a_i1: number;
     v_i: number;
+    v_i1: number;
     v_o: number;
 }
 
@@ -30,6 +31,8 @@ class ProfitScenario implements Scenario {
     private _initialized = false;
     private _previousCommand: Command;
     private _logger: log4js.Logger;
+    private _linearModels: { [key: string]: (acceleration: number) => number } = {};
+    private _pointMap: { [key: string]: Array<[number, number]> } = {};
 
     constructor(vehicle: Vehicle, track: Track) {
         this._logger = log4js.getLogger("profit-scenario");
@@ -102,15 +105,17 @@ class ProfitScenario implements Scenario {
                         if (!isNullOrUndefined(error))
                             logger.error("Cannot connect [mongodb://localhost:27017/anki]", error);
 
+                        me._initialized = true;
+
                         let collection = db.collection("acceleration-commands");
-                        collection.drop().then(() => {
-                            setTimeout(() => {
-                                me._initialized = true;
-                            }, 2000);
-                        }).catch(error => {
-                            logger.error("Cannot drop collection [acceleration-commands].", error);
-                            me._initialized = true;
-                        });
+                        // collection.drop().then(() => {
+                        //     setTimeout(() => {
+                        //         me._initialized = true;
+                        //     }, 2000);
+                        // }).catch(error => {
+                        //     logger.error("Cannot drop collection [acceleration-commands].", error);
+                        //     me._initialized = true;
+                        // });
                     });
                 }, 3000);
                 resolve();
@@ -118,6 +123,24 @@ class ProfitScenario implements Scenario {
                 reject(e);
             }
         });
+    }
+
+    createLinearModel(position: string,): void {
+        let p1 = this._pointMap[position][0],
+            p2 = this._pointMap[position][1],
+            x0 = p1[0],
+            y0 = p1[1],
+            x1 = p2[0],
+            y1 = p2[1],
+            m: number,
+            b: number;
+
+        m = (y1 - y0) / (x1 - x0);
+        b = y1 - (m * x1);
+
+        this._linearModels[position] = (x: number) => {
+            return Math.round(m * x + b);
+        };
     }
 
 
@@ -138,69 +161,91 @@ class ProfitScenario implements Scenario {
                 return;
             }
 
-            switch (position) {
-                case "20:36":
-                    vehicle.setSpeed(1100, 1500);
-                    break;
-                case "33:15":
-                    vehicle.setSpeed(650, 1500);
-                    break;
-                case "23:36":
-                    vehicle.setSpeed(1100, 1500);
-                    break;
-                case "36:47":
-                    vehicle.setSpeed(650, 1500);
-                    break;
+            // switch (position) {
+            //     case "20:36":
+            //         vehicle.setSpeed(1100, 1500);
+            //         break;
+            //     case "33:15":
+            //         vehicle.setSpeed(650, 1500);
+            //         break;
+            //     case "23:36":
+            //         vehicle.setSpeed(1100, 1500);
+            //         break;
+            //     case "36:47":
+            //         vehicle.setSpeed(650, 1500);
+            //         break;
+            // }
+
+
+            if (isNullOrUndefined(optimalSpeed) || isNullOrUndefined(acceleration)) {
+                vehicle.setOffset(59.5);
+                vehicle.changeLane(68);
+                logger.warn("Vehicle not on lane.");
+                return;
             }
 
 
-            // if (isNullOrUndefined(optimalSpeed) || isNullOrUndefined(acceleration)) {
-            //     vehicle.setOffset(59.5);
-            //     vehicle.changeLane(68);
-            //     logger.warn("Vehicle not on lane.");
-            //     return;
-            // }
-            //
-            //
-            // let command: Command = {
-            //     timestamp: new Date(),
-            //     d_t: undefined,
-            //     a_i1: acceleration,
-            //     p_1: position,
-            //     p_2: undefined,
-            //     v_o: undefined,
-            //     v_i: undefined
-            // };
-            //
-            // try {
-            //     vehicle.setSpeed(optimalSpeed, acceleration);
-            // } catch (error) {
-            //     logger.error("Cannot set speed [speed=" + optimalSpeed + ", acceleration=" + acceleration + "].", error);
-            // }
-            //
-            //
-            // if (isNullOrUndefined(previousCommand)) {
-            //     this._previousCommand = command;
-            // } else if (!this.handleMissingPoints(
-            //         this.keyToPoint(previousCommand.p_1),
-            //         this.keyToPoint(position)
-            //     )) {
-            //     previousCommand.d_t = (new Date().getMilliseconds() - previousCommand.timestamp.getMilliseconds());
-            //     previousCommand.p_2 = position;
-            //     previousCommand.v_o = optimalSpeed;
-            //     previousCommand.v_i = message.speed;
-            //
-            //     if (Math.abs(previousCommand.v_o - previousCommand.v_i) > 25)
-            //         if ((previousCommand.v_o - previousCommand.v_i) > 0)
-            //             this._accelerations[previousCommand.p_1] += 25;
-            //         else if (this._accelerations[previousCommand.p_1] - 25 >= 0)
-            //             this._accelerations[previousCommand.p_1] -= 25;
-            //
-            //     this.saveCommand(previousCommand);
-            //     this._previousCommand = command;
-            // } else {
-            //     this._previousCommand = command;
-            // }
+
+
+            if (this._linearModels.hasOwnProperty(position)) {
+                acceleration = this._linearModels[position](optimalSpeed);
+            }
+
+            let command: Command = {
+                timestamp: new Date(),
+                d_t: undefined,
+                a_i1: acceleration,
+                p_1: position,
+                p_2: undefined,
+                v_o: undefined,
+                v_i: undefined,
+                v_i1: message.speed
+            };
+
+            try {
+                logger.info(""+acceleration);
+                vehicle.setSpeed(optimalSpeed, acceleration);
+            } catch (error) {
+                logger.error("Cannot set speed [speed=" + optimalSpeed + ", acceleration=" + acceleration + "].", error);
+            }
+
+
+            if (isNullOrUndefined(previousCommand)) {
+                this._previousCommand = command;
+            } else if (!this.handleMissingPoints(
+                    this.keyToPoint(previousCommand.p_1),
+                    this.keyToPoint(position)
+                )) {
+
+
+                previousCommand.d_t = (new Date().getMilliseconds() - previousCommand.timestamp.getMilliseconds());
+                previousCommand.p_2 = position;
+                previousCommand.v_o = optimalSpeed;
+                previousCommand.v_i = message.speed;
+
+                let key = previousCommand.p_1;
+
+                if (!this._pointMap.hasOwnProperty(key)) {
+                    this._pointMap[key] = [[previousCommand.a_i1, previousCommand.v_o]];
+                } else if (this._pointMap[key].length < 2) {
+                    this._pointMap[key].push([previousCommand.a_i1, previousCommand.v_o]);
+                    this.createLinearModel(key);
+                }
+
+
+                if (!this._linearModels.hasOwnProperty(key)) {
+                    if (Math.abs(previousCommand.v_o - previousCommand.v_i) > 25)
+                        if ((previousCommand.v_o - previousCommand.v_i) > 0)
+                            this._accelerations[previousCommand.p_1] += 25;
+                        else if (this._accelerations[previousCommand.p_1] - 25 >= 0)
+                            this._accelerations[previousCommand.p_1] -= 25;
+                }
+
+                this.saveCommand(previousCommand);
+                this._previousCommand = command;
+            } else {
+                this._previousCommand = command;
+            }
         }
     }
 
@@ -221,7 +266,7 @@ class ProfitScenario implements Scenario {
 
 
         track.eachTransition((t1, t2) => {
-            if (t2 !== p2) {
+            if (t2[0] !== p2[0] && t2[1] !== t2[1]) {
                 key1 = t1[0] + ":" + t1[1];
                 key2 = t2[0] + ":" + t2[1];
                 missing = true;
@@ -259,6 +304,7 @@ class ProfitScenario implements Scenario {
 
         this._running = false;
         this._initialized = false;
+        this._logger.info(JSON.stringify(this._accelerations));
 
         return new Promise<void>((resolve, reject) => {
             try {
