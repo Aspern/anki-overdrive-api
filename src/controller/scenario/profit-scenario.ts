@@ -27,6 +27,7 @@ class ProfitScenario implements Scenario {
     private _vehicle: Vehicle;
     private _accelerations: { [key: string]: number } = {};
     private _optimalSpeeds: { [key: string]: number } = {};
+    private _optimalAccelerations: { [key: string]: number } = {};
     private _track: Track;
     private _initialized = false;
     private _previousCommand: Command;
@@ -100,23 +101,8 @@ class ProfitScenario implements Scenario {
                 vehicle.setSpeed(600, 600);
                 setTimeout(() => {
                     //vehicle.changeLane(68);
+                    me._initialized = true;
 
-                    MongoClient.connect("mongodb://localhost:27017/anki", (error, db) => {
-                        if (!isNullOrUndefined(error))
-                            logger.error("Cannot connect [mongodb://localhost:27017/anki]", error);
-
-                        me._initialized = true;
-
-                        let collection = db.collection("acceleration-commands");
-                        // collection.drop().then(() => {
-                        //     setTimeout(() => {
-                        //         me._initialized = true;
-                        //     }, 2000);
-                        // }).catch(error => {
-                        //     logger.error("Cannot drop collection [acceleration-commands].", error);
-                        //     me._initialized = true;
-                        // });
-                    });
                 }, 3000);
                 resolve();
             } catch (e) {
@@ -135,11 +121,22 @@ class ProfitScenario implements Scenario {
             m: number,
             b: number;
 
+        if ((x1 - x0) === 0) {
+            this._linearModels[position] = (x: number) => {
+                return x0;
+            };
+            return;
+        }
+
         m = (y1 - y0) / (x1 - x0);
         b = y1 - (m * x1);
 
+
         this._linearModels[position] = (x: number) => {
-            return Math.round(m * x + b);
+            let y = Math.round(m * x + b);
+
+
+            return Math.abs(y);
         };
     }
 
@@ -177,17 +174,9 @@ class ProfitScenario implements Scenario {
             // }
 
 
-            if (isNullOrUndefined(optimalSpeed) || isNullOrUndefined(acceleration)) {
-                vehicle.setOffset(59.5);
-                vehicle.changeLane(68);
-                logger.warn("Vehicle not on lane.");
-                return;
-            }
-
-
-
-
-            if (this._linearModels.hasOwnProperty(position)) {
+            if (this._optimalAccelerations.hasOwnProperty(position)) {
+                acceleration = this._optimalAccelerations[position];
+            } else if (this._linearModels.hasOwnProperty(position)) {
                 acceleration = this._linearModels[position](optimalSpeed);
             }
 
@@ -203,7 +192,6 @@ class ProfitScenario implements Scenario {
             };
 
             try {
-                logger.info(""+acceleration);
                 vehicle.setSpeed(optimalSpeed, acceleration);
             } catch (error) {
                 logger.error("Cannot set speed [speed=" + optimalSpeed + ", acceleration=" + acceleration + "].", error);
@@ -217,7 +205,6 @@ class ProfitScenario implements Scenario {
                     this.keyToPoint(position)
                 )) {
 
-
                 previousCommand.d_t = (new Date().getMilliseconds() - previousCommand.timestamp.getMilliseconds());
                 previousCommand.p_2 = position;
                 previousCommand.v_o = optimalSpeed;
@@ -226,27 +213,36 @@ class ProfitScenario implements Scenario {
                 let key = previousCommand.p_1;
 
                 if (!this._pointMap.hasOwnProperty(key)) {
-                    this._pointMap[key] = [[previousCommand.a_i1, previousCommand.v_o]];
+                    this._pointMap[key] = [[previousCommand.a_i1, previousCommand.v_i]];
                 } else if (this._pointMap[key].length < 2) {
-                    this._pointMap[key].push([previousCommand.a_i1, previousCommand.v_o]);
+                    this._pointMap[key].push([previousCommand.a_i1, previousCommand.v_i]);
                     this.createLinearModel(key);
                 }
 
 
-                if (!this._linearModels.hasOwnProperty(key)) {
-                    if (Math.abs(previousCommand.v_o - previousCommand.v_i) > 25)
-                        if ((previousCommand.v_o - previousCommand.v_i) > 0)
-                            this._accelerations[previousCommand.p_1] += 25;
-                        else if (this._accelerations[previousCommand.p_1] - 25 >= 0)
-                            this._accelerations[previousCommand.p_1] -= 25;
+                let score = this.scoreFunction(previousCommand);
+
+                if (score <= 0.05) {
+                    if (!this._optimalAccelerations.hasOwnProperty(previousCommand.p_1))
+                        this._optimalAccelerations[previousCommand.p_1] = previousCommand.a_i1;
+                } else if (!this._linearModels.hasOwnProperty(key)) {
+                    if ((previousCommand.v_o - previousCommand.v_i) > 0)
+                        this._accelerations[previousCommand.p_1] += 25;
+                    else if (this._accelerations[previousCommand.p_1] - 25 >= 0)
+                        this._accelerations[previousCommand.p_1] -= 25;
                 }
 
                 this.saveCommand(previousCommand);
+
                 this._previousCommand = command;
             } else {
                 this._previousCommand = command;
             }
         }
+    }
+
+    private scoreFunction(command: Command): number {
+        return ((Math.abs(command.v_i - command.v_o)) / command.v_o);
     }
 
     private keyToPoint(key: string): [number, number] {

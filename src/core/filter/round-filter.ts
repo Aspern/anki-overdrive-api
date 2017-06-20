@@ -5,7 +5,6 @@ import {RoundUpdateMessage} from "../message/v2c/round-update-message";
 import {PositionUpdateMessage} from "../message/v2c/position-update-message";
 import {LabeledPositionUpdateMessage} from "../message/v2c/labeled-position-update-message";
 import {Start} from "../track/start";
-import {LabeledSetSpeed} from "../message/c2v/labeled-set-speed";
 import {VehicleMessage} from "../message/vehicle-message";
 import {SetSpeed} from "../message/c2v/set-speed";
 import {isNullOrUndefined} from "util";
@@ -22,10 +21,34 @@ class RoundFilter implements ActiveFilter<[Track, Vehicle], RoundUpdateMessage> 
     private _currentSetSpeeds: Array<SetSpeed> = [];
     private _roundCounter = 0;
     private _lastPositionUpdate: PositionUpdateMessage;
+    private _elastic = require("elasticsearch");
+    private _client = new this._elastic.Client({});
+    private _currentTotalProfit: number = 0;
 
     init(input: [Track, Vehicle]): void {
+        let me = this;
         this._track = input[0];
         this._vehicle = input[1];
+
+        this._client.search({
+            index: 'anki',
+            type: 'roundUpdate',
+            body: {
+                size: 0,
+                aggs: {
+                    maxTotalProfit: {
+                        max: {
+                            field: "totalProfit"
+                        }
+                    }
+                }
+            }
+        }).then(response => {
+            if (!isNullOrUndefined(response.aggregations)) {
+                me._currentTotalProfit += response.aggregations.maxTotalProfit.value;
+            }
+
+        }).catch(e => console.error(e));
     }
 
     start(): Promise<void> {
@@ -136,14 +159,17 @@ class RoundFilter implements ActiveFilter<[Track, Vehicle], RoundUpdateMessage> 
                 missing++;
         });
 
-        let quality = missing > 0 ? 1 - (missing / total) : 1;
+        let quality = missing > 0 ? 1 - (missing / total) : 1,
+            profit = quality >= 0.85 ? 50 : 0;
+        this._currentTotalProfit += profit;
 
         let roundUpdate = new RoundUpdateMessage(
             me._vehicle,
             me._roundCounter++,
             quality,
             currentMessage,
-            quality >= 0.85 ? 50 : 0
+            profit,
+            this._currentTotalProfit
         );
 
         return roundUpdate;

@@ -72,6 +72,7 @@
     "src/controller/scenario/anti-collision-scenario-collecting.ts",
     "src/controller/scenario/profit-scenario.ts",
     "src/controller/scenario/max-speed-scenario.ts",
+    "src/controller/scenario/binary-tree.ts",
     "src/controller/websocket/websocket-controller.ts",
     "src/controller/websocket/websocket-request.ts",
     "src/controller/websocket/websocket-response.ts",
