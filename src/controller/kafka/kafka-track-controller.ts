@@ -253,13 +253,17 @@ kafkaController.initializeProducer().then(online => {
         kafkaController.addListener(message => {
             let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
             logger.info("Received message from server: " + JSON.stringify(message));
-            if (info.interrupt && !isNullOrUndefined(scenario)) {
-                scenario.interrupt().then(() => {
-                    scenario = null;
-                    distanceFilter.unregisterUpdateHandler();
+            if (info.interrupt) {
+                if (!isNullOrUndefined(scenario)) {
+                    scenario.interrupt().then(() => {
+                        scenario = null;
+                        distanceFilter.unregisterUpdateHandler();
+                        findStartLane();
+                        logger.info("Interrupted scenario '" + info.name + "'.");
+                    }).catch(handleError);
+                }else {
                     findStartLane();
-                    logger.info("Interrupted scenario '" + info.name + "'.");
-                }).catch(handleError);
+                }
             } else {
                 if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
                     logger.warn("Another scenario is still running!");
@@ -286,15 +290,15 @@ kafkaController.initializeProducer().then(online => {
         //ankiConsole.initializePrompt(usedVehicles);
 
 
-        /// PROTOTYPE
-        vehicles[0].connect().then(() => {
-            scenario = new ProfitScenario(usedVehicles[0], track);
-            distanceFilter.registerUpdateHandler(scenario.onUpdate, scenario);
-            scenario.start().then(() => {
-                logger.info("Starting scenario: " + scenario)
-            }).catch(e => logger.error("Cannot start scenario.", e));
-           // vehicles[0].setSpeed(769, 1500)
-        })
+        // /// PROTOTYPE
+        // vehicles[0].connect().then(() => {
+        //     scenario = new ProfitScenario(usedVehicles[0], track);
+        //     distanceFilter.registerUpdateHandler(scenario.onUpdate, scenario);
+        //     scenario.start().then(() => {
+        //         logger.info("Starting scenario: " + scenario)
+        //     }).catch(e => logger.error("Cannot start scenario.", e));
+        //    // vehicles[0].setSpeed(769, 1500)
+        // })
 
 
         rl.prompt();

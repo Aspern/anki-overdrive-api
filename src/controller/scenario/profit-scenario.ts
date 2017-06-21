@@ -8,17 +8,18 @@ import {PositionUpdateMessage} from "../../core/message/v2c/position-update-mess
 import {isNullOrUndefined} from "util";
 import {MongoClient} from "mongodb";
 import * as log4js from "log4js";
+import {BinaryTree} from "./binary-tree";
 
 
 interface Command {
     timestamp: Date;
     p_1: string;
     p_2: string;
-    d_t: number;
     a_i1: number;
     v_i: number;
     v_i1: number;
     v_o: number;
+    score: number;
 }
 
 class ProfitScenario implements Scenario {
@@ -32,7 +33,7 @@ class ProfitScenario implements Scenario {
     private _initialized = false;
     private _previousCommand: Command;
     private _logger: log4js.Logger;
-    private _linearModels: { [key: string]: (acceleration: number) => number } = {};
+    private _linearModels: { [key: string]: BinaryTree } = {};
     private _pointMap: { [key: string]: Array<[number, number]> } = {};
 
     constructor(vehicle: Vehicle, track: Track) {
@@ -85,7 +86,7 @@ class ProfitScenario implements Scenario {
 
         setTimeout(() => {
             logger.info(JSON.stringify(me._accelerations));
-        }, 5000);
+        }, 2500);
     }
 
 
@@ -98,12 +99,13 @@ class ProfitScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
-                vehicle.setSpeed(600, 600);
+                vehicle.setSpeed(790, 600);
                 setTimeout(() => {
                     //vehicle.changeLane(68);
                     me._initialized = true;
+                    logger.info("Initialized Profit-scenario.");
 
-                }, 3000);
+                }, 180000);
                 resolve();
             } catch (e) {
                 reject(e);
@@ -111,9 +113,43 @@ class ProfitScenario implements Scenario {
         });
     }
 
-    createLinearModel(position: string,): void {
-        let p1 = this._pointMap[position][0],
-            p2 = this._pointMap[position][1],
+    createLinearModel(key: string, speed: number, point: [number, number]): void {
+        try {
+            if (!this._linearModels.hasOwnProperty(key)) {
+                let p1 = this._pointMap[key][0],
+                    p2 = this._pointMap[key][1],
+                    tree = new BinaryTree();
+
+
+                tree.insert(speed, [p1, p2], this.calculateLinearFunction([p1, p2]));
+                this._linearModels[key] = tree;
+
+
+            } else {
+                let tree = this._linearModels[key],
+                    node = tree.find(speed);
+
+                // let nodeId = node.speed;
+
+                // if (key === "20:37" || key === "20:34") {
+                //     console.log("Found node: " + nodeId + " with speed=" + speed);
+                //     console.log("Model: " + node.model.toString());
+                //     console.log("points: " + node.points);
+                //     console.log("point: " + point);
+                // }
+
+                tree.insert(node.points[0][0], [node.points[0], point], this.calculateLinearFunction([node.points[0], point]));
+                tree.insert(node.points[1][0], [point, node.points[1]], this.calculateLinearFunction([point, node.points[1]]));
+                this._linearModels[key] = tree;
+            }
+        } catch (e) {
+            this._logger.error("Unable to build model.", e);
+        }
+    }
+
+    private calculateLinearFunction(points: [[number, number], [number, number]]): (x: number) => number {
+        let p1 = points[0],
+            p2 = points[1],
             x0 = p1[0],
             y0 = p1[1],
             x1 = p2[0],
@@ -122,20 +158,16 @@ class ProfitScenario implements Scenario {
             b: number;
 
         if ((x1 - x0) === 0) {
-            this._linearModels[position] = (x: number) => {
+            return () => {
                 return x0;
             };
-            return;
         }
 
         m = (y1 - y0) / (x1 - x0);
         b = y1 - (m * x1);
 
-
-        this._linearModels[position] = (x: number) => {
+        return (x: number) => {
             let y = Math.round(m * x + b);
-
-
             return Math.abs(y);
         };
     }
@@ -177,18 +209,18 @@ class ProfitScenario implements Scenario {
             if (this._optimalAccelerations.hasOwnProperty(position)) {
                 acceleration = this._optimalAccelerations[position];
             } else if (this._linearModels.hasOwnProperty(position)) {
-                acceleration = this._linearModels[position](optimalSpeed);
+                acceleration = this._linearModels[position].find(message.speed).model(optimalSpeed);
             }
 
             let command: Command = {
                 timestamp: new Date(),
-                d_t: undefined,
                 a_i1: acceleration,
                 p_1: position,
                 p_2: undefined,
                 v_o: undefined,
                 v_i: undefined,
-                v_i1: message.speed
+                v_i1: message.speed,
+                score: undefined
             };
 
             try {
@@ -205,7 +237,6 @@ class ProfitScenario implements Scenario {
                     this.keyToPoint(position)
                 )) {
 
-                previousCommand.d_t = (new Date().getMilliseconds() - previousCommand.timestamp.getMilliseconds());
                 previousCommand.p_2 = position;
                 previousCommand.v_o = optimalSpeed;
                 previousCommand.v_i = message.speed;
@@ -216,11 +247,15 @@ class ProfitScenario implements Scenario {
                     this._pointMap[key] = [[previousCommand.a_i1, previousCommand.v_i]];
                 } else if (this._pointMap[key].length < 2) {
                     this._pointMap[key].push([previousCommand.a_i1, previousCommand.v_i]);
-                    this.createLinearModel(key);
+                    this.createLinearModel(key, message.speed, [0, 0]);
+                } else if (!this._optimalAccelerations.hasOwnProperty(key)) {
+                    this.createLinearModel(key, message.speed, [previousCommand.a_i1, previousCommand.v_i1]);
                 }
 
 
                 let score = this.scoreFunction(previousCommand);
+                previousCommand.score = score;
+
 
                 if (score <= 0.05) {
                     if (!this._optimalAccelerations.hasOwnProperty(previousCommand.p_1))
@@ -228,9 +263,14 @@ class ProfitScenario implements Scenario {
                 } else if (!this._linearModels.hasOwnProperty(key)) {
                     if ((previousCommand.v_o - previousCommand.v_i) > 0)
                         this._accelerations[previousCommand.p_1] += 25;
-                    else if (this._accelerations[previousCommand.p_1] - 25 >= 0)
+                    else {
                         this._accelerations[previousCommand.p_1] -= 25;
+                        if (this._accelerations[previousCommand.p_1] < 0)
+                            this._accelerations[previousCommand.p_1] *= -1;
+                    }
+
                 }
+
 
                 this.saveCommand(previousCommand);
 

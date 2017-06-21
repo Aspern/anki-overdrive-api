@@ -1,7 +1,6 @@
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {KafkaController} from "./kafka-controller";
 import {VehicleMessage} from "../../core/message/vehicle-message";
-import {layouts} from "log4js";
 
 class Command {
     public name: string;

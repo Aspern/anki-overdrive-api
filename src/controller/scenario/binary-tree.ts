@@ -1,6 +1,8 @@
+import {isNullOrUndefined} from "util";
 interface Node {
     speed: number;
     model: (x: number) => number;
+    points: [[number, number], [number, number]],
     left: Node;
     right: Node;
 }
@@ -11,12 +13,12 @@ class BinaryTree {
 
     public find(speed: number): Node {
         let current = this._root,
-            node: Node;
+            node: Node = this._root;
 
-        if (current.left === null && current.right === null)
+        if (isNullOrUndefined(current.left) && isNullOrUndefined(current.right))
             return current;
 
-        while (current != null) {
+        while (!isNullOrUndefined(current)) {
             if (current.speed === speed) {
                 return current;
             } else if (current.speed > speed) {
@@ -24,21 +26,24 @@ class BinaryTree {
             } else {
                 current = current.right;
             }
-            if (current !== null)
+            if (!isNullOrUndefined(current))
                 node = current;
         }
+
+
         return node;
     }
 
-    public  insert(speed: number, model: (x: number) => number): void {
+    public insert(speed: number, points: [[number, number], [number, number]], model: (x: number) => number): void {
         let node: Node = {
             speed: speed,
             model: model,
+            points: points,
             left: null,
             right: null
         };
 
-        if (this._root === null) {
+        if (isNullOrUndefined(this._root)) {
             this._root = node;
             return;
         }
@@ -50,19 +55,18 @@ class BinaryTree {
             parent = current;
             if (speed < current.speed) {
                 current = current.left;
-                if (current === null) {
+                if (isNullOrUndefined(current)) {
                     parent.left = node;
                     return;
                 }
             } else {
                 current = current.right;
-                if (current === null) {
+                if (isNullOrUndefined(current)) {
                     parent.right = node;
                     return;
                 }
             }
         }
-
     }
 }
 
