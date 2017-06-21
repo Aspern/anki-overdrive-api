@@ -1,6 +1,7 @@
 import {Vehicle} from "../../core/vehicle/vehicle-interface";
 import {KafkaController} from "./kafka-controller";
 import {VehicleMessage} from "../../core/message/vehicle-message";
+import * as log4js from "log4js";
 
 class Command {
     public name: string;
@@ -16,10 +17,12 @@ class KafkaVehicleController {
     private _consumer: (message: any) => any;
     private _producer: (message: VehicleMessage) => any;
     private _latencies: Array<number> = [];
+    private _logger: log4js.Logger;
 
     constructor(vehicle: Vehicle) {
         this._vehicle = vehicle;
         this._kafka = new KafkaController();
+        this._logger = log4js.getLogger("controller-" + vehicle.id);
     }
 
     start(): Promise<void> {
@@ -76,6 +79,8 @@ class KafkaVehicleController {
     }
 
     private handleCommand(command: Command) {
+        let logger = this._logger;
+
         try {
             switch (command.name) {
                 case "set-speed":
@@ -101,26 +106,29 @@ class KafkaVehicleController {
                     this._vehicle.uTurn();
                     break;
                 case "brake":
+                    logger.info("brake [" + command.params[0] + ", " + command.params[1] + "].");
                     this._latencies.push(new Date().getMilliseconds() - new Date(command.timestamp).getMilliseconds());
                     this._vehicle.brake(command.params[0], command.params[1]);
                     break;
                 case "accelerate" :
+                    logger.info("accelerate [" + command.params[0] + ", " + command.params[1] + "].");
                     this._latencies.push(new Date().getMilliseconds() - new Date(command.timestamp).getMilliseconds());
                     this._vehicle.accelerate(command.params[0], command.params[1]);
                     break;
                 default:
-                    console.error("Unknown command: " + command.name);
+                    logger.error("Unknown command [" + command.name + "]");
             }
-        } catch (e) {
-            console.error("Unable to handle command: " + command);
-            console.error(e);
+        } catch (error) {
+            logger.error("Cannot handle command " + JSON.stringify(command), error);
         }
     }
 
     public printLatencies() {
-        console.log("Latencies for " + this._vehicle.id);
+        let logger = this._logger;
+
+        logger.info("Latencies for " + this._vehicle.id);
         this._latencies.forEach(latency => {
-            console.log(latency);
+            logger.info(""+latency);
         });
     }
 

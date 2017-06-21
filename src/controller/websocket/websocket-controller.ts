@@ -6,7 +6,6 @@ import {VehicleMessage} from "../../core/message/vehicle-message";
 import {WebSocketResponse} from "./websocket-response";
 import * as log4js from "log4js";
 import http = require('http');
-import logger = Handlebars.logger;
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 
 /**
@@ -60,9 +59,8 @@ class WebSocketController {
                 if (message.hasOwnProperty(key)) {
                     let data: any = message;
                     let value: any = data[key];
-                    logger.info(key + ": " + value);
                 }
-            logger.info("Incoming UTF-8 message: " + message);
+            //logger.info("Incoming UTF-8 message: " + message);
             try {
                 let request = JSON.parse(message.utf8Data);
                 this.handleMessage(request, connection);
@@ -70,7 +68,7 @@ class WebSocketController {
                 logger.error("Unable ot parse request", e);
             }
         } else if (message.type === 'binary') {
-            logger.info("Incoming binary message: " + message);
+            // logger.info("Incoming binary message: " + message);
         } else {
             logger.warn("Unknown message type: " + (message.type || message));
         }
@@ -129,7 +127,7 @@ class WebSocketController {
                     vehicle.queryBatteryLevel()
                         .then(batteryLevel => {
                             me.sendResponse("query-battery-level", vehicle.id, connection, {
-                                batteryLevel: ((batteryLevel-minLevel)/maxRange)
+                                batteryLevel: ((batteryLevel - minLevel) / maxRange)
                             });
                         }).catch(logger.error);
                     break;
