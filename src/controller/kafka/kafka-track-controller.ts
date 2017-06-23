@@ -1,3 +1,4 @@
+/// <reference path="../../../decl/jsonfile.d.ts"/>
 import {Settings} from "../../core/settings/settings-interface";
 import {JsonSettings} from "../../core/settings/json-settings";
 import {VehicleScanner} from "../../core/vehicle/vehicle-scanner";
@@ -11,7 +12,6 @@ import {Straight} from "../../core/track/straight";
 import {Curve} from "../../core/track/curve";
 import {KafkaController} from "./kafka-controller";
 import {Setup} from "../../core/setup";
-import {AnkiConsole} from "../../core/util/anki-console";
 import {Scenario} from "../scenario/scenario-interface";
 import {CollisionScenario} from "../scenario/collision-scenario";
 import {LightConfig} from "../../core/vehicle/light-config";
@@ -23,7 +23,6 @@ import {KafkaVehicleController} from "./kafka-vehicle-controller";
 import {WebSocketController} from "../websocket/websocket-controller";
 import {KafkaRoundFilter} from "./kafka-round-filter";
 import {ProfitScenario} from "../scenario/profit-scenario";
-/// <reference path="../../../decl/jsonfile.d.ts"/>
 
 let settings: Settings = new JsonSettings(),
     setup: Setup = settings.getAsSetup("setup"),
@@ -34,7 +33,6 @@ let settings: Settings = new JsonSettings(),
     distanceFilter: KafkaDistanceFilter,
     roundFilters: Array<KafkaRoundFilter> = [],
     kafkaController = new KafkaController(),
-    ankiConsole = new AnkiConsole(),
     websocket: WebSocketController,
     scenario: Scenario,
     resetTimeouts: { [key: string]: number } = {
@@ -159,16 +157,38 @@ function findStartLane() {
     });
 }
 
+function getSkull(): Vehicle {
+    let skull: Vehicle = null;
+    setup.vehicles.forEach(config => {
+        usedVehicles.forEach(vehicle => {
+            if (config.name === "Skull" && config.uuid === vehicle.id)
+                skull = vehicle;
+        });
+    });
+    return skull;
+}
+
+function getGroundShock(): Vehicle {
+    let groundShock: Vehicle = null;
+    setup.vehicles.forEach(config => {
+        usedVehicles.forEach(vehicle => {
+            if (config.name === "Ground Shock" && config.uuid === vehicle.id)
+                groundShock = vehicle;
+        });
+    });
+    return groundShock;
+}
 
 function createScenario(name: string) {
     switch (name) {
         case  'collision':
-            //return new CollisionScenario(usedVehicles[0], usedVehicles[1]);
-            return new ProfitScenario(usedVehicles[0], track);
+            return new CollisionScenario(usedVehicles[0], usedVehicles[1]);
         case 'anti-collision':
             return new AntiCollisionScenario(usedVehicles[0], usedVehicles[1]);
         case 'max-speed' :
             return new MaxSpeedScenario(usedVehicles[0]);
+        case 'product-improvement':
+            return new ProfitScenario(getSkull(), track);
         default:
             return null;
     }
@@ -261,7 +281,7 @@ kafkaController.initializeProducer().then(online => {
                         findStartLane();
                         logger.info("Interrupted scenario '" + info.name + "'.");
                     }).catch(handleError);
-                }else {
+                } else {
                     findStartLane();
                 }
             } else {

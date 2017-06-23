@@ -46,6 +46,9 @@ function measureDistanceBetween(m1: PositionUpdateMessage, m2: PositionUpdateMes
         avgSpeed = (s1 + s2) / 2,
         transition = m1.piece + "@" + m1.location + " => " + m2.piece + "@" + m2.location;
 
+    if (duration <= 0)
+        console.error("Invalid duration: " + duration);
+
     return new Result(uniqueId, vehicleId, lane, avgSpeed, duration, transition);
 
 }
@@ -91,7 +94,9 @@ function measureLaneLength(messages: Array<PositionUpdateMessage>, lane: number)
 
     avgSpeed /= messages.length;
     distance.distance = distance.duration * avgSpeed;
-    distance.avgSpeed = avgSpeed
+    distance.avgSpeed = avgSpeed;
+
+    console.log("Distance for lane " + lane + ": " + distance.distance + " mm.");
 
     return distance;
 }

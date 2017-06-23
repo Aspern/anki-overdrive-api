@@ -106,12 +106,10 @@ class KafkaVehicleController {
                     this._vehicle.uTurn();
                     break;
                 case "brake":
-                    logger.info("brake [" + command.params[0] + ", " + command.params[1] + "].");
                     this._latencies.push(new Date().getMilliseconds() - new Date(command.timestamp).getMilliseconds());
                     this._vehicle.brake(command.params[0], command.params[1]);
                     break;
                 case "accelerate" :
-                    logger.info("accelerate [" + command.params[0] + ", " + command.params[1] + "].");
                     this._latencies.push(new Date().getMilliseconds() - new Date(command.timestamp).getMilliseconds());
                     this._vehicle.accelerate(command.params[0], command.params[1]);
                     break;

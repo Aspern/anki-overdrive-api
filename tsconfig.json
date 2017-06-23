@@ -83,7 +83,9 @@
     "src/script/anti-collision.ts",
     "src/script/validate-distance.ts",
     "src/script/latency-analyse.ts",
-    "src/script/mongo-output.ts"
+    "src/script/mongo-output.ts",
+    "src/script/profit-scenario-avg-speed.ts",
+    "src/script/collect-data.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": true,

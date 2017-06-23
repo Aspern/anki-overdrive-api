@@ -6,20 +6,24 @@ import * as files from "jsonfile";
 import {Track} from "../../core/track/track-interface";
 import {PositionUpdateMessage} from "../../core/message/v2c/position-update-message";
 import {isNullOrUndefined} from "util";
-import {MongoClient} from "mongodb";
+import {Collection, Db, MongoClient} from "mongodb";
 import * as log4js from "log4js";
-import {BinaryTree} from "./binary-tree";
+import {KafkaController} from "../kafka/kafka-controller";
+type Point = [number, number];
 
+const uuidv4 = require('uuid/v4');
 
 interface Command {
     timestamp: Date;
-    p_1: string;
-    p_2: string;
-    a_i1: number;
-    v_i: number;
-    v_i1: number;
-    v_o: number;
+    p1: string;
+    p2: string;
+    ai_1: number;
+    vi: number;
+    vi_1: number;
+    v0: number;
     score: number;
+    setupId: string,
+    messageName: string
 }
 
 class ProfitScenario implements Scenario {
@@ -29,64 +33,20 @@ class ProfitScenario implements Scenario {
     private _accelerations: { [key: string]: number } = {};
     private _optimalSpeeds: { [key: string]: number } = {};
     private _optimalAccelerations: { [key: string]: number } = {};
+    private _distances: { [key: string]: number } = {};
     private _track: Track;
     private _initialized = false;
     private _previousCommand: Command;
     private _logger: log4js.Logger;
-    private _linearModels: { [key: string]: BinaryTree } = {};
-    private _pointMap: { [key: string]: Array<[number, number]> } = {};
+    private _kafka: KafkaController;
 
     constructor(vehicle: Vehicle, track: Track) {
         this._logger = log4js.getLogger("profit-scenario");
         this._vehicle = vehicle;
         this._track = track;
         this._optimalSpeeds = files.readFileSync("resources/optimal-speeds.json");
-        this.calculateAccelerations();
-    }
-
-    private calculateAccelerations(): void {
-        let me = this,
-            optimalSpeeds = this._optimalSpeeds,
-            track = this._track,
-            logger = this._logger;
-
-        MongoClient.connect("mongodb://localhost:27017/anki", (error, db) => {
-            if (!isNullOrUndefined(error))
-                logger.error("Cannot connect [mongodb://localhost:27017/anki]", error);
-
-            for (let lane = 14; lane < 16; lane++)
-                track.eachTransition((t1, t2) => {
-                    let p1 = t1[0] + ":" + t1[1],
-                        p2 = t2[0] + ":" + t2[1],
-                        ve = optimalSpeeds[p2],
-                        v0 = optimalSpeeds[p1],
-                        key = t1[0] + "" + t1[1] + "" + t2[0] + "" + t2[1],
-                        s: number,
-                        a: number;
-
-                    let collection = db.collection("distances");
-
-                    collection.find({key: key}).toArray((error, docs) => {
-                        if (!isNullOrUndefined(error))
-                            logger.error("Unable to find: " + key + ":", error);
-
-
-                        try {
-                            s = docs[0].avg;
-                            a = (Math.pow(ve, 2) - Math.pow(v0, 2)) / (2 * s);
-                            a = Math.abs(Math.round(a));
-
-                            me._accelerations[p1] = a;
-                        } catch (error) {
-                            logger.error("Cannot calculate acceleration for [" + key + "].", error);
-                        }
-                    });
-                }, lane);
-        });
-
-        setTimeout(() => {
-            logger.info(JSON.stringify(me._accelerations));
-        }, 2500);
+        this._kafka = new KafkaController();
+        this.loadDistances();
     }
 
 
@@ -99,13 +59,16 @@ class ProfitScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
-                vehicle.setSpeed(790, 600);
+                vehicle.setSpeed(812, 600);
                 setTimeout(() => {
-                    //vehicle.changeLane(68);
-                    me._initialized = true;
+                    me._kafka.initializeProducer().then(online => {
+                        if (!online)
+                            logger.error("Kafka server is offline, scenario is not initialized.");
+                        else
+                            me._initialized = true;
+                    });
                     logger.info("Initialized Profit-scenario.");
-
-                }, 180000);
+                }, 6000);
                 resolve();
             } catch (e) {
                 reject(e);
@@ -113,234 +76,105 @@ class ProfitScenario implements Scenario {
         });
     }
 
-    createLinearModel(key: string, speed: number, point: [number, number]): void {
-        try {
-            if (!this._linearModels.hasOwnProperty(key)) {
-                let p1 = this._pointMap[key][0],
-                    p2 = this._pointMap[key][1],
-                    tree = new BinaryTree();
-
-
-                tree.insert(speed, [p1, p2], this.calculateLinearFunction([p1, p2]));
-                this._linearModels[key] = tree;
-
-
-            } else {
-                let tree = this._linearModels[key],
-                    node = tree.find(speed);
-
-                // let nodeId = node.speed;
-
-                // if (key === "20:37" || key === "20:34") {
-                //     console.log("Found node: " + nodeId + " with speed=" + speed);
-                //     console.log("Model: " + node.model.toString());
-                //     console.log("points: " + node.points);
-                //     console.log("point: " + point);
-                // }
-
-                tree.insert(node.points[0][0], [node.points[0], point], this.calculateLinearFunction([node.points[0], point]));
-                tree.insert(node.points[1][0], [point, node.points[1]], this.calculateLinearFunction([point, node.points[1]]));
-                this._linearModels[key] = tree;
-            }
-        } catch (e) {
-            this._logger.error("Unable to build model.", e);
-        }
-    }
-
-    private calculateLinearFunction(points: [[number, number], [number, number]]): (x: number) => number {
-        let p1 = points[0],
-            p2 = points[1],
-            x0 = p1[0],
-            y0 = p1[1],
-            x1 = p2[0],
-            y1 = p2[1],
-            m: number,
-            b: number;
-
-        if ((x1 - x0) === 0) {
-            return () => {
-                return x0;
-            };
-        }
-
-        m = (y1 - y0) / (x1 - x0);
-        b = y1 - (m * x1);
-
-        return (x: number) => {
-            let y = Math.round(m * x + b);
-            return Math.abs(y);
-        };
-    }
-
 
     onUpdate(message: VehicleMessage): void {
         if (this._initialized && message instanceof PositionUpdateMessage) {
-            let position = message.piece + ":" + message.location,
+            let key = message.piece + ":" + message.location,
+                acceleration: number,
+                optimalSpeed: number,
                 vehicle = this._vehicle,
-                optimalSpeed = this._optimalSpeeds[position],
-                acceleration = this._accelerations[position],
-                previousCommand = this._previousCommand,
                 logger = this._logger,
-                offset = message.offset;
+                offset = message.offset,
+                command: Command,
+                previousCommand = this._previousCommand,
+                me = this,
+                missingPoints = false;
 
-            if (offset <= 59.5 || isNullOrUndefined(optimalSpeed) || isNullOrUndefined(acceleration)) {
-                logger.warn("vehicle is not on lane [offset=" + offset + ", position=" + position + "].");
+            if (message.offset < 59.5) {
+                logger.warn("vehicle is not on lane [offset=" + offset + ", position=" + key + "].");
                 vehicle.setOffset(offset);
                 vehicle.changeLane(68.0);
                 return;
             }
 
-            // switch (position) {
-            //     case "20:36":
-            //         vehicle.setSpeed(1100, 1500);
-            //         break;
-            //     case "33:15":
-            //         vehicle.setSpeed(650, 1500);
-            //         break;
-            //     case "23:36":
-            //         vehicle.setSpeed(1100, 1500);
-            //         break;
-            //     case "36:47":
-            //         vehicle.setSpeed(650, 1500);
-            //         break;
-            // }
-
-
-            if (this._optimalAccelerations.hasOwnProperty(position)) {
-                acceleration = this._optimalAccelerations[position];
-            } else if (this._linearModels.hasOwnProperty(position)) {
-                acceleration = this._linearModels[position].find(message.speed).model(optimalSpeed);
+            if (!this._optimalSpeeds.hasOwnProperty(key)) {
+                logger.error("Found no optimal speed for [position=" + key + "].");
+                return;
             }
 
-            let command: Command = {
+            if (!this._accelerations.hasOwnProperty(key)) {
+                this._accelerations[key] = 250;
+            }
+
+            optimalSpeed = this._optimalSpeeds[key];
+            acceleration = this._accelerations[key];
+
+            command = {
+                vi_1: message.speed,
+                score: undefined,
                 timestamp: new Date(),
-                a_i1: acceleration,
-                p_1: position,
-                p_2: undefined,
-                v_o: undefined,
-                v_i: undefined,
-                v_i1: message.speed,
-                score: undefined
-            };
+                ai_1: acceleration,
+                p2: undefined,
+                p1: key,
+                v0: optimalSpeed,
+                vi: undefined,
+                setupId: message.setupId,
+                messageName: "accelCommand"
+            }
 
             try {
                 vehicle.setSpeed(optimalSpeed, acceleration);
             } catch (error) {
-                logger.error("Cannot set speed [speed=" + optimalSpeed + ", acceleration=" + acceleration + "].", error);
+                logger.error("Cannot set-speed [speed=" + optimalSpeed + ", acceleration=" + acceleration + "].", error);
             }
-
 
             if (isNullOrUndefined(previousCommand)) {
                 this._previousCommand = command;
-            } else if (!this.handleMissingPoints(
-                    this.keyToPoint(previousCommand.p_1),
-                    this.keyToPoint(position)
-                )) {
-
-                previousCommand.p_2 = position;
-                previousCommand.v_o = optimalSpeed;
-                previousCommand.v_i = message.speed;
-
-                let key = previousCommand.p_1;
-
-                if (!this._pointMap.hasOwnProperty(key)) {
-                    this._pointMap[key] = [[previousCommand.a_i1, previousCommand.v_i]];
-                } else if (this._pointMap[key].length < 2) {
-                    this._pointMap[key].push([previousCommand.a_i1, previousCommand.v_i]);
-                    this.createLinearModel(key, message.speed, [0, 0]);
-                } else if (!this._optimalAccelerations.hasOwnProperty(key)) {
-                    this.createLinearModel(key, message.speed, [previousCommand.a_i1, previousCommand.v_i1]);
-                }
-
-
-                let score = this.scoreFunction(previousCommand);
-                previousCommand.score = score;
-
-
-                if (score <= 0.05) {
-                    if (!this._optimalAccelerations.hasOwnProperty(previousCommand.p_1))
-                        this._optimalAccelerations[previousCommand.p_1] = previousCommand.a_i1;
-                } else if (!this._linearModels.hasOwnProperty(key)) {
-                    if ((previousCommand.v_o - previousCommand.v_i) > 0)
-                        this._accelerations[previousCommand.p_1] += 25;
-                    else {
-                        this._accelerations[previousCommand.p_1] -= 25;
-                        if (this._accelerations[previousCommand.p_1] < 0)
-                            this._accelerations[previousCommand.p_1] *= -1;
-                    }
-
-                }
-
-
-                this.saveCommand(previousCommand);
-
-                this._previousCommand = command;
             } else {
+
+                previousCommand.p2 = key;
+                previousCommand.vi = message.speed;
+                previousCommand.score = this.scoreFunction(previousCommand);
+
+
+                missingPoints = this.handleMissingPoints(
+                    this.keyToPoint(previousCommand.p1),
+                    this.keyToPoint(previousCommand.p2),
+                    (k1, k2) => {
+                        me._accelerations[k1] = me.estimateAcceleration({
+                            p2: k2,
+                            score: undefined,
+                            vi: me._optimalSpeeds[k2],
+                            v0: me._optimalSpeeds[k2],
+                            ai_1: undefined,
+                            timestamp: undefined,
+                            vi_1: previousCommand.vi_1,
+                            p1: k1,
+                            setupId: undefined,
+                            messageName: undefined
+                        });
+                    }
+                );
+
+
+                if (!missingPoints) {
+                    this._accelerations[previousCommand.p1] = this.estimateAcceleration(previousCommand);
+                    this.saveCommand(previousCommand);
+                }
+
                 this._previousCommand = command;
+
             }
+
         }
     }
 
-    private scoreFunction(command: Command): number {
-        return ((Math.abs(command.v_i - command.v_o)) / command.v_o);
-    }
-
-    private keyToPoint(key: string): [number, number] {
-        return [
-            parseInt(key.split(":")[0]),
-            parseInt(key.split(":")[1])
-        ];
-    }
-
-    private handleMissingPoints(p1: [number, number], p2: [number, number]): boolean {
-        let key1: string,
-            key2: string,
-            track = this._track,
-            me = this,
-            missing = false,
-            logger = this._logger;
-
-
-        track.eachTransition((t1, t2) => {
-            if (t2[0] !== p2[0] && t2[1] !== t2[1]) {
-                key1 = t1[0] + ":" + t1[1];
-                key2 = t2[0] + ":" + t2[1];
-                missing = true;
-                if (me._accelerations[key1] - 25 >= 0) {
-                    me._accelerations[key1] -= 25;
-                    logger.info("acceleration [" + key1 + "] =" + me._accelerations[key1]);
-                }
-
-                // if (me._optimalSpeeds[key2] - 25 >= 500) {
-                //     me._optimalSpeeds[key2] -= 25;
-                //     logger.info("optimalSpeed [" + key2 + "] =" + me._optimalSpeeds[key2]);
-                // }
-            }
-        }, 15, p1, p2);
-
-        return missing;
-    }
-
-    private saveCommand(command: Command): void {
-        let logger = this._logger;
-
-        MongoClient.connect("mongodb://localhost:27017/anki", (error, db) => {
-            if (!isNullOrUndefined(error))
-                logger.error("Cannot connect [mongodb://localhost:27017/anki]", error);
-
-            let collection = db.collection("acceleration-commands");
-
-            collection.insertOne(command)
-                .catch(error => logger.error("Cannot insert [" + command + "].", error));
-        });
-    }
 
     interrupt(): Promise<void> {
         let vehicle = this._vehicle;
 
         this._running = false;
         this._initialized = false;
-        this._logger.info(JSON.stringify(this._accelerations));
 
         return new Promise<void>((resolve, reject) => {
             try {
@@ -359,6 +193,124 @@ class ProfitScenario implements Scenario {
         return this._running;
     }
 
+    private scoreFunction(command: Command): number {
+        return ((Math.abs(command.v0 - command.vi)) / command.v0);
+    }
+
+    private estimateAcceleration(command: Command): number {
+        let s = this.getDistanceBetween(
+            command.p1,
+            command.p2),
+            v0 = command.v0,
+            vi_1 = command.vi_1,
+            vi = command.vi,
+            acceleration = Math.round(((v0 - vi_1) * (vi_1 + vi)) / (2 * s));
+
+        if (acceleration < 0)
+            acceleration *= -1;
+
+        return acceleration;
+    }
+
+    private keyToPoint(key: string): Point {
+        return [
+            parseInt(key.split(":")[0]),
+            parseInt(key.split(":")[1])
+        ];
+    }
+
+    private pointToKey(point: Point) {
+        return (point[0] + ":" + point[1]);
+    }
+
+    private handleMissingPoints(p1: Point, p2: Point, handler: (k1: string, k2: string) => any): boolean {
+        let track = this._track,
+            me = this,
+            missing = false;
+
+        track.eachTransition((t1, t2) => {
+            if (t2[0] !== p2[0] && t2[1] !== p2[1]) {
+                handler(me.pointToKey(t1), me.pointToKey(t2));
+                missing = true;
+            }
+        }, 15, p1, p2);
+
+        return missing;
+    }
+
+    private saveCommand(command: Command): void {
+        let logger = this._logger;
+
+        logger.info("Sending message:");
+        logger.info(JSON.stringify(command));
+
+        this._kafka.sendPayload([{
+            topic: "vehicle-data",
+            key: uuidv4(),
+            partitions: 1,
+            messages: JSON.stringify(command)
+        }]).catch(error => logger.error("Cannot send message via Kafka", error));
+
+        // this.connectMongoDb().then(db => {
+        //
+        //     db.collection("acceleration-commands")
+        //         .insertOne(command)
+        //         .catch(error => {
+        //             logger.error("Cannot insert command " + JSON.stringify(command) + ".", error);
+        //         });
+        //
+        // }).catch(error => {
+        //     logger.info("Cannot connect to MongoDB to save command.", error);
+        // });
+    }
+
+    private getDistanceBetween(k1: string, k2: string) {
+        return this.getDistanceBetweenPoints(
+            this.keyToPoint(k1),
+            this.keyToPoint(k2)
+        );
+    }
+
+    private getDistanceBetweenPoints(p1: Point, p2: Point) {
+        let key = "" + p1[0] + p1[1] + p2[0] + p2[1];
+
+        return this._distances[key];
+    }
+
+    private loadDistances(): void {
+        let logger = this._logger,
+            me = this,
+            collection: Collection;
+
+        this.connectMongoDb().then(db => {
+
+            collection = db.collection("distances");
+            collection.find({})
+                .toArray((error, documents) => {
+                    if (!isNullOrUndefined(error))
+                        logger.error("Unable to find distances.", error);
+
+                    documents.forEach(document => {
+                        me._distances[document.key] = document.avg;
+                    });
+                });
+
+        }).catch(error => {
+            logger.info("Cannot connect to MongoDB to load distances.", error);
+        });
+    }
+
+    private connectMongoDb(): Promise<Db> {
+        return new Promise<Db>((resolve, reject) => {
+            MongoClient.connect("mongodb://localhost:27017/anki", (error, db) => {
+                if (!isNullOrUndefined(error)) {
+                    reject(error);
+                } else {
+                    resolve(db);
+                }
+            });
+        });
+    }
 }
 
 export {ProfitScenario};

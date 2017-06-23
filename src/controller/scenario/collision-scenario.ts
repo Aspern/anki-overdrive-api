@@ -59,10 +59,28 @@ class CollisionScenario implements Scenario {
                 me._intervals.forEach(clearInterval)
                 me._vehicle1.setSpeed(0, 1500);
                 me._vehicle2.setSpeed(0, 1500);
+
+                for (let key in me._store) {
+                    if (me._store.hasOwnProperty(key)) {
+                        let vehicle = me._store[key];
+                        vehicle.setLights([
+                            new LightConfig()
+                                .blue()
+                                .steady(),
+                            new LightConfig()
+                                .red()
+                                .steady(0),
+                            new LightConfig()
+                                .tail()
+                                .steady(0)
+                        ]);
+                    }
+                }
+
                 setTimeout(() => {
                     me._running = false;
                     resolve();
-                }, 1000);
+                }, 2000);
             } catch (e) {
                 reject(e);
             }

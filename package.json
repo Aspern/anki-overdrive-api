@@ -59,7 +59,9 @@
     "anti-collision": "gulp && node ./dist/script/anti-collision.js",
     "validate-distance": "gulp && node ./dist/script/validate-distance.js",
     "latency-analyse": "gulp && node ./dist/script/latency-analyse.js",
-    "mongo-output": "gulp && node ./dist/script/mongo-output.js"
+    "mongo-output": "gulp && node ./dist/script/mongo-output.js",
+    "calc-avg-speed-profit" : "gulp && node ./dist/script/profit-scenario-avg-speed.js",
+    "collect-data" : "gulp && node ./dist/script/collect-data.js"
   },
   "license": "Apache License, Version 2.0",
   "exclude": [
