@@ -2,7 +2,6 @@
 import * as noble from "noble";
 import {Peripheral} from "noble";
 import {Vehicle} from "./vehicle-interface";
-import {isNullOrUndefined} from "util";
 import {VehicleImpl} from "./vehicle-impl";
 import {VehicleScanner} from "./vehicle-scanner-interface";
 import {SetupConfig} from "../settings/setup-config";
@@ -37,7 +36,6 @@ class VehicleScannerImpl implements VehicleScanner {
         return new Promise<Array<Vehicle>>((resolve, reject) => {
             me.enableAdapter()
                 .then(me.scanPeripherals)
-                .then(me.filterVehicles)
                 .then(peripherals => {
                     peripherals.forEach(peripheral => vehicles.push(
                         new VehicleImpl(peripheral, setup)
@@ -111,47 +109,22 @@ class VehicleScannerImpl implements VehicleScanner {
     }
 
     private scanPeripherals(timeout: number): Promise<Array<Peripheral>> {
-        let peripherals: Array<Peripheral> = [];
+        let peripherals: Array<Peripheral> = [],
+            listener = (peripheral: Peripheral) => {
+                peripherals.push(peripheral);
+            };
 
         return new Promise<Array<Peripheral>>((resolve, reject) => {
             try {
                 noble.startScanning();
-                noble.on('discover', peripheral => peripherals.push(peripheral));
+                noble.on('discover', listener);
             } catch (error) {
                 reject(error);
             }
-            setTimeout(() => resolve(peripherals), timeout);
-        });
-    }
-
-
-    private filterVehicles(peripherals: Array<Peripheral>): Promise<Array<Peripheral>> {
-        let vehicles: Array<Peripheral> = [];
-
-        return new Promise<Array<Peripheral>>((resolve, reject) => {
-            peripherals.forEach(peripheral => {
-                peripheral.connect(error => {
-                    if (!isNullOrUndefined(error))
-                        reject(error);
-
-                    peripheral.discoverAllServicesAndCharacteristics((error, services) => {
-                        if (!isNullOrUndefined(error))
-                            reject(error);
-
-                        for (let i = 0; i < services.length; i++) {
-                            if (services[i].uuid === "be15beef6186407e83810bd89c4d8df4") {
-                                vehicles.push(peripheral);
-                                break;
-                            }
-                        }
-                    });
-                });
-            });
-
             setTimeout(() => {
-                peripherals.forEach(peripheral => peripheral.disconnect());
-                resolve(vehicles);
-            }, 1000);
+                noble.removeListener('discover', listener);
+                resolve(peripherals)
+            }, timeout);
         });
     }
 }

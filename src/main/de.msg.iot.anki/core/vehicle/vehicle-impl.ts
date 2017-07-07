@@ -314,21 +314,32 @@ class VehicleImpl implements Vehicle {
                 if (e)
                     reject(e);
 
-                characteristics.forEach((characteristic) => {
-                    if (characteristic.uuid === "be15bee06186407e83810bd89c4d8df4")
-                        me._read = characteristic;
-                    else if (characteristic.uuid === "be15bee16186407e83810bd89c4d8df4")
-                        me._write = characteristic;
+                let invalidPeripheral = true;
+
+                services.forEach(service => {
+                    if (service.uuid === "be15beef6186407e83810bd89c4d8df4")
+                        invalidPeripheral = false;
                 });
 
-                if (isNullOrUndefined(me._read))
-                    reject(new Error(("Could not initialise read characteristics.")));
-                if (isNullOrUndefined(me._write))
-                    reject(new Error(("Could not initialise write characteristics.")));
+                if (invalidPeripheral) {
+                    reject("Peripheral is not an Anki OVERDRIVE vehicle.");
+                } else {
+                    characteristics.forEach((characteristic) => {
+                        if (characteristic.uuid === "be15bee06186407e83810bd89c4d8df4")
+                            me._read = characteristic;
+                        else if (characteristic.uuid === "be15bee16186407e83810bd89c4d8df4")
+                            me._write = characteristic;
+                    });
 
-                me._read.subscribe();
-                me.enableDataEvents();
-                resolve();
+                    if (isNullOrUndefined(me._read))
+                        reject(new Error(("Could not initialise read characteristics.")));
+                    if (isNullOrUndefined(me._write))
+                        reject(new Error(("Could not initialise write characteristics.")));
+
+                    me._read.subscribe();
+                    me.enableDataEvents();
+                    resolve();
+                }
             });
         });
     }
@@ -423,7 +434,7 @@ class VehicleImpl implements Vehicle {
         ));
     }
 
-    private resetLights() : void {
+    private resetLights(): void {
         this.setLights([
             new LightConfig()
                 .blue()

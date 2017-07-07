@@ -18,3 +18,5 @@ test/**/*.d.ts
 test/**/*.js.map
 
 out/
+Würde logs/ löschen
+Würde src/main/de.msg.iot.anki/scenario/ löschen

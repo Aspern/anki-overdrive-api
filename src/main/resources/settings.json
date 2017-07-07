@@ -1,4 +1,6 @@
 {
+  "kafka-url": "localhost:2181",
+  "kafka-topic": "vehicle-data",
   "setup": {
     "ean": "0810559020400",
     "uuid": "setup-adrian",
@@ -58,17 +60,6 @@
           "pieceId": 34
         }
       ]
-    }
-  },
-  "scripts": {
-    "measureTrack": {
-      "resultHandler": "console"
-    },
-    "measureQuality": {
-      "minSpeed": 1000,
-      "maxSpeed": 1200,
-      "increment": 100,
-      "rounds": 20
     }
   }
 }

@@ -85,9 +85,23 @@
     "src/script/validate-distance.ts",
     "src/script/latency-analyse.ts",
 
+    "src/main/de.msg.iot.anki/filter/vehicle-data-receiver.ts",
+    "src/main/de.msg.iot.anki/filter/vehicle-pipeline.ts",
+    "src/main/de.msg.iot.anki/filter/kafaka-sender.ts",
+
+    "src/main/de.msg.iot.anki/controller/abstract-vehicle-controller.ts",
+    "src/main/de.msg.iot.anki/controller/console-vehicle-controller.ts",
+
     "src/server/server-console-interface.ts",
     "src/main/de.msg.iot.anki/server/vehicle-server.ts",
-    "src/main/de.msg.iot.anki/server/lifecycle-component.ts",
+    "src/main/de.msg.iot.anki/server/vehicle-scan-task.ts",
+    "src/main/de.msg.iot.anki/component/lifecycle-component.ts",
+    "src/main/de.msg.iot.anki/component/threadpool.ts",
+    "src/main/de.msg.iot.anki/component/runnable.ts",
+    "src/main/de.msg.iot.anki/component/data-filter.ts",
+    "src/main/de.msg.iot.anki/component/data-pipleine.ts",
+    "src/main/de.msg.iot.anki/component/data-receiver.ts",
+    "src/main/de.msg.iot.anki/component/data-sender.ts",
     "src/script/latency-analyse.ts",
     "src/script/mongo-output.ts",
 

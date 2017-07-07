@@ -13,7 +13,6 @@ import {KafkaController} from "./kafka-controller";
 import {SetupConfig} from "../../main/de.msg.iot.anki/core/settings/setup-config";
 import {AnkiConsole} from "../../core/util/anki-console";
 import {Scenario} from "../scenario/scenario-interface";
-import {CollisionScenario} from "../scenario/collision-scenario";
 import {LightConfig} from "../../main/de.msg.iot.anki/core/vehicle/light-config";
 import {AntiCollisionScenario} from "../scenario/anti-collision-scenario";
 import {MaxSpeedScenario} from "../scenario/max-speed-scenario";
