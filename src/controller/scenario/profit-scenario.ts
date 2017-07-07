@@ -9,9 +9,13 @@ import {isNullOrUndefined} from "util";
 import {Collection, Db, MongoClient} from "mongodb";
 import * as log4js from "log4js";
 import {KafkaController} from "../kafka/kafka-controller";
+import Timer = NodeJS.Timer;
 type Point = [number, number];
 
 const uuidv4 = require('uuid/v4');
+
+type LinearFunction = (vi_1: number) => any;
+type Models = { [key: string]: LinearFunction };
 
 interface Command {
     timestamp: Date;
@@ -32,13 +36,15 @@ class ProfitScenario implements Scenario {
     private _vehicle: Vehicle;
     private _accelerations: { [key: string]: number } = {};
     private _optimalSpeeds: { [key: string]: number } = {};
-    private _optimalAccelerations: { [key: string]: number } = {};
+    private _models: Models = {};
     private _distances: { [key: string]: number } = {};
     private _track: Track;
     private _initialized = false;
     private _previousCommand: Command;
     private _logger: log4js.Logger;
     private _kafka: KafkaController;
+    private _improve = false;
+    private _task: Timer;
 
     constructor(vehicle: Vehicle, track: Track) {
         this._logger = log4js.getLogger("profit-scenario");
@@ -59,17 +65,19 @@ class ProfitScenario implements Scenario {
 
         return new Promise<void>((resolve, reject) => {
             try {
-                vehicle.setSpeed(812, 600);
-                setTimeout(() => {
-                    me._kafka.initializeProducer().then(online => {
-                        if (!online)
-                            logger.error("Kafka server is offline, scenario is not initialized.");
-                        else
-                            me._initialized = true;
-                    });
-                    logger.info("Initialized Profit-scenario.");
-                }, 6000);
-                resolve();
+                vehicle.setSpeed(851, 600);
+
+                me.startBatchViewTask();
+
+                me._kafka.initializeProducer().then(online => {
+                    if (!online) {
+                        logger.error("Kafka server is offline, scenario is not initialized.");
+                    } else {
+                        me._initialized = true;
+                        logger.info("Initialized Profit-scenario.");
+                        resolve();
+                    }
+                }).catch(reject);
             } catch (e) {
                 reject(e);
             }
@@ -78,7 +86,7 @@ class ProfitScenario implements Scenario {
 
 
     onUpdate(message: VehicleMessage): void {
-        if (this._initialized && message instanceof PositionUpdateMessage) {
+        if (this._improve && this._initialized && message instanceof PositionUpdateMessage) {
             let key = message.piece + ":" + message.location,
                 acceleration: number,
                 optimalSpeed: number,
@@ -158,7 +166,15 @@ class ProfitScenario implements Scenario {
 
 
                 if (!missingPoints) {
-                    this._accelerations[previousCommand.p1] = this.estimateAcceleration(previousCommand);
+
+                    let key = previousCommand.p1;
+
+                    if (this._models.hasOwnProperty(key)) {
+                        this._accelerations[key] = this._models[key](previousCommand.vi_1);
+                    } else {
+                        this._accelerations[key] = this.estimateAcceleration(previousCommand);
+                    }
+
                     this.saveCommand(previousCommand);
                 }
 
@@ -171,7 +187,8 @@ class ProfitScenario implements Scenario {
 
 
     interrupt(): Promise<void> {
-        let vehicle = this._vehicle;
+        let vehicle = this._vehicle,
+            me = this;
 
         this._running = false;
         this._initialized = false;
@@ -179,6 +196,7 @@ class ProfitScenario implements Scenario {
         return new Promise<void>((resolve, reject) => {
             try {
                 vehicle.setSpeed(0, 1500);
+                clearInterval(me._task);
                 setTimeout(() => {
 
                     resolve();
@@ -191,6 +209,11 @@ class ProfitScenario implements Scenario {
 
     isRunning(): boolean {
         return this._running;
+    }
+
+
+    set improve(value: boolean) {
+        this._improve = value;
     }
 
     private scoreFunction(command: Command): number {
@@ -240,9 +263,6 @@ class ProfitScenario implements Scenario {
 
     private saveCommand(command: Command): void {
         let logger = this._logger;
-
-        logger.info("Sending message:");
-        logger.info(JSON.stringify(command));
 
         this._kafka.sendPayload([{
             topic: "vehicle-data",
@@ -311,6 +331,41 @@ class ProfitScenario implements Scenario {
             });
         });
     }
+
+    private startBatchViewTask(): void {
+        let me = this,
+            logger = this._logger,
+            models = this._models;
+
+        this._task = setInterval(() => {
+            me.connectMongoDb().then(db => {
+
+                let collection = db.collection("acceleration-model");
+
+                collection.find({})
+                    .toArray((error, documents) => {
+                        if (!isNullOrUndefined(error)) {
+                            logger.error("Error while searching models.", error);
+                        } else {
+                            logger.info("Found models:")
+                            documents.forEach(doc => {
+                                logger.info(doc.position + ": f(x) = " + doc.slope + "x + " + doc.intercept);
+                            });
+
+                            documents.forEach(document => {
+                                //if (document.correlation > 0.85)
+                                models[document.position] = (v1_1: number) => {
+                                    return Math.round(document.slope * v1_1 + document.intercept);
+                                };
+                            });
+                        }
+                    });
+
+
+            }).catch(error => logger.info("Cannot connect to MongoDB to load models.", error));
+        }, 60000)
+    }
+
 }
 
 export {ProfitScenario};

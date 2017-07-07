@@ -268,10 +268,11 @@ kafkaController.initializeProducer().then(online => {
         }]);
 
         logger.info("Initializing Kafka Consumer for topic 'scenario'...");
+        let startingScenario = false;
 
         kafkaController.initializeConsumer([{topic: "scenario", partition: 0}], 0);
         kafkaController.addListener(message => {
-            let info: { name: string, interrupt: boolean } = JSON.parse(message.value);
+            let info: { name: string, interrupt: boolean, params:{[key:string]:any} } = JSON.parse(message.value);
             logger.info("Received message from server: " + JSON.stringify(message));
             if (info.interrupt) {
                 if (!isNullOrUndefined(scenario)) {
@@ -285,7 +286,14 @@ kafkaController.initializeProducer().then(online => {
                     findStartLane();
                 }
             } else {
-                if (!isNullOrUndefined(scenario) && scenario.isRunning()) {
+                if (!isNullOrUndefined(scenario) && scenario.isRunning() && scenario instanceof ProfitScenario) {
+                    if(info.params && info.params.improve) {
+                        logger.info("Improving profit scenario.");
+                        scenario.improve = true;
+                    } else {
+                        logger.warn("Please run the scenario first, before improving it.")
+                    }
+                } else if (!isNullOrUndefined(scenario) && (scenario.isRunning() || startingScenario)) {
                     logger.warn("Another scenario is still running!");
                 } else {
                     try {
@@ -297,10 +305,15 @@ kafkaController.initializeProducer().then(online => {
                     if (isNullOrUndefined(scenario)) {
                         logger.error("Unknown Scenario for config: " + info);
                     } else {
+                        startingScenario = true;
                         distanceFilter.registerUpdateHandler(scenario.onUpdate, scenario);
                         scenario.start().then(() => {
+                            startingScenario = false;
                             logger.info("Starting scenario: " + scenario)
-                        }).catch(e => logger.error("Cannot start scenario.", e));
+                        }).catch(e => {
+                            logger.error("Cannot start scenario.", e);
+                            startingScenario = false;
+                        });
                     }
                 }
             }
