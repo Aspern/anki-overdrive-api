@@ -9,4 +9,5 @@ node_modules/
 coverage/
 
 # Compiles sources
-lib/*.js
+lib/**/*.js
+test/**/*.js
