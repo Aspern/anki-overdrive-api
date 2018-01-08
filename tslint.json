@@ -1,8 +1,9 @@
 {
   "extends": "tslint:recommended",
   "rules": {
-    "semicolon": false,
+    "eofline": false,
+    "interface-name": ["never-prefix"],
     "no-unused-expression": false,
-    "eofline": false
+    "semicolon": false
   }
 }

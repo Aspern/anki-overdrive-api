@@ -5,9 +5,10 @@
   "author": "Adrian Weber <adrian.weber@msg.group",
   "license": "MIT",
   "scripts": {
-    "postinstall": "typings install dt~mocha dt~chai gulp typescript istanbul --save --global",
+    "postinstall": "typings install dt~mocha dt~chai gulp typescript istanbul typedoc --save --global",
     "test": "tsc -p . && mocha test/**/*.spec.js",
-    "test:coverage": "nyc npm t"
+    "test:coverage": "nyc npm t",
+    "doc": "typedoc --out doc lib"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
@@ -40,5 +41,9 @@
     ],
     "sourceMap": true,
     "instrument": true
+  },
+  "dependencies": {
+    "@types/noble": "0.0.34",
+    "noble": "^1.8.1"
   }
 }
