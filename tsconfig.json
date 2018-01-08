@@ -1,124 +1,55 @@
 {
-  "files": [
-    "src/main/de.msg.iot.anki/core/vehicle/vehicle-interface.ts",
-    "src/main/de.msg.iot.anki/core/vehicle/light-config.ts",
-    "src/main/de.msg.iot.anki/core/vehicle/vehicle-impl.ts",
-    "src/main/de.msg.iot.anki/core/vehicle/vehicle-scanner-interface.ts",
-    "src/main/de.msg.iot.anki/core/vehicle/vehicle-scanner-impl.ts",
-    "src/core/message/anki-message.ts",
-    "src/core/message/vehicle-message.ts",
-    "src/core/message/driving-direction.ts",
-    "src/core/message/intersection-code.ts",
-    "src/core/message/turn-type.ts",
-    "src/core/message/v2c/position-update-message.ts",
-    "src/core/message/v2c/labeled-position-update-message.ts",
-    "src/core/message/v2c/intersection-update-message.ts",
-    "src/core/message/v2c/transition-update-message.ts",
-    "src/core/message/v2c/vehicle-delocalized-message.ts",
-    "src/core/message/v2c/ping-response.ts",
-    "src/core/message/v2c/version-response.ts",
-    "src/core/message/v2c/battery-level-response.ts",
-    "src/core/message/v2c/round-update-message.ts",
-    "src/core/message/c2v/battery-level-request.ts",
-    "src/core/message/c2v/cancel-lane-change.ts",
-    "src/core/message/c2v/change-lane.ts",
-    "src/core/message/c2v/ping-request.ts",
-    "src/core/message/c2v/sdk-mode.ts",
-    "src/core/message/c2v/set-lights.ts",
-    "src/core/message/c2v/set-offset.ts",
-    "src/core/message/c2v/set-speed.ts",
-    "src/core/message/c2v/labeled-set-speed.ts",
-    "src/core/message/c2v/set-lights.ts",
-    "src/core/message/c2v/turn.ts",
-    "src/core/message/c2v/version-request.ts",
-    "src/main/de.msg.iot.anki/core/track/piece-interface.ts",
-    "src/main/de.msg.iot.anki/core/track/track-interface.ts",
-    "src/main/de.msg.iot.anki/core/track/track-impl.ts",
-    "src/main/de.msg.iot.anki/core/track/piece-impl.ts",
-    "src/main/de.msg.iot.anki/core/track/start.ts",
-    "src/main/de.msg.iot.anki/core/track/finish.ts",
-    "src/main/de.msg.iot.anki/core/track/curve.ts",
-    "src/main/de.msg.iot.anki/core/track/straight.ts",
-    "src/core/filter/active-filter.ts",
-    "src/core/filter/abstract-distance-filter.ts",
-    "src/core/filter/simple-distance-filter.ts",
-    "src/core/filter/distance.ts",
-    "src/core/filter/round-filter.ts",
-    "src/core/util/console-result-handler.ts",
-    "src/core/util/file-result-handler.ts",
-    "src/core/util/mongo-result-handler.ts",
-    "src/core/util/result.ts",
-    "src/core/util/result-handler-interface.ts",
-    "src/core/util/track-runner.ts",
-    "src/core/util/validation-report.ts",
-    "src/core/util/anki-console.ts",
-    "src/main/de.msg.iot.anki/core/settings/settings-interface.ts",
-    "src/main/de.msg.iot.anki/core/settings/json-settings.ts",
-    "src/main/de.msg.iot.anki/core/settings/setup-config.ts",
-    "src/main/de.msg.iot.anki/core/settings/vehicle-config.ts",
-    "src/main/de.msg.iot.anki/core/settings/track-config.ts",
-    "src/main/de.msg.iot.anki/core/settings/piece-config.ts",
-
-    "src/controller/main.ts",
-    "src/controller/kafka/kafka-controller.ts",
-    "src/controller/kafka/IConsumerListener.ts",
-    "src/controller/kafka/ConsumerMessage.ts",
-    "src/controller/kafka/kafka-vehicle-controller.ts",
-    "src/controller/kafka/kafka-distance-filter.ts",
-    "src/controller/kafka/kafka-track-controller.ts",
-    "src/controller/kafka/kafka-round-filter.ts",
-    "src/controller/scenario/scenario-interface.ts",
-    "src/controller/scenario/collision-scenario.ts",
-    "src/controller/scenario/scenario-runner.ts",
-    "src/controller/scenario/anti-collision-scenario.ts",
-    "src/controller/scenario/anti-collision-scenario-collecting.ts",
-    "src/controller/scenario/profit-scenario.ts",
-    "src/controller/scenario/max-speed-scenario.ts",
-    "src/controller/websocket/websocket-controller.ts",
-    "src/controller/websocket/websocket-request.ts",
-    "src/controller/websocket/websocket-response.ts",
-
-    "src/script/measure-message-quality.ts",
-    "src/script/scan-vehicles.ts",
-    "src/script/measure-track.ts",
-    "src/script/anti-collision.ts",
-    "src/script/validate-distance.ts",
-    "src/script/latency-analyse.ts",
-
-    "src/main/de.msg.iot.anki/filter/vehicle-data-receiver.ts",
-    "src/main/de.msg.iot.anki/filter/vehicle-pipeline.ts",
-    "src/main/de.msg.iot.anki/filter/kafaka-sender.ts",
-
-    "src/main/de.msg.iot.anki/controller/abstract-vehicle-controller.ts",
-    "src/main/de.msg.iot.anki/controller/console-vehicle-controller.ts",
-
-    "src/server/server-console-interface.ts",
-    "src/main/de.msg.iot.anki/server/vehicle-server.ts",
-    "src/main/de.msg.iot.anki/server/vehicle-scan-task.ts",
-    "src/main/de.msg.iot.anki/component/lifecycle-component.ts",
-    "src/main/de.msg.iot.anki/component/threadpool.ts",
-    "src/main/de.msg.iot.anki/component/runnable.ts",
-    "src/main/de.msg.iot.anki/component/data-filter.ts",
-    "src/main/de.msg.iot.anki/component/data-pipleine.ts",
-    "src/main/de.msg.iot.anki/component/data-receiver.ts",
-    "src/main/de.msg.iot.anki/component/data-sender.ts",
-    "src/script/latency-analyse.ts",
-    "src/script/mongo-output.ts",
-
-    "src/test/de.msg.iot.anki/core/vehicle/vehicle-scanner-test.ts",
-    "src/test/de.msg.iot.anki/core/vehicle/vehicle-test.ts",
-    "src/test/de.msg.iot.anki/core/settings/json-settings-test.ts",
-    "src/test/de.msg.iot.anki/core/track/track-test.ts",
-    "src/test/de.msg.iot.anki/core/track/piece-test.ts"
-  ],
   "compilerOptions": {
-    "noImplicitAny": true,
-    "target": "ES5",
-    "allowJs": true,
-    "module": "commonjs",
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "sourceMap": true,
-    "experimentalDecorators": true
+    /* Basic Options */
+    "target": "es6",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
+    "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
+    // "lib": [],                             /* Specify library files to be included in the compilation:  */
+    // "allowJs": true,                       /* Allow javascript files to be compiled. */
+    // "checkJs": true,                       /* Report errors in .js files. */
+    // "jsx": "preserve",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
+    // "declaration": true,                   /* Generates corresponding '.d.ts' file. */
+    // "sourceMap": true,                     /* Generates corresponding '.map' file. */
+    // "outFile": "./",                       /* Concatenate and emit output to single file. */
+    // "outDir": "./",                        /* Redirect output structure to the directory. */
+    // "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+    // "removeComments": true,                /* Do not emit comments to output. */
+    // "noEmit": true,                        /* Do not emit outputs. */
+    // "importHelpers": true,                 /* Import emit helpers from 'tslib'. */
+    // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
+    // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
+
+    /* Strict Type-Checking Options */
+    "strict": true                            /* Enable all strict type-checking options. */
+    // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
+    // "strictNullChecks": true,              /* Enable strict null checks. */
+    // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
+    // "noImplicitThis": true,                /* Raise error on 'this' expressions with an implied 'any' type. */
+    // "alwaysStrict": true,                  /* Parse in strict mode and emit "use strict" for each source file. */
+
+    /* Additional Checks */
+    // "noUnusedLocals": true,                /* Report errors on unused locals. */
+    // "noUnusedParameters": true,            /* Report errors on unused parameters. */
+    // "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
+    // "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
+
+    /* Module Resolution Options */
+    // "moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+    // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
+    // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
+    // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
+    // "typeRoots": [],                       /* List of folders to include type definitions from. */
+    // "types": [],                           /* Type declaration files to be included in compilation. */
+    // "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
+    // "preserveSymlinks": true,              /* Do not resolve the real path of symlinks. */
+
+    /* Source Map Options */
+    // "sourceRoot": "./",                    /* Specify the location where debugger should locate TypeScript files instead of source locations. */
+    // "mapRoot": "./",                       /* Specify the location where debugger should locate map files instead of generated locations. */
+    // "inlineSourceMap": true,               /* Emit a single file with source maps instead of having a separate file. */
+    // "inlineSources": true,                 /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
+
+    /* Experimental Options */
+    // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
+    // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   }
 }

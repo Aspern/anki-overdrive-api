@@ -1,0 +1,8 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "semicolon": false,
+    "no-unused-expression": false,
+    "eofline": false
+  }
+}

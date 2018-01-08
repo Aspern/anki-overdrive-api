@@ -1,22 +1,9 @@
-# npm and nodejs
-node_modules
-ts-node
-coverage
-*.log
+# Node
+node_modules/
 
-# webstorm
-.idea
+# Idea developer tools
+.idea/
 
-# Typescript
-dist
-docs
-src/**/*.js
-src/**/*.js.map
-src/**/*.d.ts
-test/**/*.js
-test/**/*.d.ts
-test/**/*.js.map
-
-out/
-Würde logs/ löschen
-Würde src/main/de.msg.iot.anki/scenario/ löschen
+# Istanbul code coverage
+.nyc_output/
+coverage/

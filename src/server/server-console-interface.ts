@@ -1,5 +1,0 @@
-interface ServerConsole {
-
-}
-
-export {ServerConsole}
