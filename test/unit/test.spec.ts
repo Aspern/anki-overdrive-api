@@ -7,7 +7,13 @@ describe("Test", () => {
        const test = new Test()
 
        // expect(true).to.be.true
-       expect(test.helloWorld()).to.equal("Hello, World!!")
+       expect(test.helloWorld()).to.equal("Hello, World!")
+    })
+
+    it("multiplies", () => {
+      const test = new Test()
+
+      expect(test.mulitply(1, 1)).to.equal(1)
     })
 
 })
