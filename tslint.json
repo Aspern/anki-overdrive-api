@@ -1,9 +1,21 @@
 {
   "extends": "tslint:recommended",
   "rules": {
+    "arrow-parens": ["ban-single-arg-parens"],
     "eofline": false,
     "interface-name": ["never-prefix"],
+    "no-empty": false,
     "no-unused-expression": false,
-    "semicolon": false
+    "semicolon": false,
+    "trailing-comma": [false],
+    "ordered-imports": [false],
+    "indent": [true, "spaces", 2],
+    "whitespace": [
+      true,
+      "check-operator",
+      "check-decl",
+      "check-type",
+      "check-preblock"
+    ]
   }
 }

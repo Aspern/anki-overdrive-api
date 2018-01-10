@@ -1,0 +1,5 @@
+const ANKI_STR_SERVICE_UUID = "be15beef6186407e83810bd89c4d8df4"
+
+export {
+    ANKI_STR_SERVICE_UUID
+}

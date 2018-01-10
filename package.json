@@ -5,8 +5,8 @@
   "author": "Adrian Weber <adrian.weber@msg.group",
   "license": "MIT",
   "scripts": {
-    "postinstall": "typings install dt~mocha dt~chai gulp typescript istanbul typedoc --save --global",
-    "test": "tsc -p . && mocha test/**/*.spec.js",
+    "test": "tsc -p . && mocha test/unit/**/*.spec.js --exit",
+    "est:e2e": "tsc -p . && mocha test/e2e/**/*spec.js",
     "test:coverage": "nyc npm t",
     "doc": "typedoc --out doc lib"
   },
@@ -22,6 +22,7 @@
     "nyc": "^11.4.1",
     "source-map-support": "^0.5.0",
     "sourceMap": true,
+    "testdouble": "^3.3.1",
     "ts-node": "^4.1.0",
     "tslint": "^5.8.0",
     "typescript": "^2.6.2",

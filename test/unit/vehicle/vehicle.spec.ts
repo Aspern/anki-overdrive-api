@@ -1,8 +1,9 @@
 import {expect} from "chai";
-import {Test} from "../../../lib/test";
 
-describe("Test", () => {
+describe("Vehicle", () => {
 
-
+    it("is true", () => {
+        expect(true).to.be.true
+    })
 
 })

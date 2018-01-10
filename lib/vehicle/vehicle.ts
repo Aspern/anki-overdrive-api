@@ -1,5 +1,6 @@
 interface Vehicle {
 
+    address: string
     connected: boolean
     id: string
     name: string

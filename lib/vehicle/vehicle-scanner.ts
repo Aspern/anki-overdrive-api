@@ -11,3 +11,5 @@ interface VehicleScanner {
     findAny(): Promise<Vehicle>
 
 }
+
+export {VehicleScanner}
