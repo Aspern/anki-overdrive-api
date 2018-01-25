@@ -1,8 +1,18 @@
-interface BleDevice {
+
+import {IDevice} from "./IDevice";
+
+type State = ("poweredOn"|"disconnected"|"error"|"unknown")
+
+interface IBluetooth {
+
+    onDiscover: (device: IDevice) => any
+    onError: (error: any) => any
+    state: State
+    timeout: number
 
     startScanning(): Promise<void>
 
     stopScanning(): Promise<void>
 }
 
-export {BleDevice}
+export {IBluetooth, State}

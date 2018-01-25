@@ -1,15 +1,19 @@
-import {Vehicle} from "./vehicle";
+import {IVehicle} from "./IVehicle";
 
-interface VehicleScanner {
+interface IVehicleScanner {
 
-    findAll(): Promise<Vehicle[]>
+    timeout: number
 
-    findById(id: string): Promise<Vehicle>
+    onError(handler: (error: any) => any): void
 
-    findByAddress(address: string): Promise<Vehicle>
+    findAll(): Promise<IVehicle[]>
 
-    findAny(): Promise<Vehicle>
+    findById(id: string): Promise<IVehicle>
+
+    findByAddress(address: string): Promise<IVehicle>
+
+    findAny(): Promise<IVehicle>
 
 }
 
-export {VehicleScanner}
+export {IVehicleScanner}

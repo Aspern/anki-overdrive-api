@@ -3,13 +3,20 @@
   "rules": {
     "arrow-parens": ["ban-single-arg-parens"],
     "eofline": false,
-    "interface-name": ["never-prefix"],
+    "interface-name": [true],
     "no-empty": false,
+    "max-line-length": [true, 140],
     "no-unused-expression": false,
     "semicolon": false,
     "trailing-comma": [false],
-    "ordered-imports": [false],
-    "indent": [true, "spaces", 2],
+    "ordered-imports": false,
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ],
+    "indent": [true, "spaces"],
     "whitespace": [
       true,
       "check-operator",

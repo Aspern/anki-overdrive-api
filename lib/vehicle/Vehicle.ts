@@ -1,19 +1,22 @@
-import {Peripheral} from "noble";
-import {Vehicle} from "./vehicle";
+import {IVehicle} from "./IVehicle";
+import {IDevice} from "../ble/IDevice";
 
-class AnkiOverdriveVehicle implements Vehicle{
+class Vehicle implements IVehicle {
 
     public readonly address: string;
-    public readonly connected: boolean;
     public readonly id: string;
+    public readonly connected: boolean;
     public readonly name: string;
     public readonly offset: number;
-    private peripheral: Peripheral
+    private _device: IDevice
 
-    constructor(peripheral: Peripheral, offset = 0.0, name = "") {
-        this.peripheral = peripheral
+    constructor(device: IDevice, offset = 0.0, name = "") {
+        this._device = device
         this.name = name
         this.offset = offset
+        this.id = device.id
+        this.address = device.address
+        this.connected = false
     }
 
     public cancelLaneChange(): void {
@@ -82,4 +85,4 @@ class AnkiOverdriveVehicle implements Vehicle{
 
 }
 
-export {AnkiOverdriveVehicle}
+export {Vehicle}

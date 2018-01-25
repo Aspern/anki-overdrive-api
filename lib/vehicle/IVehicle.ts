@@ -1,4 +1,4 @@
-interface Vehicle {
+interface IVehicle {
 
     address: string
     connected: boolean
@@ -10,11 +10,11 @@ interface Vehicle {
 
     changeLane(offset: number, speed?: number, acceleration?: number, hopIntent?: number, tag?: number): void
 
-    connect(): Promise<Vehicle>
+    connect(): Promise<IVehicle>
 
     disableSdkMode(): void
 
-    disconnect(): Promise<Vehicle>
+    disconnect(): Promise<IVehicle>
 
     enableSdkMode(): void
 
@@ -37,4 +37,4 @@ interface Vehicle {
     uTurnJump(): void
 }
 
-export {Vehicle}
+export {IVehicle}
