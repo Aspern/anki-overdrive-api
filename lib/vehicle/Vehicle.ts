@@ -1,5 +1,6 @@
 import {IVehicle} from "./IVehicle";
 import {IDevice} from "../ble/IDevice";
+import {ANKI_CHR_WRITE_UUID, ANKI_STR_CHR_READ_UUID} from "../message/GattProfile";
 
 class Vehicle implements IVehicle {
 
@@ -26,10 +27,14 @@ class Vehicle implements IVehicle {
     }
 
     public connect(): Promise<Vehicle> {
-        const me = this
+        const self = this
 
-        return new Promise<Vehicle>(resolve => {
-            resolve(me)
+        return new Promise<Vehicle>((resolve, reject) => {
+            self._device.connect(
+                ANKI_STR_CHR_READ_UUID,
+                ANKI_CHR_WRITE_UUID
+            ).then(() => resolve(self))
+             .catch(reject)
         });
     }
 

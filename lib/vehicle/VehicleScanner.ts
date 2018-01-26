@@ -2,10 +2,10 @@ import {IVehicleScanner} from "./IVehicleScanner";
 import {IBluetooth} from "../ble/IBluetooth";
 import {Logger} from "log4js";
 import * as log4js from "log4js"
-import {ANKI_STR_SERVICE_UUID} from "../message/constants";
 import {IDevice} from "../ble/IDevice";
 import {IVehicle} from "./IVehicle";
 import {Vehicle} from "./Vehicle";
+import {ANKI_STR_SERVICE_UUID} from "../message/GattProfile";
 
 class VehicleScanner implements IVehicleScanner {
 
