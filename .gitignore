@@ -11,6 +11,3 @@ coverage/
 # Compiles sources
 lib/**/*.js
 test/**/*.js
-
-# Typedoc
-doc/
