@@ -8,6 +8,7 @@ class DeviceMock implements IDevice {
     public  data: Buffer
     private _serviceId: string
     private _listeners: Array<(data: Buffer) => any>
+    private _responses = new Map<number, Buffer>()
 
     public constructor(id = "", address = "", serviceId = ANKI_STR_SERVICE_UUID) {
         this.id = id
@@ -45,12 +46,23 @@ class DeviceMock implements IDevice {
 
        return new Promise<void>((resolve) => {
            self.data = data
+           self._responses.forEach((value, key) => {
+              const messageId = data.readUInt8(1)
+              if(messageId === key) {
+                  self._listeners.forEach(listener => listener(value))
+              }
+           })
            resolve()
        })
     }
 
     public triggerRead(data: Buffer): void {
         this._listeners.forEach(listener => listener(data))
+    }
+
+    public registerResponse(id: number, message: Buffer): DeviceMock {
+        this._responses.set(id, message)
+        return this
     }
 
 }
