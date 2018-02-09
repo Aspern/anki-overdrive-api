@@ -8,7 +8,8 @@
     "test": "tsc -p . && mocha test/unit/**/*.spec.js --exit",
     "test:e2e": "tsc -p . && mocha test/e2e/**/*spec.js",
     "test:coverage": "nyc npm t",
-    "doc": "typedoc --out doc lib"
+    "doc": "typedoc --out doc lib",
+    "start": "tsc -p . && node ./lib/Server.js"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
@@ -44,7 +45,10 @@
   },
   "dependencies": {
     "@types/noble": "0.0.34",
+    "@types/websocket": "0.0.36",
+    "@types/ws": "^4.0.0",
     "log4js": "^2.5.2",
-    "noble": "^1.8.1"
+    "noble": "^1.8.1",
+    "websocket": "^1.0.25"
   }
 }

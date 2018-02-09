@@ -25,7 +25,7 @@ class Bluetooth implements IBluetooth {
 
         return new Promise<void>((resolve, reject) => {
             self.enableAdapter().then(() => {
-                noble.startScanning(uuids)
+                noble.startScanning(uuids, false)
                 noble.on("discover", (peripheral => {
                     self._onDiscover(new Device(
                         peripheral.id,

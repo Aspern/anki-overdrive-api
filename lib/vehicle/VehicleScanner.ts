@@ -23,9 +23,9 @@ class VehicleScanner implements IVehicleScanner {
 
     public findAll(): Promise<IVehicle[]> {
         const self = this
-        this._vehicles = []
 
         return new Promise<IVehicle[]>((resolve, reject) => {
+            self._vehicles = []
             self._bluetooth.startScanning([ANKI_STR_SERVICE_UUID])
                 .then(() => {
                     self.awaitScanning()
@@ -83,9 +83,15 @@ class VehicleScanner implements IVehicleScanner {
     }
 
     private onDiscover(device: IDevice): void {
-        this._vehicles.push(
-            new Vehicle(device)
-        )
+        if(!this.containsVehicle(device.id)) {
+            this._vehicles.push(
+                new Vehicle(device)
+            )
+        }
+    }
+
+    private containsVehicle(id: string) {
+        return this._vehicles.filter(vehicle => vehicle.id === id).length > 0
     }
 
     private awaitScanning(): Promise<IVehicle[]> {
@@ -94,7 +100,8 @@ class VehicleScanner implements IVehicleScanner {
         return new Promise<IVehicle[]>((resolve, reject) => {
             setTimeout(() => {
                 self._bluetooth.stopScanning()
-                    .then(() => resolve(self._vehicles))
+                    .then(() => {
+                        resolve(self._vehicles)})
                     .catch(reject)
             }, self._timeout)
         })
