@@ -66,8 +66,7 @@ class Vehicle implements IVehicle {
                 self.enableSdkMode()
                 self._device.read((data) => self.readAndPublish(data))
                 resolve(self)
-            })
-             .catch(reject)
+            }).catch(reject)
         });
     }
 
@@ -218,7 +217,7 @@ class Vehicle implements IVehicle {
 
         return new Promise<Res>((resolve, reject) => {
             const listener = (message: Res) => {
-                if(message.payload.readUInt8(1) === responseId) {
+                if(message && message.payload.readUInt8(1) === responseId) {
                     clearTimeout(timeout)
                     self.removeListener(listener)
                     resolve(message)

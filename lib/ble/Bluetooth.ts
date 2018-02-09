@@ -13,18 +13,19 @@ class Bluetooth implements IBluetooth {
 
     public constructor(onDiscover: (device: IDevice) => any = () => {},
                        onError = () => {},
-                       timeout = 1000) {
+                       timeout = 500) {
         this._onDiscover = onDiscover
         this._onError = onError
         this._timeout = timeout
     }
 
-    public startScanning(): Promise<void> {
+    public startScanning(serviceUUIDS?: string[]): Promise<void> {
         const self = this
+        const uuids = serviceUUIDS || []
 
         return new Promise<void>((resolve, reject) => {
             self.enableAdapter().then(() => {
-                noble.startScanning()
+                noble.startScanning(uuids)
                 noble.on("discover", (peripheral => {
                     self._onDiscover(new Device(
                         peripheral.id,
@@ -33,6 +34,7 @@ class Bluetooth implements IBluetooth {
                     ))
                 }))
                 noble.on("error", self._onError)
+                self._state = "poweredOn"
                 resolve()
             }).catch(reject)
         })

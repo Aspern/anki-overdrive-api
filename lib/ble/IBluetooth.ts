@@ -10,7 +10,7 @@ interface IBluetooth {
     state: State
     timeout: number
 
-    startScanning(): Promise<void>
+    startScanning(serviceUUIDS?: string[]): Promise<void>
 
     stopScanning(): Promise<void>
 }

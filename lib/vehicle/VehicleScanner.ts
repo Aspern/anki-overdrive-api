@@ -5,6 +5,7 @@ import * as log4js from "log4js"
 import {IDevice} from "../ble/IDevice";
 import {IVehicle} from "./IVehicle";
 import {Vehicle} from "./Vehicle";
+import {ANKI_STR_SERVICE_UUID} from "../message/GattProfile";
 
 class VehicleScanner implements IVehicleScanner {
 
@@ -13,7 +14,7 @@ class VehicleScanner implements IVehicleScanner {
     private _logger: Logger
     private _timeout: number
 
-    constructor(bluetooth: IBluetooth, timeout = 1500) {
+    constructor(bluetooth: IBluetooth, timeout = 500) {
         this._bluetooth = bluetooth
         this._bluetooth.onDiscover = this.onDiscover.bind(this)
         this._logger = log4js.getLogger()
@@ -25,7 +26,7 @@ class VehicleScanner implements IVehicleScanner {
         this._vehicles = []
 
         return new Promise<IVehicle[]>((resolve, reject) => {
-            self._bluetooth.startScanning()
+            self._bluetooth.startScanning([ANKI_STR_SERVICE_UUID])
                 .then(() => {
                     self.awaitScanning()
                         .then(resolve)
@@ -40,14 +41,9 @@ class VehicleScanner implements IVehicleScanner {
         return new Promise<IVehicle>((resolve, reject) => {
             self.findAll()
                 .then(vehicles => {
-                    console.dir(vehicles)
-                    const vehicle = vehicles.find(v => v.id === id)
-
-                    if(vehicle) {
-                        resolve(vehicle)
-                    } else {
-                        reject(new Error("Found no vehicle with id " + id))
-                    }
+                    resolve(
+                        vehicles.find(v => v.id === id)
+                    )
                 })
                 .catch(reject)
         })
@@ -87,15 +83,9 @@ class VehicleScanner implements IVehicleScanner {
     }
 
     private onDiscover(device: IDevice): void {
-        const self = this
-        const vehicle = new Vehicle(device)
-
-        vehicle.connect().then(() => {
-            vehicle.disconnect()
-                .then(() => self._vehicles.push(vehicle))
-                .catch(self.onError)
-        }).catch(/*Device is no vehicle.*/)
-
+        this._vehicles.push(
+            new Vehicle(device)
+        )
     }
 
     private awaitScanning(): Promise<IVehicle[]> {

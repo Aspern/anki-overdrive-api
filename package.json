@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "test": "tsc -p . && mocha test/unit/**/*.spec.js --exit",
-    "est:e2e": "tsc -p . && mocha test/e2e/**/*spec.js",
+    "test:e2e": "tsc -p . && mocha test/e2e/**/*spec.js",
     "test:coverage": "nyc npm t",
     "doc": "typedoc --out doc lib"
   },
