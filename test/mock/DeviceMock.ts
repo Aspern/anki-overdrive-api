@@ -5,7 +5,7 @@ class DeviceMock implements IDevice {
 
     public readonly id: string
     public readonly address: string
-    public  data: Buffer
+    public data: Buffer
     private _serviceId: string
     private _listeners: Array<(data: Buffer) => any>
     private _responses = new Map<number, Buffer>()
@@ -46,10 +46,10 @@ class DeviceMock implements IDevice {
 
        return new Promise<void>((resolve) => {
            self.data = data
-           self._responses.forEach((value, key) => {
+           self._responses.forEach((response, responseId) => {
               const messageId = data.readUInt8(1)
-              if(messageId === key) {
-                  self._listeners.forEach(listener => listener(value))
+              if(messageId === responseId) {
+                  self._listeners.forEach(listener => listener(response))
               }
            })
            resolve()

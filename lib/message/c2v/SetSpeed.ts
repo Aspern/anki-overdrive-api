@@ -13,7 +13,7 @@ class SetSpeed extends AbstractVehicleMessage {
                        speedMmPerSec: number,
                        accelMmPerSec2 = 500,
                        respectRoadPieceSpeedLimit = false) {
-        super(vehicleId, new Buffer(ANKI_VEHICLE_MSG_C2V_SET_SPEED_SIZE + 1))
+        super(vehicleId, Buffer.alloc(ANKI_VEHICLE_MSG_C2V_SET_SPEED_SIZE + 1))
 
         this.payload.writeUInt8(ANKI_VEHICLE_MSG_C2V_SET_SPEED_SIZE, 0)
         this.payload.writeUInt8(ANKI_VEHICLE_MSG_C2V_SET_SPEED, 1)

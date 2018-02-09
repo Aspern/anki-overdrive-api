@@ -4,7 +4,7 @@ import {VehicleDelocalizedUpdate} from "../../../../lib/message/v2c/VehicleDeloc
 describe("VehicleDelocalizedUpdate", () => {
 
     it("can be created", () => {
-        const vehicleDelocalizedUpdate =  new VehicleDelocalizedUpdate("", Buffer.alloc(2))
+        const vehicleDelocalizedUpdate =  new VehicleDelocalizedUpdate("", new Buffer(2))
 
         expect(vehicleDelocalizedUpdate).not.to.be.null
     })

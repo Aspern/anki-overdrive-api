@@ -4,7 +4,7 @@ import {LocalizationPositionUpdate} from "../../../../lib/message/v2c/Localizati
 describe("LocalizationPositionUpdate", () => {
 
     it("contains correct location id", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const location = 42
         payload.writeUInt8(location, 2)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -13,7 +13,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct road piece id", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const roadPieceId = 42
         payload.writeUInt8(roadPieceId, 3)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -22,7 +22,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct offset from road center", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const offsetFromRoadCenter = 47.11
         payload.writeFloatLE(offsetFromRoadCenter, 4)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -31,7 +31,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct speed", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const speedMmPerSec = 502
         payload.writeUInt16LE(speedMmPerSec, 8)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -40,7 +40,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct parsing flags", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const parsingFlags = 0x42
         payload.writeUInt8(parsingFlags, 10)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -49,7 +49,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct last received lane Change command id", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const lastRecvLaneChangeCmdId = 0x11
         payload.writeUInt8(lastRecvLaneChangeCmdId, 11)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -58,7 +58,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct last executed lane Change command id", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const lastExecLaneChangeCmdId = 0x12
         payload.writeUInt8(lastExecLaneChangeCmdId, 12)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -67,7 +67,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct last desired lane change speed", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const lastDesiredLaneChangeSpeedMmPerSec = 480
         payload.writeUInt16LE(lastDesiredLaneChangeSpeedMmPerSec, 13)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)
@@ -76,7 +76,7 @@ describe("LocalizationPositionUpdate", () => {
     })
 
     it("contains correct last desired speed", () => {
-        const payload = new Buffer(17)
+        const payload = Buffer.alloc(17)
         const lastDesiredSpeedMmPerSec = 480
         payload.writeUInt16LE(lastDesiredSpeedMmPerSec, 15)
         const localizationPositionUpdate = new LocalizationPositionUpdate("", payload)

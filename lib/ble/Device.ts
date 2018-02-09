@@ -47,6 +47,7 @@ class Device implements IDevice {
             self._peripheral.disconnect(() => {
                 this.removeWrite()
                 this.removeRead()
+                this._listeners = []
                 this._connected = false
                 resolve(self)
             })

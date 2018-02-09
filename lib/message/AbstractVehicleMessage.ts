@@ -11,7 +11,6 @@ abstract class AbstractVehicleMessage implements IVehicleMessage {
         this.payload = payload
         this.timestamp = new Date()
     }
-
 }
 
 export {AbstractVehicleMessage}

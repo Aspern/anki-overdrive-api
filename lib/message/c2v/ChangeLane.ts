@@ -17,7 +17,7 @@ class ChangeLane extends AbstractVehicleMessage {
                        horizontalAccelMmPerSec2 = 300,
                        hopIntent = 0x0,
                        tag = 0x0) {
-        super(vehicleId, new Buffer(ANKI_VEHICLE_MSG_C2V_CHANGE_LANE_SIZE + 1))
+        super(vehicleId, Buffer.alloc(ANKI_VEHICLE_MSG_C2V_CHANGE_LANE_SIZE + 1))
 
         this.payload.writeUInt8(ANKI_VEHICLE_MSG_C2V_CHANGE_LANE_SIZE, 0)
         this.payload.writeUInt8(ANKI_VEHICLE_MSG_C2V_CHANGE_LANE, 1)

@@ -8,7 +8,7 @@ describe("PingResponse", () => {
         const timeout = 300
         const tolerance = 50
         const pingRequest = new PingRequest("")
-        const payload = new Buffer(2)
+        const payload = Buffer.alloc(2)
 
         setTimeout(() => {
             const pingResponse = new PingResponse("", payload)

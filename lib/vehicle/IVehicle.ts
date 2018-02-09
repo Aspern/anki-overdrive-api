@@ -1,7 +1,8 @@
+import {IVehicleMessage} from "../message/IVehicleMessage";
+
 interface IVehicle {
 
     address: string
-    connected: boolean
     id: string
     name: string
     offset: number
@@ -26,7 +27,7 @@ interface IVehicle {
 
     setOffset(offset: number): void
 
-    setSpeed(speed: number, acceleration?: number, limit?: number): void
+    setSpeed(speed: number, acceleration?: number, limit?: boolean): void
 
     turnRight(): void
 
@@ -35,6 +36,10 @@ interface IVehicle {
     uTurn(): void
 
     uTurnJump(): void
+
+    addListener<T extends IVehicleMessage>(listener: (message: T) => any): void
+
+    removeListener<T extends IVehicleMessage>(listener: (message: T) => any): void
 }
 
 export {IVehicle}
