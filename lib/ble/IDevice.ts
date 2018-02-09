@@ -10,8 +10,6 @@ interface IDevice {
 
     write(data: Buffer): Promise<void>
 
-    validate(serviceId: string): Promise<boolean>
-
 }
 
 export {IDevice}

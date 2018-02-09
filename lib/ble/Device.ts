@@ -34,7 +34,6 @@ class Device implements IDevice {
                             resolve(self)
                         })
                         .catch(reject)
-                    resolve(self)
                 }
             })
         })
@@ -44,9 +43,9 @@ class Device implements IDevice {
         const self = this
 
         return new Promise<IDevice>((resolve) => {
+            this.removeWrite()
+            this.removeRead()
             self._peripheral.disconnect(() => {
-                this.removeWrite()
-                this.removeRead()
                 this._listeners = []
                 this._connected = false
                 resolve(self)
@@ -72,22 +71,6 @@ class Device implements IDevice {
         })
     }
 
-    public validate(serviceId: string): Promise<boolean> {
-        const self = this
-
-        return new Promise<boolean>((resolve, reject) => {
-            self.connect().then(() => {
-                self._peripheral.discoverServices([serviceId], (error, services) => {
-                    if(error) {
-                        reject(error)
-                    } else {
-                        resolve(services.length > 0)
-                    }
-                })
-            }).catch(reject)
-        });
-    }
-
     private initCharacteristics(read?: string, write?: string): Promise<void> {
         const self = this
 
@@ -106,12 +89,11 @@ class Device implements IDevice {
 
                     if(read && !self._read) {
                         reject("Could not initialize read characteristic.")
-                    }
-                    if(write && !self._write) {
+                    } else if(write && !self._write) {
                         reject("Could not initialize write characteristic.")
+                    } else {
+                        resolve();
                     }
-
-                    resolve();
                 }
             })
 

@@ -79,10 +79,10 @@ class Vehicle implements IVehicle {
         const self = this
 
         return new Promise<Vehicle>((resolve, reject) => {
+            self.disableSdkMode()
+            self.removeAllListeners()
             self._device.disconnect()
                 .then(() => {
-                    self.disableSdkMode()
-                    self.removeAllListeners()
                     resolve(self)
                 }).catch(reject)
         });

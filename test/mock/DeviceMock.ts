@@ -10,10 +10,9 @@ class DeviceMock implements IDevice {
     private _listeners: Array<(data: Buffer) => any>
     private _responses = new Map<number, Buffer>()
 
-    public constructor(id = "", address = "", serviceId = ANKI_STR_SERVICE_UUID) {
+    public constructor(id = "", address = "") {
         this.id = id
         this.address = address
-        this._serviceId = serviceId
         this._listeners = []
     }
 
@@ -27,14 +26,6 @@ class DeviceMock implements IDevice {
         return new Promise<IDevice>(resolve => {
             resolve(this)
         })
-    }
-
-    public validate(serviceId: string): Promise<boolean> {
-        const self = this
-
-        return new Promise<boolean>(resolve => {
-            resolve(serviceId === self._serviceId)
-        });
     }
 
     public read(listener: (data: Buffer) => any): any {

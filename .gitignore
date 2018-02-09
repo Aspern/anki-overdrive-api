@@ -11,3 +11,6 @@ coverage/
 # Compiles sources
 lib/**/*.js
 test/**/*.js
+
+doc/
+

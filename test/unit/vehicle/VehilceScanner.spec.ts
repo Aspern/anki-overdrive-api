@@ -44,19 +44,6 @@ describe("VehicleScanner", () => {
             }).catch(done)
         })
 
-        it("finds only vehicles", (done) => {
-            const mock = new BluetoothMock([
-                new DeviceMock("", "", ""),
-                new DeviceMock("1")
-            ])
-            const vehicleScanner = new VehicleScanner(mock, 0)
-
-            vehicleScanner.findAll().then(vehicles => {
-                expect(vehicles.length).to.equal(1)
-                done()
-            }).catch(done)
-        })
-
     })
 
     describe("findById", () => {

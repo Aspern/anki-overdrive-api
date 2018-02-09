@@ -1,6 +1,5 @@
 import {IBluetooth, State} from "./IBluetooth";
 import * as noble from "noble";
-import {Peripheral} from "noble";
 import {IDevice} from "./IDevice";
 import {Device} from "./Device";
 
@@ -26,7 +25,13 @@ class Bluetooth implements IBluetooth {
         return new Promise<void>((resolve, reject) => {
             self.enableAdapter().then(() => {
                 noble.startScanning()
-                noble.on("discover", self.publishDevice)
+                noble.on("discover", (peripheral => {
+                    self._onDiscover(new Device(
+                        peripheral.id,
+                        peripheral.address,
+                        peripheral
+                    ))
+                }))
                 noble.on("error", self._onError)
                 resolve()
             }).catch(reject)
@@ -67,14 +72,6 @@ class Bluetooth implements IBluetooth {
 
     get state(): State {
         return this._state
-    }
-
-    private publishDevice(peripheral: Peripheral): void {
-        this._onDiscover(new Device(
-            peripheral.id,
-            peripheral.address,
-            peripheral
-        ))
     }
 
     private enableAdapter(): Promise<void> {

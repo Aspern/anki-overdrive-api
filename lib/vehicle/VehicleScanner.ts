@@ -5,7 +5,6 @@ import * as log4js from "log4js"
 import {IDevice} from "../ble/IDevice";
 import {IVehicle} from "./IVehicle";
 import {Vehicle} from "./Vehicle";
-import {ANKI_STR_SERVICE_UUID} from "../message/GattProfile";
 
 class VehicleScanner implements IVehicleScanner {
 
@@ -31,7 +30,7 @@ class VehicleScanner implements IVehicleScanner {
                     self.awaitScanning()
                         .then(resolve)
                         .catch(reject)
-                }).catch(reject)
+                }).catch()
         })
     }
 
@@ -40,8 +39,16 @@ class VehicleScanner implements IVehicleScanner {
 
         return new Promise<IVehicle>((resolve, reject) => {
             self.findAll()
-                .then(vehicles => resolve(vehicles.find(
-                    vehicle => vehicle.id === id)))
+                .then(vehicles => {
+                    console.dir(vehicles)
+                    const vehicle = vehicles.find(v => v.id === id)
+
+                    if(vehicle) {
+                        resolve(vehicle)
+                    } else {
+                        reject(new Error("Found no vehicle with id " + id))
+                    }
+                })
                 .catch(reject)
         })
     }
@@ -81,12 +88,14 @@ class VehicleScanner implements IVehicleScanner {
 
     private onDiscover(device: IDevice): void {
         const self = this
+        const vehicle = new Vehicle(device)
 
-        device.validate(ANKI_STR_SERVICE_UUID).then(valid => {
-            if(valid) {
-                self._vehicles.push(new Vehicle(device))
-            }
-        })
+        vehicle.connect().then(() => {
+            vehicle.disconnect()
+                .then(() => self._vehicles.push(vehicle))
+                .catch(self.onError)
+        }).catch(/*Device is no vehicle.*/)
+
     }
 
     private awaitScanning(): Promise<IVehicle[]> {
