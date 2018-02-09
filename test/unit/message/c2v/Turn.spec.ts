@@ -1,6 +1,6 @@
 import {expect} from "chai"
-import {ANKI_VEHICLE_MSG_C2V_TURN, TurnTrigger, TurnType} from "../../../../lib/message/Protocol"
-import {Turn} from "../../../../lib/message/c2v/Turn"
+import {ANKI_VEHICLE_MSG_C2V_TURN} from "../../../../lib/message/Protocol"
+import {Turn, TurnTrigger, TurnType} from "../../../../lib/message/c2v/Turn"
 
 describe("Turn", () => {
 

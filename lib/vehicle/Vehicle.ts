@@ -8,7 +8,7 @@ import {SdkMode} from "../message/c2v/SdkMode";
 import {BatteryLevelRequest} from "../message/c2v/BatteryLevelRequest";
 import {
     ANKI_VEHICLE_MSG_V2C_BATTERY_LEVEL_RESPONSE, ANKI_VEHICLE_MSG_V2C_PING_RESPONSE,
-    ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE, TurnType
+    ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
 } from "../message/Protocol";
 import {BatteryLevelResponse} from "../message/v2c/BatteryLevelResponse";
 import {MessageBuilder} from "../message/MessageBuilder";
@@ -18,7 +18,7 @@ import {VersionRequest} from "../message/c2v/VersionRequest";
 import {VersionResponse} from "../message/v2c/VersionResponse";
 import {SetOffsetFromRoadCenter} from "../message/c2v/SetOffsetFromRoadCenter";
 import {SetSpeed} from "../message/c2v/SetSpeed";
-import {Turn} from "../message/c2v/Turn";
+import {Turn, TurnType} from "../message/c2v/Turn";
 
 class Vehicle implements IVehicle {
 

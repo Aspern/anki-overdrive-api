@@ -1,7 +1,20 @@
 import {AbstractVehicleMessage} from "../AbstractVehicleMessage"
-import {ANKI_VEHICLE_MSG_C2V_TURN, TurnTrigger, TurnType} from "../Protocol"
+import {ANKI_VEHICLE_MSG_C2V_TURN} from "../Protocol"
 
 const ANKI_VEHICLE_MSG_C2V_TURN_SIZE   = 3
+
+enum TurnTrigger {
+    VEHICLE_TURN_TRIGGER_IMMEDIATE = 0,
+    VEHICLE_TURN_TRIGGER_INTERSECTION = 1
+}
+
+enum TurnType {
+    VEHICLE_TURN_NONE = 0,
+    VEHICLE_TURN_LEFT = 1,
+    VEHICLE_TURN_RIGHT = 2,
+    VEHICLE_TURN_UTURN = 3,
+    VEHICLE_TURN_UTURN_JUMP = 4
+}
 
 class Turn extends AbstractVehicleMessage {
 
@@ -21,4 +34,4 @@ class Turn extends AbstractVehicleMessage {
 
 }
 
-export {Turn}
+export {Turn, TurnType, TurnTrigger}

@@ -9,11 +9,12 @@ import {
     ANKI_VEHICLE_MSG_C2V_VERSION_REQUEST, ANKI_VEHICLE_MSG_V2C_BATTERY_LEVEL_RESPONSE,
     ANKI_VEHICLE_MSG_V2C_LOCALIZATION_POSITION_UPDATE,
     ANKI_VEHICLE_MSG_V2C_PING_RESPONSE,
-    ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE, TurnType
+    ANKI_VEHICLE_MSG_V2C_VERSION_RESPONSE
 } from "../../../lib/message/Protocol";
 import {LocalizationPositionUpdate} from "../../../lib/message/v2c/LocalizationPositionUpdate";
 import {SetSpeed} from "../../../lib/message/c2v/SetSpeed";
 import * as sinon from "sinon"
+import {TurnType} from "../../../lib/message/c2v/Turn";
 
 describe("Vehicle", () => {
 
