@@ -24,7 +24,7 @@ Changes in the API are tracked in a [Changelog](./CHANGELOG.md).
 
 ### Documentation
 
-The current documentation of the API can be found [here](./docs/index.html)
+The current documentation of the API can be found [here](https://aspern.github.io/anki-overdrive-api/)
 
 ### Usage
 
@@ -61,7 +61,7 @@ scanner.findById("df6as5fda").then(vehicle => {
 #### Controlling Vehicles
 
 After connecting the vehicles they can execute several commands like changing the speed or
-lane. See the []documentation](./docs/index.html to see all commands.
+lane. See the [documentation](https://aspern.github.io/anki-overdrive-api/) to see all commands.
 
 ```typescript
 // First the vehicle has to be connected
