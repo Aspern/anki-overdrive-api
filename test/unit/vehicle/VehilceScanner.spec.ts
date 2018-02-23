@@ -5,11 +5,11 @@ import {DeviceMock} from "../../mock/DeviceMock";
 
 describe("VehicleScanner", () => {
 
-    it("uses default timeout of 1,5 seconds", () => {
+    it("uses default timeout of 0,5 seconds", () => {
         const mock = new BluetoothMock()
         const vehicleScanner = new VehicleScanner(mock)
 
-        expect(vehicleScanner.timeout).to.equal(1500)
+        expect(vehicleScanner.timeout).to.equal(500)
     })
 
     it("can initialize with a custom timeout", () => {
@@ -33,8 +33,8 @@ describe("VehicleScanner", () => {
 
         it("finds all available vehicles", (done) => {
             const mock = new BluetoothMock([
-                new DeviceMock(),
-                new DeviceMock()
+                new DeviceMock("1"),
+                new DeviceMock("2")
             ])
             const vehicleScanner = new VehicleScanner(mock, 0)
 
