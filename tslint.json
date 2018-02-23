@@ -1,0 +1,31 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "arrow-parens": ["ban-single-arg-parens"],
+    "eofline": false,
+    "interface-name": [true],
+    "no-shadowed-variable": false,
+    "no-empty": false,
+    "no-var-requires": false,
+    "max-line-length": [true, 140],
+    "no-unused-expression": false,
+    "semicolon": false,
+    "trailing-comma": [false],
+    "ordered-imports": false,
+    "member-ordering": [true, "public-static-method"],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ],
+    "indent": [true, "spaces"],
+    "whitespace": [
+      true,
+      "check-operator",
+      "check-decl",
+      "check-type",
+      "check-preblock"
+    ]
+  }
+}

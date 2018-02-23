@@ -1,20 +1,16 @@
-# npm and nodejs
-node_modules
-ts-node
-coverage
-*.log
+# Node
+node_modules/
 
-# webstorm
-.idea
+# Idea developer tools
+.idea/
 
-# Typescript
-dist
-docs
-src/**/*.js
-src/**/*.js.map
-src/**/*.d.ts
+# Istanbul code coverage
+.nyc_output/
+coverage/
+
+# Compiles sources
 test/**/*.js
-test/**/*.d.ts
-test/**/*.js.map
+src/**/*.js
+lib/
 
-out/
+

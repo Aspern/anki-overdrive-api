@@ -1,147 +1,134 @@
-# Anki OVERDRIVE API
+<p align="center"><a href="https://vuejs.org" target="_blank"><img width="200" src="https://www.versicherungsforen.net/portal/media/netzwerk/unternehmenslogo/nichtversicherer/logo_msg_20081016.jpg" alt="msg logo"></a></p>
 
-Provides functions from the Anki drive SDK (see https://github.com/anki/drive-sdk) 
-in Nodejs. The API depends on noble which uses Bluetooth LE functions for Linux and Mac OS.
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/npm/l/vue.svg" alt="License"></a>
+</p>
 
-##Prerequisites
-
-Following global packages are required to build the project.
-
-       $ npm install -g glup-cli
-       $ npm install -g gulp-typescript
-       $ npm install -g typescript
+## Anki Overdrive API
 
 
-**Important**: Please follow also the prerequisites on (https://github.com/sandeepmistry/noble) for 
-setting up the BLE environment for your operating system. Especially the part with the admin 
-rights for noble.
+### Prerequisites
 
-##Install & Build
+- Bluetooth Low Enerty (BLE) Adapter
+- Some modifications to get BLE running in your OS (see [noble](https://github.com/noble/noble))
 
-The API is build using nodejs and npm, install the project using following commands.
+### Install
 
-        $ git clone https://github.com/Aspern/anki-overdrive-api.git
-        $ cd anki-overdrive-api
-        $
-        $ npm install
-        $ gulp
-
-##Testing
-Consider, that most of the tests are going to be executed on a hardware device.
-Therefore please enable your vehicles and put them on a track, before starting the tests.
-The global test for the whole API can be started with following command. Please read the test 
-section of each module before starting all tests or a module specific test.
-
-        $ npm test
-        
-The tests for a specific module can be executed with the command.
-
-        $ npm run test-<module>
-        
-##Overview
-
-The project consists of several modules. Please have a look on the specific module 
-for more information, documentation and examples.
-
-- [Core Module](./src/core/README.md) - Contains all functions to create connections to vehicles 
-and sending/receiving messages from them.
-
-- [Controller Module](./src/controller/README.md) - Contains any classes to control the vehicles,
- for example with command line or a kafka message queue.
-
-- [Script Module](./src/script/README.md) - Any runnable code/algorithm for specific scenrios or 
-tasks. Like for example getting information about vehicles in the network.
-
-## Settings
-The settings are stored in a JSON file called <code>resource/settings.json.</code>. 
-In addition, any of your own files can be created and imported. Following settings are used by 
-the Controller and Core package:
-
-```json
-{
-  // [...]
-  "setup": {
-    "uuid": "ao-identifer",
-    "vehicles": [
-      {
-        "uuid": "eb401ef0f82b",
-        "address": "eb:40:1e:f0:f8:2b",
-        "name": "Ground Shock",
-        "offset" : -68.0
-      },
-      // mroe vehicles...
-    ],
-    "track": {
-      "pieces": [
-        {
-          "type": "start",
-          "pieceId": 33
-        },
-        {
-          "type": "curve",
-          "pieceId": 18
-        },
-        // more pieces ...
-        {
-          "type": "finish",
-          "pieceId": 34
-        }
-      ]
-    }
-  },
-  // [...]
-}
+```
+npm install anki-overdrive-api --save
 ```
 
- - <code>setup</code> Describes a whole setup including all available vehicles and the track. 
- This object exists only once per file, the structure for vehicles and the track is given (see 
- above).
-    - <code>uuid</code> Unique identifier to connect a setup with a backend-server.
-    - <code>vehicles</code> List of vehicles belonging to this setup.
-        - <code>uuid</code> Identifier of the vehicle for Bluetooth Le.
-        - <code>address</code> Bluetooth LE address for the vehicle.
-        - <code>name</code> In contrast to the ID and the address, the name of a vehicle can be 
-        freely selected.
-        - <code>offset</code> The offset position when the vehicle is placed on the track for the
-        first time. If, for example, the vehicle is placed on the outer line, the value is 68.0.
-    - <code>track</code> Description of the track, belonging to this setup. The track is **not**
-    automatically detected, a list of the right pieces must be specified here..
-        - <code>type</code> Type of the piece, allow values are "start","finish","curve" 
-        and "straight".
-        - <code>pieceId</code> The ID for the piece. This value should be printed on the back of 
-        each piece. If not you have to find out it by reading the `PositionUpdateMessage`.
-         
-There are also settings for the script-module. You can change some values to modify the 
-specified scripts, please don't change any keys here.
+### Changelog
 
-```json
-{
-  // [...]
-  "utils": {
-    "measureTrack": {
-      "resultHandler": "console"
-    },
-    "measureQuality": {
-      "minSpeed": 600,
-      "maxSpeed": 1200,
-      "increment": 100,
-      "rounds": 20
-    }
-  },
-  // [...]
-}
+Changes in the API are tracked in a [Changelog](./CHANGELOG.md).
+
+### Documentation
+
+The current documentation of the API can be found [here](./docs/index.html)
+
+### Usage
+
+The API implements the current specification of the official Anki Overdrive Drive  [SDK](https://github.com/anki/drive-sdk).
+The API can be used to find and control vehicles in the BLE network.
+
+#### Searching vehicles
+
+Use the `VehicleScanner` class to search for vehicles in the BLE network.
+
+```typescript
+import {Bluetooth, VehicleScanner} from "anki-overdrive-api"
+
+const bluetooth = new Bluetooth()
+const scanner = new VehicleScanner(bluetooth)
+
+scanner.findAll().then(vehicles => {
+    // Do something with vehicles...
+}).catch(/* Handle Errors */)
 ```
 
-- `utils` describes settings for the script module.
-    - `measureTrack` Specific settings for the measure-track script.
-        - `resultHandler` The short name for the implementation of the result handler, allow 
-        values are "console" and "file".
-    - `measureQuality` Specific settings for the measure-message-quality script.
-        - `minSpeed` The lowest speed for testing message quality.
-        - `maxSpeed` The fastest speed for testing message quality.
-        - `increment` Speed ​​increase for each pass. If the last measurements are carried out 
-        with 600 mm / sec, the next measurements are carried out with 600 + `increment`.
-        - `rounds` Number of rounds for each pass and speed.
+Vehicles can also be found by using the device address or id.
 
-Some of the scripts are using deprecated settings, these are marked in the `settings.json` file 
-and should **not** be used any more!
+```typescript
+scanner.findByAddress("42:e2:b6:q7").then(vehicle => {
+    // Do something with vehicle...
+})
+
+scanner.findById("df6as5fda").then(vehicle => {
+    // Do something with vehicle...
+})
+```
+
+#### Controlling Vehicles
+
+After connecting the vehicles they can execute several commands like changing the speed or
+lane. See the []documentation](./docs/index.html to see all commands.
+
+```typescript
+// First the vehicle has to be connected
+vehicle.connect().then(() => {
+    
+    vehicle.setSpeed(500)
+    
+    // Vehicles are using offset for positioning.
+    vehicle.changeLane(-68.0)
+   
+})
+```
+
+The vehicles can also send messages if they changes their position. Therefore a listener has
+to be registered on the vehicle.
+
+```typescript
+
+vehicle.addListener((message:LocalizationPositionUpdate) => {
+    console.log("drove over piece: " + message.roadPieceId)
+    console.log("drove over location: " + message.locationId)
+    console.log("current speed: " + message.speedMmPerSec)
+  
+    // Do something else with the message...
+})
+
+```
+
+### Testing
+
+The API can be tested with unit tests or end-to-end (e2e) tests. Code coverage is also supported.
+
+#### Run unit tests
+
+```
+npm t
+```
+
+or with code coverage
+
+```
+npm run test:coverage
+```
+
+#### Run e2e tests
+
+```
+npm run test:e2e
+```
+
+**Note:** You need to specify at least one vehicle in the settings.json in `test/e2e/resources`.
+The vehicle has to be online and full charged placed on the track. 
+
+
+### Developing
+
+Clone the repo and install the dependencies, please follow the instructions from the prerequisites
+section to avoid problems concerning the BLE adapter.
+
+```
+git clone https://github.com/Aspern/anki-overdrive-api.git
+cd anki-overdrive-api
+npm i
+```
+
+### Licence
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright &copy; 2017-present, msg systems ag
