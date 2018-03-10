@@ -64,7 +64,88 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="anki-overdrive-api">Anki Overdrive API</h1>
+				<p align="center"><a href="https://vuejs.org" target="_blank"><img width="200" src="https://www.versicherungsforen.net/portal/media/netzwerk/unternehmenslogo/nichtversicherer/logo_msg_20081016.jpg" alt="msg logo"></a></p>
+				<p align="center">
+					<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/npm/l/vue.svg" alt="License"></a>
+				</p>
+				<h2 id="anki-overdrive-api">Anki Overdrive API</h2>
+				<h3 id="prerequisites">Prerequisites</h3>
+				<ul>
+					<li>Bluetooth Low Enerty (BLE) Adapter</li>
+					<li>Some modifications to get BLE running in your OS (see <a href="https://github.com/noble/noble">noble</a>)</li>
+				</ul>
+				<h3 id="install">Install</h3>
+				<pre><code>npm <span class="hljs-keyword">install</span> anki-overdrive-api <span class="hljs-comment">--save</span>
+</code></pre><h3 id="changelog">Changelog</h3>
+				<p>Changes in the API are tracked in a <a href="./CHANGELOG.md">Changelog</a>.</p>
+				<h3 id="documentation">Documentation</h3>
+				<p>The current documentation of the API can be found <a href="https://aspern.github.io/anki-overdrive-api/">here</a></p>
+				<h3 id="usage">Usage</h3>
+				<p>The API implements the current specification of the official Anki Overdrive Drive  <a href="https://github.com/anki/drive-sdk">SDK</a>.
+				The API can be used to find and control vehicles in the BLE network.</p>
+				<h4 id="searching-vehicles">Searching vehicles</h4>
+				<p>Use the <code>VehicleScanner</code> class to search for vehicles in the BLE network.</p>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> {Bluetooth, VehicleScanner} <span class="hljs-keyword">from</span> <span class="hljs-string">"anki-overdrive-api"</span>
+
+<span class="hljs-keyword">const</span> bluetooth = <span class="hljs-keyword">new</span> Bluetooth()
+<span class="hljs-keyword">const</span> scanner = <span class="hljs-keyword">new</span> VehicleScanner(bluetooth)
+
+scanner.findAll().then(<span class="hljs-function"><span class="hljs-params">vehicles</span> =&gt;</span> {
+    <span class="hljs-comment">// Do something with vehicles...</span>
+}).catch(<span class="hljs-comment">/* Handle Errors */</span>)
+</code></pre>
+				<p>Vehicles can also be found by using the device address or id.</p>
+				<pre><code class="lang-typescript">scanner.findByAddress(<span class="hljs-string">"42:e2:b6:q7"</span>).then(<span class="hljs-function"><span class="hljs-params">vehicle</span> =&gt;</span> {
+    <span class="hljs-comment">// Do something with vehicle...</span>
+})
+
+scanner.findById(<span class="hljs-string">"df6as5fda"</span>).then(<span class="hljs-function"><span class="hljs-params">vehicle</span> =&gt;</span> {
+    <span class="hljs-comment">// Do something with vehicle...</span>
+})
+</code></pre>
+				<h4 id="controlling-vehicles">Controlling Vehicles</h4>
+				<p>After connecting the vehicles they can execute several commands like changing the speed or
+				lane. See the <a href="https://aspern.github.io/anki-overdrive-api/">documentation</a> to see all commands.</p>
+				<pre><code class="lang-typescript"><span class="hljs-comment">// First the vehicle has to be connected</span>
+vehicle.connect().then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+
+    vehicle.setSpeed(<span class="hljs-number">500</span>)
+
+    <span class="hljs-comment">// Vehicles are using offset for positioning.</span>
+    vehicle.changeLane(<span class="hljs-number">-68.0</span>)
+
+})
+</code></pre>
+				<p>The vehicles can also send messages if they changes their position. Therefore a listener has
+				to be registered on the vehicle.</p>
+				<pre><code class="lang-typescript">
+vehicle.addListener(<span class="hljs-function">(<span class="hljs-params">message:LocalizationPositionUpdate</span>) =&gt;</span> {
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"drove over piece: "</span> + message.roadPieceId)
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"drove over location: "</span> + message.locationId)
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"current speed: "</span> + message.speedMmPerSec)
+
+    <span class="hljs-comment">// Do something else with the message...</span>
+})
+</code></pre>
+				<h3 id="testing">Testing</h3>
+				<p>The API can be tested with unit tests or end-to-end (e2e) tests. Code coverage is also supported.</p>
+				<h4 id="run-unit-tests">Run unit tests</h4>
+				<pre><code><span class="hljs-built_in">npm</span> t
+</code></pre><p>or with code coverage</p>
+				<pre><code>npm <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-built_in">test</span>:coverage</span>
+</code></pre><h4 id="run-e2e-tests">Run e2e tests</h4>
+				<pre><code>npm <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-built_in">test</span>:e2e</span>
+</code></pre><p><strong>Note:</strong> You need to specify at least one vehicle in the settings.json in <code>test/e2e/resources</code>.
+				The vehicle has to be online and full charged placed on the track. </p>
+				<h3 id="developing">Developing</h3>
+				<p>Clone the repo and install the dependencies, please follow the instructions from the prerequisites
+				section to avoid problems concerning the BLE adapter.</p>
+				<pre><code>git <span class="hljs-keyword">clone</span> <span class="hljs-title">https</span>://github.com/Aspern/anki-overdrive-api.git
+cd anki-overdrive-api
+npm i
+</code></pre><h3 id="licence">Licence</h3>
+				<p><a href="https://opensource.org/licenses/MIT">MIT</a></p>
+				<p>Copyright &copy; 2017-present, msg systems ag</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
