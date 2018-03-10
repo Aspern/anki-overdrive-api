@@ -3,6 +3,11 @@ import * as noble from "noble";
 import {IDevice} from "./IDevice";
 import {Device} from "./Device";
 
+/**
+ * Bluetooth environment using noble.js.
+ *
+ * @since 1.0.0
+ */
 class Bluetooth implements IBluetooth {
 
     private _onDiscover: (device: IDevice) => any
@@ -11,6 +16,13 @@ class Bluetooth implements IBluetooth {
     private _timeout: number
     private _retries = 3
 
+    /**
+     * Creates a instance that represents a the local bluetooth environment.
+     *
+     * @param onDiscover Callback if device is discovered
+     * @param onError Callback if error occurs
+     * @param timeout Time to wait for connected bluetooth adapter
+     */
     public constructor(onDiscover: (device: IDevice) => any = () => {},
                        onError = () => {},
                        timeout = 500) {
@@ -19,6 +31,7 @@ class Bluetooth implements IBluetooth {
         this._timeout = timeout
     }
 
+    /** @inheritdoc */
     public startScanning(serviceUUIDS?: string[]): Promise<void> {
         const self = this
         const uuids = serviceUUIDS || []
@@ -40,6 +53,7 @@ class Bluetooth implements IBluetooth {
         })
     }
 
+    /** @inheritdoc */
     public stopScanning(): Promise<void> {
         const self = this
 
@@ -76,6 +90,13 @@ class Bluetooth implements IBluetooth {
         return this._state
     }
 
+    /**
+     * Enables the local bluetooth adapter. Returns promise that resolves, if the adapter is online or rejects if
+     *  * The [[_timeout]] is reached
+     *  * The number of [[_retries]] is reached
+     *
+     * @returns State if adapter is enabled
+     */
     private enableAdapter(): Promise<void> {
         const self = this
         let interval: any

@@ -28,7 +28,7 @@ class DeviceMock implements IDevice {
         })
     }
 
-    public read(listener: (data: Buffer) => any): any {
+    public read(listener: (data: Buffer) => any) {
         this._listeners.push(listener)
     }
 

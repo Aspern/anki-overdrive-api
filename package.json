@@ -13,7 +13,7 @@
     "test": "tsc -p test && mocha test/unit/**/*.spec.js --exit",
     "test:e2e": "tsc -p . && mocha test/e2e/**/*spec.js",
     "test:coverage": "nyc npm t",
-    "docs": "typedoc --out docs src",
+    "docs": "typedoc --out docs src --mode file && node post-process-docs",
     "build": "tsc",
     "prepare": "npm run build"
   },
@@ -23,6 +23,7 @@
     "@types/node": "^8.5.7",
     "@types/sinon": "^4.1.3",
     "chai": "^4.1.2",
+    "create-file": "^1.0.1",
     "mocha": "^4.1.0",
     "nyc": "^11.4.1",
     "sinon": "^4.2.1",
