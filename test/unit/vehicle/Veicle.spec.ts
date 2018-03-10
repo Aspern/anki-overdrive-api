@@ -18,47 +18,59 @@ import {TurnType} from "../../../lib/message/c2v/Turn";
 
 describe("Vehicle", () => {
 
-    it("uses offset 0 as default", () => {
-        const vehicle = new Vehicle(new DeviceMock())
+    describe('constructor', () => {
 
-        expect(vehicle.offset).to.equal(0)
+        it("uses offset 0 as default", () => {
+            const vehicle = new Vehicle(new DeviceMock())
+
+            expect(vehicle.offset).to.equal(0)
+        })
+
+        it("has no name by default", () => {
+            const vehicle = new Vehicle(new DeviceMock())
+
+            expect(vehicle.name).to.be.empty
+        })
+
+        it("takes the id from ble device", () => {
+            const id = "4711"
+            const vehicle = new Vehicle(new DeviceMock(id))
+
+            expect(vehicle.id).to.equal(id)
+        })
+
+        it("takes address from ble device", () => {
+            const address = "47:65:d4:a9"
+            const vehicle = new Vehicle(new DeviceMock("", address))
+
+            expect(vehicle.address).to.equal(address)
+        })
+
+        it("sends timeout if no response is received after 1500ms", (done) => {
+            const device = new DeviceMock()
+            const vehicle = new Vehicle(device)
+
+            vehicle.connect().then(() => {
+                vehicle.queryPing().then(() => {
+                    done(new Error("Should not be received."))
+                }).catch(error => {
+                    expect(error.message).to.contain("timeout")
+                    done()
+                })
+                device.disconnect()
+                    .catch(done)
+            }).catch(done)
+        })
+
+        it('is not connected', () => {
+            const device = new DeviceMock()
+            const vehicle = new Vehicle(device)
+
+            expect(vehicle.connected).to.be.false
+        })
     })
 
-    it("has no name by default", () => {
-        const vehicle = new Vehicle(new DeviceMock())
 
-        expect(vehicle.name).to.be.empty
-    })
-
-    it("takes the id from ble device", () => {
-        const id = "4711"
-        const vehicle = new Vehicle(new DeviceMock(id))
-
-        expect(vehicle.id).to.equal(id)
-    })
-
-    it("takes address from ble device", () => {
-        const address = "47:65:d4:a9"
-        const vehicle = new Vehicle(new DeviceMock("", address))
-
-        expect(vehicle.address).to.equal(address)
-    })
-
-    it("sends timeout if no response is received after 1500ms", (done) => {
-        const device = new DeviceMock()
-        const vehicle = new Vehicle(device)
-
-        vehicle.connect().then(() => {
-            vehicle.queryPing().then(() => {
-                done(new Error("Should not be received."))
-            }).catch(error => {
-                expect(error.message).to.contain("timeout")
-                done()
-            })
-            device.disconnect()
-                .catch(done)
-        }).catch(done)
-    })
 
     describe("cancelLaneChange", () => {
 
@@ -150,9 +162,9 @@ describe("Vehicle", () => {
 
             vehicle.connect().then(() => {
                 vehicle.changeLane(0)
-                const accleration = device.data.readUInt16LE(4)
+                const acceleration = device.data.readUInt16LE(4)
 
-                expect(accleration).to.equals(300)
+                expect(acceleration).to.equals(300)
                 done()
             }).catch(done)
         })
@@ -224,6 +236,15 @@ describe("Vehicle", () => {
             }).catch(done)
         })
 
+        it("state connected is true", (done) => {
+            const vehicle = new Vehicle(new DeviceMock())
+
+            vehicle.connect().then(() => {
+                expect(vehicle.connected).to.be.true
+                done()
+            }).catch(done)
+        })
+
     })
 
     describe("disableSdkMode", () => {
@@ -263,6 +284,15 @@ describe("Vehicle", () => {
 
             vehicle.disconnect().then((self) => {
                 expect(self).to.equal(vehicle)
+                done()
+            }).catch(done)
+        })
+
+        it("state connected is false", (done) => {
+            const vehicle = new Vehicle(new DeviceMock())
+
+            vehicle.disconnect().then(() => {
+                expect(vehicle.connected).to.be.false
                 done()
             }).catch(done)
         })

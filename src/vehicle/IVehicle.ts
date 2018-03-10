@@ -3,6 +3,7 @@ import {IVehicleMessage} from "../message/IVehicleMessage";
 interface IVehicle {
 
     address: string
+    connected: boolean
     id: string
     name: string
     offset: number

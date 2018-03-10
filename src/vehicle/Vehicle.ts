@@ -22,10 +22,11 @@ import {Turn, TurnType} from "../message/c2v/Turn";
 
 class Vehicle implements IVehicle {
 
-    public readonly address: string;
-    public readonly id: string;
-    public readonly name: string;
-    private _offset: number;
+    public readonly address: string
+    public readonly id: string
+    public readonly name: string
+    private _connected: boolean
+    private _offset: number
     private _device: IDevice
     private _listeners: Array<(message: any) => any>
     private _builder: MessageBuilder
@@ -38,6 +39,7 @@ class Vehicle implements IVehicle {
         this.address = device.address
         this._listeners = []
         this._builder = new MessageBuilder()
+        this._connected = false
     }
 
     public cancelLaneChange(): void {
@@ -65,6 +67,7 @@ class Vehicle implements IVehicle {
             ).then(() =>  {
                 self.enableSdkMode()
                 self._device.read((data) => self.readAndPublish(data))
+                self._connected = true
                 resolve(self)
             }).catch(reject)
         });
@@ -82,6 +85,7 @@ class Vehicle implements IVehicle {
             self.removeAllListeners()
             self._device.disconnect()
                 .then(() => {
+                    this._connected = false
                     resolve(self)
                 }).catch(reject)
         });
@@ -184,6 +188,10 @@ class Vehicle implements IVehicle {
 
     public removeListener<T extends IVehicleMessage>(listener: (message: T) => any): void {
         this._listeners = this._listeners.filter(l => listener !== l)
+    }
+
+    get connected(): boolean {
+        return this._connected
     }
 
     private removeAllListeners(): void {
