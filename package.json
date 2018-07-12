@@ -1,6 +1,6 @@
 {
   "name": "anki-overdrive-api",
-  "version": "1.0.0",
+  "version": "1.0.1-beta.1",
   "description": "API for Anki Overdrive developer interface",
   "author": "Adrian Weber <adrian.weber@msg.group>",
   "license": "MIT",
