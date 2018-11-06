@@ -17,30 +17,29 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.0",
-    "@types/mocha": "^2.2.46",
-    "@types/node": "^8.5.7",
-    "@types/sinon": "^4.1.3",
-    "@types/sinon-chai": "^2.7.29",
-    "chai": "^4.1.2",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.2",
+    "@types/sinon": "^5.0.5",
+    "@types/sinon-chai": "^3.2.0",
+    "chai": "^4.2.0",
     "create-file": "^1.0.1",
-    "mocha": "^4.1.0",
-    "nyc": "^11.4.1",
-    "sinon": "^4.2.1",
-    "sinon-chai": "^3.0.0",
-    "source-map-support": "^0.5.0",
-    "testdouble": "^3.3.1",
-    "ts-node": "^4.1.0",
-    "tslint": "^5.8.0",
-    "typescript": "^2.6.2",
-    "typings": "^1.3.1"
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "sinon": "^7.1.1",
+    "sinon-chai": "^3.2.0",
+    "source-map-support": "^0.5.9",
+    "testdouble": "^3.8.2",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.6"
   },
   "dependencies": {
-    "@types/noble": "0.0.34",
-    "@types/websocket": "0.0.36",
-    "@types/ws": "^4.0.0",
-    "noble": "^1.8.1",
-    "websocket": "^1.0.25"
+    "@types/noble": "^0.0.37",
+    "@types/websocket": "^0.0.40",
+    "@types/ws": "^6.0.1",
+    "noble": "^1.9.1",
+    "websocket": "^1.0.28"
   },
   "nyc": {
     "exclude": [
