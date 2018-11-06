@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/npm/l/vue.svg" alt="License"></a>
-  <img src="https://travis-ci.com/Aspern/anki-overdrive-api.svg?branch=master">
+  <img src="https://travis-ci.org/Aspern/anki-overdrive-api.svg?branch=master">
 </p>
 
 
