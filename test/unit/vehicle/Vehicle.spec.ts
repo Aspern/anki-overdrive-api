@@ -15,10 +15,11 @@ import {LocalizationPositionUpdate} from "../../../lib/message/v2c/LocalizationP
 import {SetSpeed} from "../../../lib/message/c2v/SetSpeed";
 import * as sinon from "sinon"
 import {TurnType} from "../../../lib/message/c2v/Turn";
+import {Error} from "tslint/lib/error";
 
 describe("Vehicle", () => {
 
-    describe('constructor', () => {
+    describe("constructor", () => {
 
         it("uses offset 0 as default", () => {
             const vehicle = new Vehicle(new DeviceMock())
@@ -62,15 +63,13 @@ describe("Vehicle", () => {
             }).catch(done)
         })
 
-        it('is not connected', () => {
+        it("is not connected", () => {
             const device = new DeviceMock()
             const vehicle = new Vehicle(device)
 
             expect(vehicle.connected).to.be.false
         })
     })
-
-
 
     describe("cancelLaneChange", () => {
 

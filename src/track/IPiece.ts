@@ -33,6 +33,14 @@ interface IPiece {
      */
     reversed: boolean
 
+    distance(locationId1: number, locationId2: number): number
+
+    getFirstLocationId(index: number): number
+
+    getLastLocationId(index: number): number
+
+    getIndexByLocationId(locationId: number): number
+
     /**
      * Reverses the locations matrix, needed if a piece is connected with a different orientation. Changes the [[reversed]]
      * state after execution.

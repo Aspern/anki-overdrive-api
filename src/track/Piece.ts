@@ -44,8 +44,34 @@ abstract class Piece implements IPiece {
         this._previous = piece
     }
 
+    public distance(locationId1: number, locationId2: number): number {
+        return Math.abs(
+            this.getIndexByLocationId(locationId1)
+            - this.getIndexByLocationId(locationId2)
+        )
+    }
+
+    public getFirstLocationId(index: number): number {
+        if(!this._locations[index]) {
+            throw new Error(`Index [${index}] is out of bound.`)
+        }
+        return this._locations[index][0]
+    }
+
+    public getLastLocationId(index: number): number {
+        return this._locations[index][this._locations[index].length - 1]
+    }
+
     get reversed(): boolean {
         return this._reversed
+    }
+
+    public getIndexByLocationId(locationId: number): number {
+        for(let i = 0; i < this._locations.length; i++) {
+            const index = this.locations[i].indexOf(locationId)
+            if(index >= 0) { return index } 1
+        }
+        throw new Error(`Location with id [${locationId}] does not exist.`)
     }
 
 }

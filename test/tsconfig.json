@@ -20,6 +20,7 @@
 
     /* Strict Type-Checking Options */
     "strictPropertyInitialization": false,
+    "strictNullChecks": false,
     "strict": true                           /* Enable all strict type-checking options. */
     // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
     // "strictNullChecks": true,              /* Enable strict null checks. */
