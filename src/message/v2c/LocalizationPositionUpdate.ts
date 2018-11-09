@@ -11,7 +11,7 @@ class LocalizationPositionUpdate extends AbstractVehicleMessage {
     public readonly lastExecLaneChangeCmdId: number
     public readonly lastDesiredLaneChangeSpeedMmPerSec: number
     public readonly lastDesiredSpeedMmPerSec: number
-    private distance: number
+    public distance: number
 
     public constructor(vehicleId: string, payload: Buffer) {
         super(vehicleId, payload)
