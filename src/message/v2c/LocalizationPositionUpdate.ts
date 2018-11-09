@@ -11,6 +11,7 @@ class LocalizationPositionUpdate extends AbstractVehicleMessage {
     public readonly lastExecLaneChangeCmdId: number
     public readonly lastDesiredLaneChangeSpeedMmPerSec: number
     public readonly lastDesiredSpeedMmPerSec: number
+    private distance: number
 
     public constructor(vehicleId: string, payload: Buffer) {
         super(vehicleId, payload)
@@ -25,6 +26,11 @@ class LocalizationPositionUpdate extends AbstractVehicleMessage {
         this.lastDesiredLaneChangeSpeedMmPerSec = payload.readUInt16LE(13)
         this.lastDesiredSpeedMmPerSec = payload.readUInt16LE(15)
     }
+
+    public setDistance(distance: number): void {
+        this.distance = distance
+    }
+
 }
 
 export {LocalizationPositionUpdate}
