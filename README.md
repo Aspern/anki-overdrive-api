@@ -132,5 +132,3 @@ npm i
 ### Licence
 
 [MIT](https://opensource.org/licenses/MIT)
-
-Copyright &copy; 2017-present, msg systems ag
